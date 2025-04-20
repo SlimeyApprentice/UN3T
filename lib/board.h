@@ -1,17 +1,19 @@
+#ifndef BOARD_H
+#define BOARD_H
+
 typedef enum {
     ALPHA_ONE,
-    ALPHA_TWO,
-    ALPHA_THREE,
     BRAVO_ONE,
-    BRAVO_TWO,
-    BRAVO_THREE,
     CHARLIE_ONE,
+    ALPHA_TWO,
+    BRAVO_TWO,
     CHARLIE_TWO,
+    ALPHA_THREE,
+    BRAVO_THREE,
     CHARLIE_THREE,
 } Position;
 
 typedef enum {
-    BLANK,
     X,
     O,
     DRAW,
@@ -29,5 +31,14 @@ typedef struct {
         Board *cells[9];
         Verdict state;
     };
-    int depth;
+    int depth; //how many layers *inwards*, not outwards
 } Board;
+
+typedef struct {
+    Position coordinate;
+    Move *next;
+} Move;
+
+int move(Board *board, Move *move);
+
+#endif // BOARD_H
