@@ -18,6 +18,7 @@ typedef enum {
 } Verdict;
 
 typedef enum {
+    BLANK,
     UNDECIDED,
     DECIDED,
 } Status;
