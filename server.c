@@ -3,8 +3,9 @@
 
 int main() {
     Board *board = NULL;
-    Position move;
-    scanf("%s", move);
-    
+    Position *mantissa;
+    scanf("%d", mantissa);
+    move(board, mantissa, X);
+    printf(board->cells[*mantissa]);
     return 0;
 }
