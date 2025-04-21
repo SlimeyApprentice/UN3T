@@ -3,17 +3,18 @@
 
 typedef enum {
     ALPHA_ONE,
-    BRAVO_ONE,
-    CHARLIE_ONE,
     ALPHA_TWO,
-    BRAVO_TWO,
-    CHARLIE_TWO,
     ALPHA_THREE,
+    BRAVO_ONE,
+    BRAVO_TWO,
     BRAVO_THREE,
+    CHARLIE_ONE,
+    CHARLIE_TWO,
     CHARLIE_THREE,
 } Position;
 
 typedef enum {
+    EMPTY,
     X,
     O,
     DRAW,
@@ -25,20 +26,26 @@ typedef enum {
     DECIDED,
 } Status;
 
-typedef struct {
+typedef struct Board {
+    struct Board *parent;
+    Position address;
     Status status;
     union {
-        Board *cells[9];
+        struct Board *cells[9];
         Verdict state;
     };
+    int x_scores[8];
+    int o_scores[8];
     int depth; //how many layers *inwards*, not outwards
 } Board;
 
-typedef struct {
+typedef struct Move {
     Position coordinate;
-    Move *next;
+    struct Move *next;
 } Move;
 
-int move(Board *board, Move *move);
+int judge(Board *board, Position play, Verdict player);
+
+int move(Board *board, Move *move, Verdict player);
 
 #endif // BOARD_H
