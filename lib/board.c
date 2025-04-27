@@ -1,54 +1,21 @@
 #include "board.h"
 
-int judge(Board *board, Position play, Verdict player) {
-    while (1) {
-        Verdict winner = BLANK;
-        if (player == X || player == DRAW) {
-            board->x_scores[play % 3] += 1;
-            board->x_scores[3 + (play / 3)] += 1;
-            if (play % 3 == play / 3) board->x_scores[7] += 1;
-            if (play % 3 + play / 3 == 3) board->x_scores[8] += 1;
-        }
-        if (player == X || player == DRAW) {
-            board->o_scores[play % 3] += 1;
-            board->o_scores[3 + (play / 3)] += 1;
-            if (play % 3 == play / 3) board->o_scores[7] += 1;
-            if ((play % 3 + play / 3) == 2) board->o_scores[8] += 1;
-        }
-        for (int i=0; i<8; i++) {
-            if (board->x_scores[i] > 3 || board->o_scores[i] > 3) {
-                return 0/0;
-            }
-            if (board->x_scores[i] == 3) {
-                winner |= X;
-            }
-            if (board->o_scores[i] == 3) {
-                winner |= O;
-            }
-        }
-        if (winner) {
-            player = winner;
-            play = board->address;
-            board = board->parent;
-        }
-        else {
-            return 0;
-        }
-    }
-}
+/**
+ * Process a move from a client, update the gamestate, and return information about the updated gamestate
+ * 
+ * @param world   A pointer to the top-level board
+ * @param move    The player's move
+ * @param player  The player makign the move
+ * @returns       A struct encoding movement success, as well as location and content of largest update
+ */
+Update process_move(Board *world, Move *move, Verdict player);
 
-int move(Board *board, Move *move, Verdict player) {
-    if 
-    if (move->next && board->depth) {
-        board = board->cells[move->coordinate];
-        move = move->next;
-    }
-    else if (board->depth) {
-        return -1;
-    }
-    else {
-        board->cells[move->coordinate] = player;
-        judge(board, move->coordinate, player);
-        return 0;
-    }
-}
+/** 
+ * Retrieve the state of the board centered on a sub-board up to a certain depth
+ * 
+ * @param world     A pointer to the top-level board
+ * @param location  The coordinates leading to the desired sub-board
+ * @param depth     The number of layers downwards to retrive
+ * @returns         A Board object containing the desired state.
+ */
+Board retrieve_state(Board *world, Move *location, unsigned int depth);
