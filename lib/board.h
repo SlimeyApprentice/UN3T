@@ -35,10 +35,12 @@ typedef struct Board {
     struct Board *parent;
     struct Board *cells[9];
     unsigned char state[3]; // 24 bit field
-    // 0x00-0x03 encode the position within the parent
-    // 0x04-0x05 unused
-    // 0x06-0x0D are 1 for cells owned by X
-    // 0x0F-0x17 are 1 for cells owned by O
+    // offset (octal) | content
+    // -----------------------
+    //     000-003    | encode the position within the parent
+    //     004-005    | unused
+    //     006-014    | 1 for cells owned by X
+    //     017-027    | 1 for cells owned by O
     unsigned int depth; // contains the number of steps down before hitting the bottom
 } Board;
 
@@ -52,6 +54,32 @@ typedef struct Update {
     Move location;
     Verdict value;
 } Update;
+
+/**
+ * Calculate the number of descents required to process a move, i.e. the length minus one
+ * 
+ * @param move  The move
+ * @returns     Descent count
+ */
+unsigned int count_descent(Move *move);
+
+/**
+ * Descend to the indicated child node, creating it if it doesn't exist.
+ * 
+ * @param parent_board     A pointer to the parent board
+ * @param position  The coordinate of the child within the parent
+ * @returns         A pointer to the board at that location
+ */
+Board *descend(Board *parent_board, Position position);
+
+/**
+ * Internal API for retrieving the state of a board position
+ * 
+ * @param board     A pointer to the board with the desired state
+ * @param position  The coordinate of the desired state
+ * @returns         The player or players occupying that position
+ */
+Verdict retrieve_cell(Board *board, Position position);
 
 /**
  * Process a move from a client, update the gamestate, and return information about the updated gamestate
