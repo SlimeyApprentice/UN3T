@@ -1,10 +1,14 @@
 :root {
     --border-size: 2px;
+    --board-size: 82px;
 }
 
 .board {
     display: inline-flex;
     flex-direction: column;
+    aspect-ratio: 1/1;
+    width: var(--board-size);
+    position: relative;
 }
 
 .board-row {
@@ -22,11 +26,40 @@
 .cell {
     background-color: transparent;
     border: none;
-    font-family:'Courier New', Courier, monospace;
+    font-family: monospace;
     font-weight: bold;
+    text-align: center;
+    aspect-ratio: 1/1;
+    width: 33%;
+    /* font-family:'Courier New', Courier, monospace; */
 }
 
 .cell:nth-child(2) {
     border-left: var(--border-size) solid rgb(0, 0, 0);
     border-right: var(--border-size) solid rgb(0, 0, 0);
+}
+
+.win-container {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    flex: 1;
+}
+
+.X, .O {
+    position: absolute;
+    font-size: calc(var(--board-size)* 1.0);
+    height: var(--board-size);
+    text-align: center;
+    top: 0;
+}
+.X {
+    color: red;
+}
+.O {
+    color: blue;
 }
