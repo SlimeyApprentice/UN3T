@@ -1,0 +1,32 @@
+:root {
+    --border-size: 2px;
+}
+
+.board {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.board-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.top-row {
+    border-bottom: var(--border-size) solid rgb(0, 0, 0);
+}
+.bottom-row {
+    border-top: var(--border-size) solid rgb(0, 0, 0);
+}
+
+.cell {
+    background-color: transparent;
+    border: none;
+    font-family:'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+.cell:nth-child(2) {
+    border-left: var(--border-size) solid rgb(0, 0, 0);
+    border-right: var(--border-size) solid rgb(0, 0, 0);
+}
