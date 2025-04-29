@@ -1,8 +1,10 @@
 import React from 'react';
-import Board from './Board.jsx';
+import MetaBoard from './MetaBoard.jsx';
 
 function App() {
-  return <Board />;
+  return <>
+  <MetaBoard />
+  </>;
 };
 
 export default App;

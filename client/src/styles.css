@@ -7,11 +7,21 @@
     display: inline-flex;
     flex-direction: column;
     aspect-ratio: 1/1;
-    width: var(--board-size);
     position: relative;
+    padding: 10px;
+}
+
+:not(.meta) {
+    width: var(--board-size);
+}
+
+.board:nth-child(2) {
+    border-left: var(--border-size) solid rgb(0, 0, 0);
+    border-right: var(--border-size) solid rgb(0, 0, 0);
 }
 
 .board-row {
+    width: inherit;
     display: flex;
     flex-direction: row;
 }
