@@ -123,11 +123,19 @@ int t_judge_board() {
     return 1;
 }
 
+int t_process_move() {
+    Board *master_board = malloc(sizeof(Board));
+    master_board->depth = 1;
+    // play a quick game of Ultimate Tic-Tac-Toe
+}
+
 int t_board_h() {
     int pass = 1;
     pass &= t_count_descent();
     pass &= t_retrieve_symbol();
     pass &= t_place_symbol();
+    pass &= t_judge_board();
+    pass &= t_process_move();
     if (pass) {
         printf("Board module passing\n");
     }

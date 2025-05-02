@@ -2,7 +2,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include <stdio.h>
 
 /**
  * Calculate the number of descents required to process a move, i.e. the length minus one
@@ -18,6 +17,7 @@ unsigned int _count_descent(Move *move) {
     }
     return count;
 }
+
 
 /**
  * Descend to the indicated child node, creating it if it doesn't exist.
@@ -88,6 +88,7 @@ void _place_symbol(Board *board, Position position, Verdict symbol) {
     return;
 }
 
+
 /**
  * Check whether a move would place a symbol on a completed board, in order to prevent uncessesary memory allocation
  * @param board  A pointer to the board being moved in
@@ -105,6 +106,7 @@ int _move_lookahead(Board *board, Move *move) {
     return 1;
 }
 
+
 /**
  * Determine when one or both players have won a board
  * 
@@ -113,19 +115,20 @@ int _move_lookahead(Board *board, Move *move) {
  */
 Verdict _judge_board(Board *board) {
     int x_state = (board->state[0] >> X_OFFSET | board->state[1] << 8 - X_OFFSET) & 0b111111111;
-    int y_state = (board->state[1] >> O_OFFSET - 8 | board->state[2] << 16 - O_OFFSET) & 0b111111111;
-    int states[2] = {x_state, y_state};
+    int o_state = (board->state[1] >> O_OFFSET - 8 | board->state[2] << 16 - O_OFFSET) & 0b111111111;
+    int states[2] = {x_state, o_state};
     Verdict winner = EMPTY;
     for (int i = 0; i < 2; i++) {
-        if ((LINE_MASK_1 & x_state) == LINE_MASK_1) winner |= 0b1 << i;
-        if ((LINE_MASK_2 & x_state) == LINE_MASK_2) winner |= 0b1 << i;
-        if ((LINE_MASK_3 & x_state) == LINE_MASK_3) winner |= 0b1 << i;
-        if ((LINE_MASK_4 & x_state) == LINE_MASK_4) winner |= 0b1 << i;
-        if ((LINE_MASK_5 & x_state) == LINE_MASK_5) winner |= 0b1 << i;
-        if ((LINE_MASK_6 & x_state) == LINE_MASK_6) winner |= 0b1 << i;
-        if ((LINE_MASK_7 & x_state) == LINE_MASK_7) winner |= 0b1 << i;
-        if ((LINE_MASK_8 & x_state) == LINE_MASK_8) winner |= 0b1 << i;
+        if ((LINE_MASK_1 & states[i]) == LINE_MASK_1) winner |= 0b1 << i;
+        if ((LINE_MASK_2 & states[i]) == LINE_MASK_2) winner |= 0b1 << i;
+        if ((LINE_MASK_3 & states[i]) == LINE_MASK_3) winner |= 0b1 << i;
+        if ((LINE_MASK_4 & states[i]) == LINE_MASK_4) winner |= 0b1 << i;
+        if ((LINE_MASK_5 & states[i]) == LINE_MASK_5) winner |= 0b1 << i;
+        if ((LINE_MASK_6 & states[i]) == LINE_MASK_6) winner |= 0b1 << i;
+        if ((LINE_MASK_7 & states[i]) == LINE_MASK_7) winner |= 0b1 << i;
+        if ((LINE_MASK_8 & states[i]) == LINE_MASK_8) winner |= 0b1 << i;
     }
+    return winner;
 }
 
 
@@ -138,7 +141,8 @@ Verdict _judge_board(Board *board) {
  * @returns       A struct encoding movement success, as well as location and content of largest update
  */
 Update process_move(Board *board, Move *move, Verdict player) {
-    Update fail_value = {0, {0, NULL}, EMPTY};
+    // TODO: Ensure move is in the correct small board by comparing to previous move
+    Update fail_value = FAIL_UPDATE;
     if (_count_descent(move) != board->depth) {
         return fail_value;
     }
@@ -153,6 +157,18 @@ Update process_move(Board *board, Move *move, Verdict player) {
     int judgement = player;
     while (judgement) {
         judgement = _judge_board(board);
+        if (judgement) {
+            Position location = board->state[0] & PARENT_LOCATION_MASK;
+            if (board->parent) {
+                board = board->parent;
+                _place_symbol(board, location, judgement);
+                free(board->cells[location]);
+                continue;
+            }
+            Update return_value = FINALE_UPDATE;
+            return return_value;
+        }
+        // return the correct value
     }
 }
 

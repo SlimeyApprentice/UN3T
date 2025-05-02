@@ -11,6 +11,9 @@
 #define LINE_MASK_6 0b100100100
 #define LINE_MASK_7 0b100010001
 #define LINE_MASK_8 0b001010100
+#define PARENT_LOCATION_MASK 0b1111
+#define FAIL_UPDATE {0, {0, NULL}, EMPTY}
+#define FINALE_UPDATE {1, {-1, NULL}, judgement}
 
 typedef enum {
     ALPHA_ONE,      // 0x0
@@ -48,6 +51,11 @@ typedef struct Move {
     Position coordinate;
     struct Move *next;
 } Move;
+
+// typedef struct Game {
+//     Board board;
+//     Move restriction;
+// } Game;
 
 typedef struct Update {
     int successful;
