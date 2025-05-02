@@ -2,6 +2,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <stdio.h>
+
 /**
  * Calculate the number of descents required to process a move, i.e. the length minus one
  * 
@@ -92,7 +94,7 @@ void _place_symbol(Board *board, Position position, Verdict symbol) {
  * @param move   The move
  * @returns      Whether the move is legal
  */
-int move_lookahead(Board *board, Move *move) {
+int _move_lookahead(Board *board, Move *move) {
     if (board->cells[move->coordinate]) {
         board = board->cells[move->coordinate];
         move = move->next;
@@ -102,6 +104,30 @@ int move_lookahead(Board *board, Move *move) {
     }
     return 1;
 }
+
+/**
+ * Determine when one or both players have won a board
+ * 
+ * @param board  A pointer to the board being judged
+ * @returns      The winner (EMPTY if neither player has won)
+ */
+Verdict _judge_board(Board *board) {
+    int x_state = (board->state[0] >> X_OFFSET | board->state[1] << 8 - X_OFFSET) & 0b111111111;
+    int y_state = (board->state[1] >> O_OFFSET - 8 | board->state[2] << 16 - O_OFFSET) & 0b111111111;
+    int states[2] = {x_state, y_state};
+    Verdict winner = EMPTY;
+    for (int i = 0; i < 2; i++) {
+        if ((LINE_MASK_1 & x_state) == LINE_MASK_1) winner |= 0b1 << i;
+        if ((LINE_MASK_2 & x_state) == LINE_MASK_2) winner |= 0b1 << i;
+        if ((LINE_MASK_3 & x_state) == LINE_MASK_3) winner |= 0b1 << i;
+        if ((LINE_MASK_4 & x_state) == LINE_MASK_4) winner |= 0b1 << i;
+        if ((LINE_MASK_5 & x_state) == LINE_MASK_5) winner |= 0b1 << i;
+        if ((LINE_MASK_6 & x_state) == LINE_MASK_6) winner |= 0b1 << i;
+        if ((LINE_MASK_7 & x_state) == LINE_MASK_7) winner |= 0b1 << i;
+        if ((LINE_MASK_8 & x_state) == LINE_MASK_8) winner |= 0b1 << i;
+    }
+}
+
 
 /**
  * Process a move from a client, update the gamestate, and return information about the updated gamestate
@@ -116,12 +142,17 @@ Update process_move(Board *board, Move *move, Verdict player) {
     if (_count_descent(move) != board->depth) {
         return fail_value;
     }
-    if (!move_lookahead(board, move)) {
+    if (!_move_lookahead(board, move)) {
         return fail_value;
     }
-    if (board->depth > 0) {
+    while (board->depth > 0) {
         board = _descend(board, move->coordinate);
         move = move->next;
+    }
+    _place_symbol(board, move->coordinate, player);
+    int judgement = player;
+    while (judgement) {
+        judgement = _judge_board(board);
     }
 }
 

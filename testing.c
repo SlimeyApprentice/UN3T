@@ -99,13 +99,37 @@ int t_place_symbol() {
     return 1;
 }
 
+int t_judge_board() {
+    Board *board = malloc(sizeof(Board));
+    board->state[0] = 0b10000000;
+    board->state[1] = 0b10110101;
+    board->state[2] = 0b10011001;
+    Verdict verdict = _judge_board(board);
+    if (verdict != DRAW) {
+        printf("Board judgement returns unexpected value (%d, should be %d)", verdict, DRAW);
+        free(board);
+        return 0;
+    }
+    board->state[0] = 0b10000000;
+    board->state[1] = 0b10110001;
+    board->state[2] = 0b10010001;
+    verdict = _judge_board(board);
+    if (verdict != EMPTY) {
+        printf("Board judgement returns unexpected value (%d, should be %d)", verdict, EMPTY);
+        free(board);
+        return 0;
+    }
+    free(board);
+    return 1;
+}
+
 int t_board_h() {
     int pass = 1;
     pass &= t_count_descent();
     pass &= t_retrieve_symbol();
     pass &= t_place_symbol();
     if (pass) {
-        printf("Internal board module passing\n");
+        printf("Board module passing\n");
     }
     return pass;
 }

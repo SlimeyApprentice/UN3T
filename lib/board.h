@@ -3,14 +3,14 @@
 
 #define X_OFFSET 0x06U
 #define O_OFFSET 0x0FU
-#define LINE_MASK_1 = 0b000000111
-#define LINE_MASK_2 = 0b000111000
-#define LINE_MASK_3 = 0b111000000
-#define LINE_MASK_4 = 0b001001001
-#define LINE_MASK_5 = 0b010010010
-#define LINE_MASK_6 = 0b100100100
-#define LINE_MASK_7 = 0b100010001
-#define LINE_MASK_8 = 0b001010100
+#define LINE_MASK_1 0b000000111
+#define LINE_MASK_2 0b000111000
+#define LINE_MASK_3 0b111000000
+#define LINE_MASK_4 0b001001001
+#define LINE_MASK_5 0b010010010
+#define LINE_MASK_6 0b100100100
+#define LINE_MASK_7 0b100010001
+#define LINE_MASK_8 0b001010100
 
 typedef enum {
     ALPHA_ONE,      // 0x0
@@ -89,6 +89,14 @@ Verdict _retrieve_symbol(Board *board, Position position);
  * @param symbol    The symbol to be written at that position
  */
 void _place_symbol(Board *board, Position position, Verdict symbol);
+
+/**
+ * Determine when one or both players have won a board
+ * 
+ * @param board  A pointer to the board being judged
+ * @returns      The winner (EMPTY if neither player has won)
+ */
+Verdict _judge_board(Board *board);
 
 /**
  * Process a move from a client, update the gamestate, and return information about the updated gamestate
