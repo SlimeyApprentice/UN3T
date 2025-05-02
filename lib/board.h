@@ -3,12 +3,12 @@
 
 #define X_OFFSET 0x06U
 #define O_OFFSET 0x0FU
-#define LINE_MASK_1 = 0b111000000
+#define LINE_MASK_1 = 0b000000111
 #define LINE_MASK_2 = 0b000111000
-#define LINE_MASK_3 = 0b000000111
-#define LINE_MASK_4 = 0b100100100
+#define LINE_MASK_3 = 0b111000000
+#define LINE_MASK_4 = 0b001001001
 #define LINE_MASK_5 = 0b010010010
-#define LINE_MASK_6 = 0b001001001
+#define LINE_MASK_6 = 0b100100100
 #define LINE_MASK_7 = 0b100010001
 #define LINE_MASK_8 = 0b001010100
 
@@ -61,7 +61,7 @@ typedef struct Update {
  * @param move  The move
  * @returns     Descent count
  */
-unsigned int count_descent(Move *move);
+unsigned int _count_descent(Move *move);
 
 /**
  * Descend to the indicated child node, creating it if it doesn't exist.
@@ -70,7 +70,7 @@ unsigned int count_descent(Move *move);
  * @param position  The coordinate of the child within the parent
  * @returns         A pointer to the board at that location
  */
-Board *descend(Board *parent_board, Position position);
+Board *_descend(Board *parent_board, Position position);
 
 /**
  * Internal API for retrieving the state of a board position
@@ -79,7 +79,16 @@ Board *descend(Board *parent_board, Position position);
  * @param position  The coordinate of the desired state
  * @returns         The player or players occupying that position
  */
-Verdict retrieve_cell(Board *board, Position position);
+Verdict _retrieve_symbol(Board *board, Position position);
+
+/**
+ * Internal API for changing the state of a board position
+ * 
+ * @param board     A pointer to the board the move is being made in
+ * @param position  The location within the board being changes
+ * @param symbol    The symbol to be written at that position
+ */
+void _place_symbol(Board *board, Position position, Verdict symbol);
 
 /**
  * Process a move from a client, update the gamestate, and return information about the updated gamestate
