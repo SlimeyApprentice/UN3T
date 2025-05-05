@@ -1,15 +1,29 @@
-/* :root {
-    --border-size: 2px;
-    --board-size: 82px;
-} */
-/* THESE ARE NOW HANDLED INSIDE OF APP.JSX */
+/* Height: 67px
+Width: 70px */
+
+:root {
+    /* --color-2: rgb(87.89,227.98,179.19);
+    --color-1: rgb(34.77,12.31,39.66); */
+    /* --color-1: rgb(49.833% 0.4817% 15.448%); */
+
+    --opacity: 20%;
+    --padding: 10px;
+
+    --color-1: rgba(236, 0, 71, 100%);
+    --color-2: rgba(10.006% 73.371% 88.252%, 100%);
+    --color-1b: rgba(236, 0, 71, var(--opacity));
+    --color-2b: rgba(10.006% 73.371% 88.252%, var(--opacity));
+
+    /* background-color: var(--color-2); */
+}
+/* BOARD AND BORDER SIZE ARE NOW HANDLED INSIDE OF APP.JSX */
 
 .board {
     display: inline-flex;
     flex-direction: column;
     aspect-ratio: 1/1;
     position: relative;
-    padding: 10px;
+    padding: var(--padding);
 }
 
 :not(.meta) {
@@ -57,6 +71,7 @@
     justify-content: center;
     width: 100%;
     height: 100%;
+    /* color: var(--color-1); */
     /* z-index: 10; */
     /* ^^^^ Handled by JS */
     flex: 1;
@@ -64,14 +79,26 @@
 
 .X, .O {
     position: absolute;
-    font-size: calc(var(--board-size)* 1.0);
-    height: var(--board-size);
     text-align: center;
-    top: 0;
+    height: calc(var(--padding)*2 + var(--board-size));
+    width: calc(var(--padding)*2 + var(--board-size));
+    line-height: calc(var(--padding)*2 + var(--board-size));
+    /* top: calc(var(--padding) * -1); */
+    top: 1px;
+    left: calc(var(--padding) * -1);
+
+    font-size: calc(var(--board-size)* 1.4);
 }
 .X {
-    color: red;
+    color: var(--color-1);
 }
+.board:has(> .win-container > .X) {
+    background-color: var(--color-1b);
+}
+
 .O {
-    color: blue;
+    color: var(--color-2);
+}
+.board:has(> .win-container > .O) {
+    background-color: var(--color-2b);
 }
