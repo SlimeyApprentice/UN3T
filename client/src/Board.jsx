@@ -2,8 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import Cell from './Cell.jsx';
 
-function Board() {
-  const [xIsNext, setXIsNext] = useState(true);
+function Board({depth, xIsNext, setXIsNext, externalSetIsWon}) {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isWon, setIsWon] = useState(null);
 
@@ -21,11 +20,11 @@ function Board() {
     setXIsNext(!xIsNext);
     setSquares(nextSquares);
 
-    setIsWon(calculateWinner(nextSquares));
+    setIsWon(calculateWinner(nextSquares, externalSetIsWon));
   }
 
   return <div className="board">
-  <div className='win-container'><span className={isWon}>{isWon}</span></div>
+  <div className='win-container' style={{"zIndex": 1}}><span className={isWon}>{isWon}</span></div>
   <div className='board-row top-row'>
     <Cell value={squares[0]} onSquareClick={() => handleClick(0)}/>
     <Cell value={squares[1]} onSquareClick={() => handleClick(1)}/>
@@ -46,7 +45,7 @@ function Board() {
 
 export default Board;
 
-function calculateWinner(squares) {
+function calculateWinner(squares, externalSetIsWon) {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -60,6 +59,7 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      externalSetIsWon(squares[a])
       return squares[a];
     }
   }
