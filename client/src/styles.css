@@ -10,7 +10,7 @@ Width: 70px */
     --padding: 10px;
 
     --color-1: rgba(236, 0, 71, 100%);
-    --color-2: rgba(10.006% 73.371% 88.252%, 100%);
+    --color-2: rgb(10.006% 73.371% 88.252%);
     --color-1b: rgba(236, 0, 71, var(--opacity));
     --color-2b: rgba(10.006% 73.371% 88.252%, var(--opacity));
 

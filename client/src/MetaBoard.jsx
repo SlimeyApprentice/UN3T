@@ -2,6 +2,9 @@ import React from 'react';
 import { useState } from 'react';
 import Board from './Board.jsx';
 
+import cross from './assets/Cross.svg' ;
+import circle from './assets/Circle.svg';
+
 function MetaBoard({depth, boardSize, xIsNext, setXIsNext, externalSetIsWon}) {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isWon, setIsWon] = useState(null);
@@ -35,12 +38,9 @@ function MetaBoard({depth, boardSize, xIsNext, setXIsNext, externalSetIsWon}) {
   const newBoardSize = 2 * boardSize * (depth+1) + 'px'
 
   return <div className="board meta">
-  <div className='win-container'><span className={isWon} style={{
-    "width": "inherit",
-    "fontSize": newBoardSize,
-    "zIndex": depth+1,
-    "background-color": "rgba(1, 1, 1, 0.4)"
-  }}>{isWon}</span></div>
+  <div className='win-container'>
+    {isWon}
+  </div>
   <div className='board-row top-row'>
     <Board xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(0, winningPlayer)}/>
     <Board xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(1, winningPlayer)}/>
@@ -76,7 +76,12 @@ function calculateWinner(squares, externalSetIsWon) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       externalSetIsWon(squares[a])
-      return squares[a];
+
+      if (squares[a] == 'X') {
+        return <img src={cross} className="X" />;
+      } else {
+        return <img src={circle} className="O" />;
+      }
     }
   }
   return null;

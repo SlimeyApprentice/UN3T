@@ -2,6 +2,9 @@ import React from 'react';
 import { useState } from 'react';
 import Cell from './Cell.jsx';
 
+import cross from './assets/Cross.svg' ;
+import circle from './assets/Circle.svg';
+
 function Board({depth, xIsNext, setXIsNext, externalSetIsWon}) {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isWon, setIsWon] = useState(null);
@@ -24,7 +27,9 @@ function Board({depth, xIsNext, setXIsNext, externalSetIsWon}) {
   }
 
   return <div className="board">
-  <div className='win-container' style={{"zIndex": 1}}><span className={isWon}>{isWon}</span></div>
+  <div className='win-container' style={{"zIndex": 1}}>
+    {isWon}
+  </div>
   <div className='board-row top-row'>
     <Cell value={squares[0]} onSquareClick={() => handleClick(0)}/>
     <Cell value={squares[1]} onSquareClick={() => handleClick(1)}/>
@@ -60,7 +65,12 @@ function calculateWinner(squares, externalSetIsWon) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       externalSetIsWon(squares[a])
-      return squares[a];
+
+      if (squares[a] == 'X') {
+        return <img src={cross} className="X" />;
+      } else {
+        return <img src={circle} className="O" />;
+      }
     }
   }
   return null;
