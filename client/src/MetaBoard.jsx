@@ -38,7 +38,7 @@ function MetaBoard({depth, boardSize, xIsNext, setXIsNext, externalSetIsWon}) {
   const newBoardSize = 2 * boardSize * (depth+1) + 'px'
 
   return <div className="board meta">
-  <div className='win-container'>
+  <div className='win-container' style={{"zIndex": depth+1}}>
     {isWon}
   </div>
   <div className='board-row top-row'>
@@ -65,8 +65,8 @@ function calculateWinner(squares, externalSetIsWon, depth) {
   const style={
     "width": "100%",
     "height": "auto",
-    "top": (-8 + (16*depth)) + "px",
-    "z-index": depth+1
+    // "top": (-8 + (16*depth)) + "px",
+    "top": "0px",
   }
 
   const lines = [

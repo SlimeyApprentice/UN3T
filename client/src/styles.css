@@ -11,9 +11,9 @@ Width: 70px */
 
     /* Unfortunately these don't actually control color of the pieces */
     --color-1: rgba(236, 0, 71, 100%);
-    --color-2: rgb(10.006% 73.371% 88.252%);
+    --color-2: rgb(26, 187, 225);
     --color-1b: rgba(236, 0, 71, var(--opacity));
-    --color-2b: rgba(10.006% 73.371% 88.252%, var(--opacity));
+    --color-2b: rgba(26, 187, 225, var(--opacity));
 
     /* background-color: var(--color-2); */
 }
@@ -88,7 +88,7 @@ Width: 70px */
     text-align: center;
     height: calc(var(--padding)*2 + var(--board-size));
     width: calc(var(--padding)*2 + var(--board-size));
-    top: -8px;
+    top: calc(var(--padding) * -1);
 }
 
 .X {
