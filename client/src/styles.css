@@ -9,6 +9,7 @@ Width: 70px */
     --opacity: 20%;
     --padding: 10px;
 
+    /* Unfortunately these don't actually control color of the pieces */
     --color-1: rgba(236, 0, 71, 100%);
     --color-2: rgb(10.006% 73.371% 88.252%);
     --color-1b: rgba(236, 0, 71, var(--opacity));
@@ -39,10 +40,15 @@ Width: 70px */
     width: inherit;
     display: flex;
     flex-direction: row;
+    height: calc(round(33%, 5px) - 2px);
 }
 
 .top-row {
     border-bottom: var(--border-size) solid rgb(0, 0, 0);
+}
+.center-row {
+    padding-top: 1px;
+    padding-bottom: 1px;
 }
 .bottom-row {
     border-top: var(--border-size) solid rgb(0, 0, 0);
@@ -55,7 +61,7 @@ Width: 70px */
     font-weight: bold;
     text-align: center;
     aspect-ratio: 1/1;
-    width: 33%;
+    width: calc(round(33%, 5px));
     /* font-family:'Courier New', Courier, monospace; */
 }
 
@@ -82,13 +88,9 @@ Width: 70px */
     text-align: center;
     height: calc(var(--padding)*2 + var(--board-size));
     width: calc(var(--padding)*2 + var(--board-size));
-    line-height: calc(var(--padding)*2 + var(--board-size));
-    /* top: calc(var(--padding) * -1); */
-    top: 1px;
-    left: calc(var(--padding) * -1);
-
-    font-size: calc(var(--board-size)* 1.4);
+    top: -8px;
 }
+
 .X {
     color: var(--color-1);
 }

@@ -7,7 +7,7 @@ function App() {
   const [isWon, setIsWon] = useState(null);
   const depth = 1;
 
-  const boardSize = 82;
+  const boardSize = 75;
   const borderSize = 2;
 
   const cssVars = {

@@ -32,7 +32,7 @@ function MetaBoard({depth, boardSize, xIsNext, setXIsNext, externalSetIsWon}) {
     nextSquares[i] = winningPlayer;
     setSquares(nextSquares);
 
-    setIsWon(calculateWinner(nextSquares, externalSetIsWon))
+    setIsWon(calculateWinner(nextSquares, externalSetIsWon, depth));
   }
 
   const newBoardSize = 2 * boardSize * (depth+1) + 'px'
@@ -61,7 +61,14 @@ function MetaBoard({depth, boardSize, xIsNext, setXIsNext, externalSetIsWon}) {
 
 export default MetaBoard;
 
-function calculateWinner(squares, externalSetIsWon) {
+function calculateWinner(squares, externalSetIsWon, depth) {
+  const style={
+    "width": "100%",
+    "height": "auto",
+    "top": (-8 + (16*depth)) + "px",
+    "z-index": depth+1
+  }
+
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -78,9 +85,9 @@ function calculateWinner(squares, externalSetIsWon) {
       externalSetIsWon(squares[a])
 
       if (squares[a] == 'X') {
-        return <img src={cross} className="X" />;
+        return <img src={cross} className="X" style={style}/>;
       } else {
-        return <img src={circle} className="O" />;
+        return <img src={circle} className="O" style={style}/>;
       }
     }
   }
