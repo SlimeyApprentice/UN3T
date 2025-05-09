@@ -5,7 +5,7 @@ import Cell from './Cell.jsx';
 import cross from './assets/Cross.svg' ;
 import circle from './assets/Circle.svg';
 
-function Board({depth, xIsNext, setXIsNext, externalSetIsWon}) {
+function Board({depth, boardSize, xIsNext, setXIsNext, externalSetIsWon}) {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isWon, setIsWon] = useState(null);
 
