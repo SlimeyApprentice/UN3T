@@ -1,11 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
-import MetaBoard from './MetaBoard.jsx';
+import Board from './Board.jsx';
 
 function App() {
   const [xIsNext, setXIsNext] = useState(true);
   const [isWon, setIsWon] = useState(null);
-  const depth = 1;
+  const depth = 4;
 
   const boardSize = 75;
   const borderSize = 2;
@@ -21,7 +21,7 @@ function App() {
   }
 
   return <div style={cssVars}>
-  <MetaBoard depth={depth} boardSize={boardSize} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper}/>
+  <Board depth={depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper}/>
   </div>;
 };
 
