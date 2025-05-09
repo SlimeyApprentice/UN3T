@@ -2,6 +2,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+/**
+ * @param move   A pointer to the move to be copied
+ * @param depth  How many entries to copy (or 0, to copy all)
+ * @returns      A Move object with the same data as the input Move up to the specified depth
+ */
+Move _copy_move(Move *move, unsigned int depth) {
+    Move head = {move->coordinate};
+    // TODO
+}
+
 
 /**
  * Calculate the number of descents required to process a move, i.e. the length minus one
@@ -140,7 +150,8 @@ Verdict _judge_board(Board *board) {
  * @param player  The player makign the move
  * @returns       A struct encoding movement success, as well as location and content of largest update
  */
-Update process_move(Board *board, Move *move, Verdict player) {
+Update process_move(Game *world, Move *move, Verdict player) {
+    Board *board = &world->board;
     // TODO: Ensure move is in the correct small board by comparing to previous move
     Update fail_value = FAIL_UPDATE;
     if (_count_descent(move) != board->depth) {

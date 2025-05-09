@@ -52,16 +52,24 @@ typedef struct Move {
     struct Move *next;
 } Move;
 
-// typedef struct Game {
-//     Board board;
-//     Move restriction;
-// } Game;
+typedef struct Game {
+    Board board;
+    Move restriction;
+} Game;
 
 typedef struct Update {
     int successful;
     Move location;
     Verdict value;
+    Move restriction;
 } Update;
+
+/**
+ * @param move   A pointer to the move to be copied
+ * @param depth  How many entries to copy (or 0, to copy all)
+ * @returns      A Move object with the same data as the input Move up to the specified depth
+ */
+Move _copy_move(Move *move, unsigned int depth);
 
 /**
  * Calculate the number of descents required to process a move, i.e. the length minus one
@@ -114,7 +122,7 @@ Verdict _judge_board(Board *board);
  * @param player  The player makign the move
  * @returns       A struct encoding movement success, as well as location and content of largest update
  */
-Update process_move(Board *world, Move *move, Verdict player);
+Update process_move(Game *world, Move *move, Verdict player);
 
 /** 
  * Retrieve the state of the board centered on a sub-board up to a certain depth
@@ -124,6 +132,6 @@ Update process_move(Board *world, Move *move, Verdict player);
  * @param depth     The number of layers downwards to retrive
  * @returns         A Board object containing the desired state.
  */
-Board retrieve_state(Board *world, Move *location, unsigned int depth);
+Board retrieve_state(Game *world, Move *location, unsigned int depth);
 
 #endif // BOARD_H
