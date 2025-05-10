@@ -12,6 +12,7 @@
 #define LINE_MASK_7 0b100010001
 #define LINE_MASK_8 0b001010100
 #define PARENT_LOCATION_MASK 0b1111
+#define EMPTY_GAME(depth) {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, depth}, NULL}
 #define FAIL_UPDATE {0, NULL, EMPTY, NULL}
 
 typedef enum {
@@ -54,6 +55,7 @@ typedef struct Move {
 typedef struct Game {
     Board board;
     Move *restriction;
+    Verdict turn;
 } Game;
 
 typedef struct Update {
@@ -62,6 +64,13 @@ typedef struct Update {
     Verdict value;
     Move *restriction;
 } Update;
+
+/**
+ * @param move         A pointer to a move
+ * @param restriction  A pointer to another move
+ * @returns            Whether both moves agree until one of them ends
+ */
+int _check_move_compatibility(Move *move, Move *restriction);
 
 /**
  * @param move   A pointer to the move to be copied

@@ -9,6 +9,22 @@ void pretty_print_move(Move *move) {
     }
 }
 
+void not_so_pretty_print_board(Board *board) {
+    printf("{");
+    for (int i=0;i<9;i++) {
+        printf("%d",_retrieve_symbol(board, i));
+        if (i % 3 == 2) {
+            printf("\n");
+        }
+    }
+    for (int i=0;i<9;i++) {
+        if (board->cells[i]) {
+            not_so_pretty_print_board(board->cells[i]);
+        }
+    }
+    printf("}");
+}
+
 int t_copy_move() {
     Move *move = malloc(sizeof(Move));
     move->coordinate = 2;
@@ -58,7 +74,7 @@ int t_count_descent() {
 }
 
 int t_descend() {
-    Game world = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1}, NULL};
+    Game world = EMPTY_GAME(1);
     Board *child_1 = _descend(&world.board, 3);
     Board *child_2 = _descend(&world.board, 3);
     if (child_1 != child_2) {
@@ -179,8 +195,8 @@ int t_judge_board() {
 }
 
 int t_process_move() {
-    Board *master_board = malloc(sizeof(Board));
-    master_board->depth = 1;
+    Game game = EMPTY_GAME(1);
+    not_so_pretty_print_board(&game.board);
     
     return 1;
 }

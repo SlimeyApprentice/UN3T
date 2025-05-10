@@ -3,6 +3,22 @@
 #include <stdlib.h>
 
 /**
+ * @param move         A pointer to a move
+ * @param restriction  A pointer to another move
+ * @returns            Whether both moves agree until one of them ends
+ */
+int _check_move_compatibility(Move *move, Move *restriction) {
+    while (restriction && move) {
+        if (move->coordinate != restriction->coordinate) {
+            return 0;
+        }
+        restriction = restriction->next;
+        move = move->next;
+    }
+    return 1;
+}
+
+/**
  * @param move   A pointer to the move to be copied
  * @returns      A pointer to a Move object with the same data as the input Move
  */
@@ -200,8 +216,15 @@ Verdict _judge_board(Board *board) {
  */
 Update process_move(Game *world, Move *move, Verdict player) {
     Board *board = &world->board;
-    // TODO: Check move is in the correct small board by comparing to restriction provided by the world
     Update fail_value = FAIL_UPDATE;
+    // Check that the right player has made the move
+    if (player != world->turn) {
+        return fail_value;
+    }
+    // Check move is in the correct small board by comparing to restriction provided by the world
+    if (!_check_move_compatibility(move, world->restriction)) {
+        return fail_value;
+    }
     // Check the move is the correct depth
     if (_count_descent(move) != board->depth) {
         return fail_value;
