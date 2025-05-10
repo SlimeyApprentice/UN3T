@@ -2,6 +2,40 @@
 #include <stdlib.h>
 #include "lib/board.h"
 
+int t_copy_move() {
+    Move *move = malloc(sizeof(Move));
+    move->coordinate = 2;
+    Move *tail = malloc(sizeof(Move));
+    move->next = tail;
+    tail->coordinate = 3;
+    tail->next = NULL;
+    Move *new_move = _copy_move(move);
+    if (new_move->coordinate != 2) {
+        printf("copy_move copied a move wrong (first entry was %d, should be %d)\n", new_move->coordinate, 2);
+        return 0;
+    }
+    if (new_move->next->coordinate != 3) {
+        printf("copy_move copied a move wrong (first entry was %d, should be %d)\n", new_move->next->coordinate, 3);
+        return 0;
+    }
+    return 1;
+}
+
+int t_clip_move() {
+    Move *move = malloc(sizeof(Move));
+    move->coordinate = 2;
+    Move *tail = malloc(sizeof(Move));
+    move->next = tail;
+    tail->coordinate = 3;
+    tail->next = NULL;
+    _clip_move(move, 0);
+    if (_count_descent(move) != 0) {
+        printf("clip_move clipped the move wrong (depth was %d, should be %d)\n", _count_descent(move), 0);
+        return 0;
+    }
+    return 1;
+}
+
 int t_count_descent() {
     Move length_zero = {0, NULL};
     if (_count_descent(&length_zero) != 0) {
@@ -13,6 +47,10 @@ int t_count_descent() {
         printf("count_descent calculated move as wrong length (%d, should be 1)\n", _count_descent(&length_one));
         return 0;
     }
+    return 1;
+}
+
+int t_descend() {
     return 1;
 }
 
@@ -127,15 +165,24 @@ int t_process_move() {
     Board *master_board = malloc(sizeof(Board));
     master_board->depth = 1;
     // play a quick game of Ultimate Tic-Tac-Toe
+    return 1;
+}
+
+int t_retrieve_state() {
+    return 1;
 }
 
 int t_board_h() {
     int pass = 1;
+    pass &= t_copy_move();
+    pass &= t_clip_move();
     pass &= t_count_descent();
+    pass &= t_descend();
     pass &= t_retrieve_symbol();
     pass &= t_place_symbol();
     pass &= t_judge_board();
     pass &= t_process_move();
+    pass &= t_retrieve_state();
     if (pass) {
         printf("Board module passing\n");
     }

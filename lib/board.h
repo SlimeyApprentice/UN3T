@@ -12,8 +12,7 @@
 #define LINE_MASK_7 0b100010001
 #define LINE_MASK_8 0b001010100
 #define PARENT_LOCATION_MASK 0b1111
-#define FAIL_UPDATE {0, {0, NULL}, EMPTY}
-#define FINALE_UPDATE {1, {-1, NULL}, judgement}
+#define FAIL_UPDATE {0, NULL, EMPTY, NULL}
 
 typedef enum {
     ALPHA_ONE,      // 0x0
@@ -54,22 +53,29 @@ typedef struct Move {
 
 typedef struct Game {
     Board board;
-    Move restriction;
+    Move *restriction;
 } Game;
 
 typedef struct Update {
     int successful;
-    Move location;
+    Move *location;
     Verdict value;
-    Move restriction;
+    Move *restriction;
 } Update;
 
 /**
  * @param move   A pointer to the move to be copied
  * @param depth  How many entries to copy (or 0, to copy all)
- * @returns      A Move object with the same data as the input Move up to the specified depth
+ * @returns      A pointer to a Move object with the same data as the input Move up to the specified depth
  */
-Move _copy_move(Move *move, unsigned int depth);
+Move *_copy_move(Move *move);
+
+/**
+ * @param move   A pointer to the move to be clipped
+ * @param depth  The length after which to cut the move
+ * @returns      Nothing
+ */
+void _clip_move(Move *move, int depth);
 
 /**
  * Calculate the number of descents required to process a move, i.e. the length minus one

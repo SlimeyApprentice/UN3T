@@ -4,14 +4,50 @@
 
 /**
  * @param move   A pointer to the move to be copied
- * @param depth  How many entries to copy (or 0, to copy all)
- * @returns      A Move object with the same data as the input Move up to the specified depth
+ * @returns      A pointer to a Move object with the same data as the input Move
  */
-Move _copy_move(Move *move, unsigned int depth) {
-    Move head = {move->coordinate};
-    // TODO
+Move *_copy_move(Move *move) {
+    Move *head = malloc(sizeof(Move));
+    head->coordinate = move->coordinate;
+    head->next = NULL;
+    Move *reader = move->next;
+    Move *writer = head;
+    if (reader) {
+        Move *tail = malloc(sizeof(Move));
+        tail->coordinate = reader->coordinate;
+        tail->next = NULL;
+        writer->next = tail;
+        writer = tail;
+        reader = reader->next;
+    }
+    return head;
 }
 
+/**
+ * @param move   A pointer to the move to be clipped
+ * @param depth  The length after which to clip the move
+ * @returns      Nothing
+ */
+void _clip_move(Move *move, int depth) {
+    while (depth >= 0) {
+        move = move->next;
+        depth--;
+    }
+    while (move->next) {
+        Move *next_move = move->next;
+        move->next = NULL;
+        free(move);
+        move = next_move;
+    }
+}
+
+void _delete_move(Move *move) {
+    while (move->next) {
+        Move *next_move = move->next;
+        free(move);
+        move = next_move;
+    }
+}
 
 /**
  * Calculate the number of descents required to process a move, i.e. the length minus one
@@ -106,6 +142,9 @@ void _place_symbol(Board *board, Position position, Verdict symbol) {
  * @returns      Whether the move is legal
  */
 int _move_lookahead(Board *board, Move *move) {
+    if (!(move->next)) {
+        return 0; // This shouldn't happen in normal gameplay, but it helps with the restriction system
+    }
     if (board->cells[move->coordinate]) {
         board = board->cells[move->coordinate];
         move = move->next;
@@ -145,30 +184,37 @@ Verdict _judge_board(Board *board) {
 /**
  * Process a move from a client, update the gamestate, and return information about the updated gamestate
  * 
- * @param board   A pointer to the top-level board
+ * @param board   A pointer to the game state
  * @param move    The player's move
- * @param player  The player makign the move
+ * @param player  The player making the move
  * @returns       A struct encoding movement success, as well as location and content of largest update
  */
 Update process_move(Game *world, Move *move, Verdict player) {
     Board *board = &world->board;
-    // TODO: Ensure move is in the correct small board by comparing to previous move
+    // TODO: Check move is in the correct small board by comparing to restriction provided by the world
     Update fail_value = FAIL_UPDATE;
+    // Check the move is the correct depth
     if (_count_descent(move) != board->depth) {
         return fail_value;
     }
+    // Check that the move is not in an already won board
     if (!_move_lookahead(board, move)) {
         return fail_value;
     }
+
+    // We know the move is good, so now process it
+    Move *saved_move = _copy_move(move);
     while (board->depth > 0) {
         board = _descend(board, move->coordinate);
         move = move->next;
     }
     _place_symbol(board, move->coordinate, player);
     int judgement = player;
+    int depth = world->board.depth;
     while (judgement) {
         judgement = _judge_board(board);
         if (judgement) {
+            depth--;
             Position location = board->state[0] & PARENT_LOCATION_MASK;
             if (board->parent) {
                 board = board->parent;
@@ -176,11 +222,28 @@ Update process_move(Game *world, Move *move, Verdict player) {
                 free(board->cells[location]);
                 continue;
             }
-            Update return_value = FINALE_UPDATE;
+            Update return_value = {1, NULL, judgement};
             return return_value;
+            // Stop the game, because we have a winner!
+            // (We really should deallocate the board and such, if we're handling more than one game at once)
         }
-        // return the correct value
+        break;
     }
+    // Clear the previous restriction
+    _delete_move(world->restriction);
+    world->restriction = NULL;
+    // Copy the move into the restriction field of the game state
+    world->restriction = _copy_move(saved_move);
+    // Zoom out until the restriction has a legal move
+    while (world->restriction && !(_move_lookahead(board, world->restriction))) {
+        Move *new_restriction = world->restriction->next;
+        free(world->restriction);
+        world->restriction = new_restriction;
+    }
+    // finally, clip our saved move to the right size to indicate the update
+    _clip_move(saved_move, depth);
+    Update return_value = {1, saved_move, judgement};
+
 }
 
 /** 
@@ -191,6 +254,6 @@ Update process_move(Game *world, Move *move, Verdict player) {
  * @param depth     The number of layers downwards to retrive
  * @returns         A Board object containing the desired state.
  */
-Board retrieve_state(Board *world, Move *location, unsigned int depth) {
+Board retrieve_state(Game *world, Move *location, unsigned int depth) {
 
 }
