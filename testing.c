@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include "lib/board.h"
 
+void pretty_print_move(Move *move) {
+    while (move->next) {
+        printf("%d", move->coordinate);
+        move = move->next;
+    }
+}
+
 int t_copy_move() {
     Move *move = malloc(sizeof(Move));
     move->coordinate = 2;
@@ -51,6 +58,16 @@ int t_count_descent() {
 }
 
 int t_descend() {
+    Game world = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 1}, NULL};
+    Board *child_1 = _descend(&world.board, 3);
+    Board *child_2 = _descend(&world.board, 3);
+    if (child_1 != child_2) {
+        printf("descend creates two children with the same coordinate\n");
+    }
+    Board *child_3 = _descend(&world.board, 5);
+    if (child_2 == child_3) {
+        printf("descend conflates two children with different coordinates\n");
+    }
     return 1;
 }
 
@@ -164,7 +181,7 @@ int t_judge_board() {
 int t_process_move() {
     Board *master_board = malloc(sizeof(Board));
     master_board->depth = 1;
-    // play a quick game of Ultimate Tic-Tac-Toe
+    
     return 1;
 }
 

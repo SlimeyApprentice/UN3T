@@ -29,10 +29,19 @@ Move *_copy_move(Move *move) {
  * @returns      Nothing
  */
 void _clip_move(Move *move, int depth) {
-    while (depth >= 0) {
+    while (depth > 0) {
+        if (!(move->next)) {
+            return;
+        }
         move = move->next;
         depth--;
     }
+    if (!(move->next)) {
+        return;
+    }
+    Move *new_move = move->next;
+    move->next = NULL;
+    move = new_move;
     while (move->next) {
         Move *next_move = move->next;
         move->next = NULL;
