@@ -12,8 +12,8 @@
 #define LINE_MASK_7 0b100010001
 #define LINE_MASK_8 0b001010100
 #define PARENT_LOCATION_MASK 0b1111
-#define EMPTY_GAME(depth) {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, depth}, NULL}
-#define FAIL_UPDATE {0, NULL, EMPTY, NULL}
+#define EMPTY_GAME(depth) {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, depth}, NULL, X}
+#define FAIL_UPDATE(code) {0, NULL, code, NULL}
 
 typedef enum {
     ALPHA_ONE,      // 0x0
@@ -92,7 +92,7 @@ void _clip_move(Move *move, int depth);
  * @param move  The move
  * @returns     Descent count
  */
-unsigned int _count_descent(Move *move);
+int _count_descent(Move *move);
 
 /**
  * Descend to the indicated child node, creating it if it doesn't exist.

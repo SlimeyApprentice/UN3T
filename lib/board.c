@@ -28,7 +28,7 @@ Move *_copy_move(Move *move) {
     head->next = NULL;
     Move *reader = move->next;
     Move *writer = head;
-    if (reader) {
+    while (reader) {
         Move *tail = malloc(sizeof(Move));
         tail->coordinate = reader->coordinate;
         tail->next = NULL;
@@ -67,7 +67,7 @@ void _clip_move(Move *move, int depth) {
 }
 
 void _delete_move(Move *move) {
-    while (move->next) {
+    while (move) {
         Move *next_move = move->next;
         free(move);
         move = next_move;
@@ -80,9 +80,9 @@ void _delete_move(Move *move) {
  * @param move  The move
  * @returns     Descent count
  */
-unsigned int _count_descent(Move *move) {
-    unsigned int count = 0;
-    while (move->next) {
+int _count_descent(Move *move) {
+    int count = -1;
+    while (move) {
         move = move->next;
         count++;
     }
@@ -216,24 +216,26 @@ Verdict _judge_board(Board *board) {
  */
 Update process_move(Game *world, Move *move, Verdict player) {
     Board *board = &world->board;
-    Update fail_value = FAIL_UPDATE;
     // Check that the right player has made the move
     if (player != world->turn) {
+        Update fail_value = FAIL_UPDATE(-1);
         return fail_value;
     }
     // Check move is in the correct small board by comparing to restriction provided by the world
     if (!_check_move_compatibility(move, world->restriction)) {
+        Update fail_value = FAIL_UPDATE(-2);
         return fail_value;
     }
     // Check the move is the correct depth
     if (_count_descent(move) != board->depth) {
+        Update fail_value = FAIL_UPDATE(-3);
         return fail_value;
     }
     // Check that the move is not in an already won board
     if (!_move_lookahead(board, move)) {
+        Update fail_value = FAIL_UPDATE(-4);
         return fail_value;
     }
-
     // We know the move is good, so now process it
     Move *saved_move = _copy_move(move);
     while (board->depth > 0) {
@@ -241,11 +243,13 @@ Update process_move(Game *world, Move *move, Verdict player) {
         move = move->next;
     }
     _place_symbol(board, move->coordinate, player);
-    int judgement = player;
+    Verdict judgement = player;
+    Verdict verdict = player;
     int depth = world->board.depth;
     while (judgement) {
         judgement = _judge_board(board);
         if (judgement) {
+            verdict = judgement;
             depth--;
             Position location = board->state[0] & PARENT_LOCATION_MASK;
             if (board->parent) {
@@ -259,7 +263,6 @@ Update process_move(Game *world, Move *move, Verdict player) {
             // Stop the game, because we have a winner!
             // (We really should deallocate the board and such, if we're handling more than one game at once)
         }
-        break;
     }
     // Clear the previous restriction
     _delete_move(world->restriction);
@@ -274,8 +277,8 @@ Update process_move(Game *world, Move *move, Verdict player) {
     }
     // finally, clip our saved move to the right size to indicate the update
     _clip_move(saved_move, depth);
-    Update return_value = {1, saved_move, judgement};
-
+    Update return_value = {1, saved_move, verdict};
+    return return_value;
 }
 
 /** 
