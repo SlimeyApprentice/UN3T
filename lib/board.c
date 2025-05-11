@@ -167,7 +167,7 @@ void _place_symbol(Board *board, Position position, Verdict symbol) {
  * @returns      Whether the move is legal
  */
 int _move_lookahead(Board *board, Move *move) {
-    if (!(move->next)) {
+    if (!move) {
         return 0; // This shouldn't happen in normal gameplay, but it helps with the restriction system
     }
     if (board->cells[move->coordinate]) {
@@ -268,13 +268,15 @@ Update process_move(Game *world, Move *move, Verdict player) {
     _delete_move(world->restriction);
     world->restriction = NULL;
     // Copy the move into the restriction field of the game state
-    world->restriction = _copy_move(saved_move);
+    world->restriction = _copy_move(saved_move->next);
     // Zoom out until the restriction has a legal move
-    while (world->restriction && !(_move_lookahead(board, world->restriction))) {
+    while (world->restriction && !_move_lookahead(&world->board, world->restriction)) {
         Move *new_restriction = world->restriction->next;
         free(world->restriction);
         world->restriction = new_restriction;
     }
+    // flip the player
+    world->turn = 3 - world->turn;
     // finally, clip our saved move to the right size to indicate the update
     _clip_move(saved_move, depth);
     Update return_value = {1, saved_move, verdict};

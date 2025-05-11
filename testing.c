@@ -22,6 +22,9 @@ void not_so_pretty_print_board(Board *board) {
         if (board->cells[i]) {
             not_so_pretty_print_board(board->cells[i]);
         }
+        else {
+            printf("{}");
+        }
     }
     printf("}");
 }
@@ -39,6 +42,27 @@ Move *create_move(char str[]) {
         writer = tail;
     }
     return head;
+}
+
+int t_check_move_compatibility() {
+    printf("testing check_move_compatibility\n");
+    if (_check_move_compatibility(create_move("13"), create_move("2"))) {
+        printf("incompatible moves marked as compatible (13 vs 2)\n");
+        return 0;
+    }
+    if (!_check_move_compatibility(create_move("314"), create_move("3"))) {
+        printf("compatible moves marked as incompaitble (314 vs 3)\n");
+        return 0;
+    }
+    if (_check_move_compatibility(create_move("2"), create_move("13"))) {
+        printf("incompatible moves marked as compatible (2 vs 13)\n");
+        return 0;
+    }
+    if (!_check_move_compatibility(create_move("3"), create_move("314"))) {
+        printf("compatible moves marked as incompatible (3 vs 314)\n");
+        return 0;
+    }
+    return 1;
 }
 
 int t_copy_move() {
@@ -237,17 +261,21 @@ int t_process_move() {
         printf("process_move incorrectly processed a move (success: %d, should be %d, code %d, should be %d)\n", update.successful, 0, update.value, -1);
         return 0;
     }
-    pretty_print_move(game.restriction);
     move = create_move("13");
     update = process_move(&game, move, X);
     if (!update.successful || update.value != X) {
         printf("process_move calculated X's first move incorrectly (success: %d (should be %d), code %d (should be %d))\n", update.successful, 1, update.value, X);
         return 0;
     }
-    if (!(_check_move_compatibility(update.location, create_move("13")))) {
-        printf("process_move returned incompatible result");
+    pretty_print_move(game.restriction);
+    move = create_move("30");
+    update = process_move(&game, move, O);
+    if (!update.successful) {
+        printf("O's first move was marked illegal when it wasn't");
         return 0;
     }
+    pretty_print_move(game.restriction);
+    not_so_pretty_print_board(&game.board);
     return 1;
 }
 
@@ -257,6 +285,7 @@ int t_retrieve_state() {
 
 int t_board_h() {
     int pass = 1;
+    pass &= t_check_move_compatibility();
     pass &= t_copy_move();
     pass &= t_clip_move();
     pass &= t_count_descent();
