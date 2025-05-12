@@ -1,6 +1,17 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { useState } from 'react';
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import Board from './Board.jsx';
+
+function initBoard(depth) {
+  let state = {
+
+  }
+
+  for (let i = depth; i >= 0; i++) {
+    // state[]
+  }
+}
 
 function App() {
   const [xIsNext, setXIsNext] = useState(true);
@@ -20,8 +31,19 @@ function App() {
     console.log(winningPlayer);
   }
 
+  let state = initBoard(depth);
+
   return <div style={cssVars}>
-  <Board depth={depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper}/>
+  <TransformWrapper
+    initialScale={1}
+    maxScale={2}
+    minScale={1}
+    centerOnInit={true}
+  >
+    <TransformComponent>
+    <Board depth={depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper}/>
+    </TransformComponent>
+  </TransformWrapper>
   </div>;
 };
 

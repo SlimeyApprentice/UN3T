@@ -113,3 +113,10 @@ Width: 70px */
 .board:has(> .win-container > .D) {
     background-color: var(--color-3b);
 }
+
+.react-transform-wrapper {
+    width: fit-content;
+}
+.react-transform-component {
+    width: inherit;
+}
