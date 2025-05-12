@@ -5,7 +5,7 @@ import Board from './Board.jsx';
 function App() {
   const [xIsNext, setXIsNext] = useState(true);
   const [isWon, setIsWon] = useState(null);
-  const depth = 5;
+  const depth = 1;
 
   const boardSize = 75;
   const borderSize = 2;

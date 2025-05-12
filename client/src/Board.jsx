@@ -4,6 +4,9 @@ import Cell from './Cell.jsx';
 
 import cross from './assets/Cross.svg' ;
 import circle from './assets/Circle.svg';
+import draw from './assets/Peace.svg' ;
+// import draw from './assets/CrossCircle.svg' ;
+// import draw from './assets/Square.svg' ;
 
 function Board({depth, xIsNext, setXIsNext, externalSetIsWon}) {
   const [squares, setSquares] = useState(Array(9).fill(null));
@@ -92,10 +95,6 @@ function calculateWinner(squares, externalSetIsWon, depth) {
     // "top": (-8 + (16*depth)) + "px",
     "top": "0px",
   }
-
-  if (!squares.includes(null)) {
-    return <img src={cross} className="D" style={style}/>;
-  }
     
   const lines = [
     [0, 1, 2],
@@ -119,5 +118,10 @@ function calculateWinner(squares, externalSetIsWon, depth) {
       }
     }
   }
+
+  if (!squares.includes(null)) {
+    return <img src={draw} className="D" style={style}/>;
+  }
+
   return null;
 }

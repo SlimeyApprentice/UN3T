@@ -12,8 +12,10 @@ Width: 70px */
     /* Unfortunately these don't actually control color of the pieces */
     --color-1: rgba(236, 0, 71, 100%);
     --color-2: rgb(26, 187, 225);
+    --color-3: rgb(0, 230, 42);
     --color-1b: rgba(236, 0, 71, var(--opacity));
     --color-2b: rgba(26, 187, 225, var(--opacity));
+    --color-3b: rgb(0, 230, 42, var(--opacity));
 
     /* background-color: var(--color-2); */
 }
@@ -83,7 +85,7 @@ Width: 70px */
     flex: 1;
 }
 
-.X, .O {
+.X, .O, .D {
     position: absolute;
     text-align: center;
     height: calc(var(--padding)*2 + var(--board-size));
@@ -103,4 +105,11 @@ Width: 70px */
 }
 .board:has(> .win-container > .O) {
     background-color: var(--color-2b);
+}
+
+.D {
+    color: var(--color-3);
+}
+.board:has(> .win-container > .D) {
+    background-color: var(--color-3b);
 }
