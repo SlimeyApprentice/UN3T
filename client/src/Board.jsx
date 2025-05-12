@@ -93,6 +93,10 @@ function calculateWinner(squares, externalSetIsWon, depth) {
     "top": "0px",
   }
 
+  if (!squares.includes(null)) {
+    return <img src={cross} className="D" style={style}/>;
+  }
+    
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
