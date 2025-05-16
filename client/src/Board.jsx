@@ -8,9 +8,11 @@ import draw from './assets/Peace.svg' ;
 // import draw from './assets/CrossCircle.svg' ;
 // import draw from './assets/Square.svg' ;
 
-function Board({depth, xIsNext, setXIsNext, externalSetIsWon}) {
-  const [squares, setSquares] = useState(Array(9).fill(null));
-  const [isWon, setIsWon] = useState(null);
+function Board({depth, xIsNext, setXIsNext, externalSetIsWon, initState}) {
+  // console.log(xIsNext);
+
+  const [squares, setSquares] = useState(initState.cells);
+  const [isWon, setIsWon] = useState(initState.game_state);
 
   //Used just for 0 recursion boards
   function handleClick(i) {
@@ -19,6 +21,7 @@ function Board({depth, xIsNext, setXIsNext, externalSetIsWon}) {
     if (isWon != null) { return; }
     if (nextSquares[i] != null) { return; }
 
+    console.log(xIsNext);
     if (xIsNext) {
       nextSquares[i] = "X";
     } else {
@@ -40,6 +43,7 @@ function Board({depth, xIsNext, setXIsNext, externalSetIsWon}) {
     setIsWon(calculateWinner(nextSquares, externalSetIsWon, depth));
   }
 
+  //I like my code WET
   if (depth == 0) {
     return <div className="board">
     <div className='win-container' style={{"zIndex": 1}}>
@@ -67,19 +71,19 @@ function Board({depth, xIsNext, setXIsNext, externalSetIsWon}) {
         {isWon}
       </div>
       <div className='board-row top-row'>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(0, winningPlayer)}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(1, winningPlayer)}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(2, winningPlayer)}/>
+        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(0, winningPlayer)} initState={initState.cells[0]}/>
+        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(1, winningPlayer)} initState={initState.cells[1]}/>
+        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(2, winningPlayer)} initState={initState.cells[2]}/>
       </div>
       <div className='board-row center-row'>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(3, winningPlayer)}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(4, winningPlayer)}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(5, winningPlayer)}/>
+        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(3, winningPlayer)} initState={initState.cells[3]}/>
+        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(4, winningPlayer)} initState={initState.cells[4]}/>
+        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(5, winningPlayer)} initState={initState.cells[5]}/>
       </div>
       <div className='board-row bottom-row'>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(6, winningPlayer)}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(7, winningPlayer)}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(8, winningPlayer)}/>
+        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(6, winningPlayer)} initState={initState.cells[6]}/>
+        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(7, winningPlayer)} initState={initState.cells[7]}/>
+        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(8, winningPlayer)} initState={initState.cells[8]}/>
       </div>
       </div>;
   }

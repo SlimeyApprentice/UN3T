@@ -120,3 +120,7 @@ Width: 70px */
 .react-transform-component {
     width: inherit;
 }
+
+.board-wrapper {
+    width: inherit;
+}

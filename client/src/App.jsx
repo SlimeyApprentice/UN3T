@@ -1,29 +1,46 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { useState } from 'react';
-import { useHotkeys, isHotkeyPressed } from 'react-hotkeys-hook';
-import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
+import { useHotkeys } from 'react-hotkeys-hook';
 import Board from './Board.jsx';
 
 function initBoard(depth) {
-  let state = [];
+  let state = {
+    "cells": [],
+    "game_state": null
+  };
   for (let i = 0; i < 9; i++) {
     if (depth > 0) {
-      state[i] = initBoard(depth-1)
+      state.cells[i] = initBoard(depth-1)
     } else {
-      state[i] = null;
+      state.cells[i] = null;
     }
   }
 
   return state
 }
 
+function moveBoards(depth, idx, direction, setBoards) {
+
+}
+
 function App() {
   const [xIsNext, setXIsNext] = useState(true);
   const [isWon, setIsWon] = useState(null);
-  const depth = 1;
-
-  let current_depth = depth;
-  let current_index = 0;
+  const depth = 2;
+  const wrapper = (winningPlayer) => {
+    setIsWon(winningPlayer);
+    console.log(winningPlayer);
+  }
+  const [current_depth, setDepth] = useState(depth-1);
+  const [current_index, setIdx] = useState(4);
+  const [nearbyBoards, showBoards] = useState({
+    "top": false,
+    "left": false,
+    "middle": true,
+    "right": false,
+    "bottom": false,
+  });
+  let [state, setState] = useState(initBoard(depth));
 
   const boardSize = 75;
   const borderSize = 2;
@@ -34,22 +51,35 @@ function App() {
     "width": "fit-content",
   }
 
-  const wrapper = (winningPlayer) => {
-    setIsWon(winningPlayer);
-    console.log(winningPlayer);
-  }
-
-  let state = initBoard(depth);
-  console.log(state);
-
   useHotkeys('w', () => {
-    if (current_depth == dept && current_index < 3) { return }
+    if (current_depth == depth || current_index < 3) { return }
+    console.log("TRIGGER");
 
-    current_index -= 3;
+    //You'd do a transition from one to the other here first
+
+    setIdx(current_index-3);
+
+    // setBoards(<Board depth={2} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper}/>);
+    // moveBoards(current_depth, current_index, "top", setBoards);
   });
 
+  console.log(state);
   return <div style={cssVars}>
-    <Board depth={depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper}/>
+    <div className='board-wrapper top-board'>
+      {nearbyBoards.top && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index-3]}/>}
+    </div>
+    <div className='board-wrapper left-board'>
+      {nearbyBoards.left && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index-1]}/>}
+    </div>
+    <div className='board-wrapper middle-board'>
+      {nearbyBoards.middle && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index]}/>}
+    </div>
+    <div className='board-wrapper right-board'>
+      {nearbyBoards.right && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index+1]}/>}
+    </div>
+    <div className='board-wrapper bottom-board'>
+      {nearbyBoards.bottom && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index+3]}/>}
+    </div>
   </div>;
 };
 
