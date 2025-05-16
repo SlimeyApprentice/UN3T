@@ -34,6 +34,12 @@ function get_pos() {
 function App() {
   const [xIsNext, setXIsNext] = useState(true);
   const [isWon, setIsWon] = useState(null);
+  const [isHeld, setIsHeld] = useState({
+    "w": false,
+    "a": false,
+    "s": false,
+    "d": false
+  });
   const { setTransform } = useControls();
   const depth = 1;
 
@@ -52,32 +58,37 @@ function App() {
   }
 
   // let state = initBoard(depth);
-  //Kinda hacky? I don't think zoom-pan-pinch lets you increment transform by itself
-  useHotkeys('w', () => {
-    // if (isHotkeyPressed('w') == false) { return; }
-
-    let [x_pos, y_pos, scale] = get_pos();    
-    setTransform(x_pos, y_pos+10, scale);
-  });
-  useHotkeys('a', () => {
-    // if (isHotkeyPressed('w') == false) { return; }
-
-    let [x_pos, y_pos, scale] = get_pos();    
-    setTransform(x_pos+10, y_pos, scale);
-  });
-  useHotkeys('s', () => {
-    // if (isHotkeyPressed('w') == false) { return; }
-
-    let [x_pos, y_pos, scale] = get_pos();    
-    setTransform(x_pos, y_pos-10, scale);
-  });
-  useHotkeys('d', () => {
-    // if (isHotkeyPressed('w') == false) { return; }
-
-    let [x_pos, y_pos, scale] = get_pos();    
-    setTransform(x_pos-10, y_pos, scale);
-  });
   
+  addEventListener("keydown", (event) => { 
+    let newIsHeld = isHeld;
+    newIsHeld[event.key] = true; 
+    setIsHeld(newIsHeld);
+  });
+  addEventListener("keyup", (event) => { 
+    let newIsHeld = isHeld;
+    newIsHeld[event.key] = false; 
+    setIsHeld(newIsHeld);
+  });
+
+  setInterval(() => {
+    //See if this lags out
+    // let [x_pos, y_pos, scale] = get_pos();    
+
+    if (isHeld["w"] == true) {
+      let [x_pos, y_pos, scale] = get_pos();    
+      setTransform(x_pos, y_pos+10, scale);
+    } else if (isHeld["a"] == true) {
+      let [x_pos, y_pos, scale] = get_pos();    
+      setTransform(x_pos+10, y_pos, scale);
+    } else if (isHeld["s"] == true) {
+      let [x_pos, y_pos, scale] = get_pos();    
+      setTransform(x_pos, y_pos-10, scale);
+    } else if (isHeld["d"] == true) {
+      let [x_pos, y_pos, scale] = get_pos();    
+      setTransform(x_pos-10, y_pos, scale);
+    }
+  }, 100);
+
   return <div style={cssVars}>
     <Board depth={depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper}/>
   </div>;
