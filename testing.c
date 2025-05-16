@@ -279,9 +279,9 @@ int t_process_move() {
     return 1;
 }
 
-int t_retrieve_state() {
-    return 1;
-}
+// int t_retrieve_state() {
+//     return 1;
+// }
 
 int t_board_h() {
     int pass = 1;
@@ -294,7 +294,7 @@ int t_board_h() {
     pass &= t_place_symbol();
     pass &= t_judge_board();
     pass &= t_process_move();
-    pass &= t_retrieve_state();
+    // pass &= t_retrieve_state();
     if (pass) {
         printf("Board module passing\n");
     }
