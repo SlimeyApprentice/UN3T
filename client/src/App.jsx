@@ -19,8 +19,13 @@ function initBoard(depth) {
   return state
 }
 
-function moveBoards(depth, idx, direction, setBoards) {
-
+function recursiveEdit(state, coordinates, value) {
+  if (coordinates.length == 1) {
+    state.cells[coordinates[0]] = value;
+  } else {
+    const next_coordinate = coordinates.pop()
+    return recursiveEdit(state.cells[next_coordinate], coordinates, value)
+  }
 }
 
 function App() {
@@ -42,6 +47,24 @@ function App() {
   });
   let [state, setState] = useState(initBoard(depth));
 
+  function makeMove(nextSquares, i, coordinates) {
+    console.log(coordinates);
+    let reverse_coordinates = coordinates.reverse();
+  
+    if (xIsNext) {
+      nextSquares[i] = "X";
+    } else {
+      nextSquares[i] = "O";
+    }
+    setXIsNext(!xIsNext);
+  
+    let new_state = JSON.parse(JSON.stringify(state));
+    recursiveEdit(new_state, reverse_coordinates, nextSquares[i]);
+    setState(new_state); 
+
+    return
+  }
+
   const boardSize = 75;
   const borderSize = 2;
 
@@ -55,7 +78,7 @@ function App() {
     if (current_depth == depth || current_index < 3) { return }
     console.log("TRIGGER");
 
-    //You'd do a transition from one to the other here first
+    //You'd do a transition from one to the other here
 
     setIdx(current_index-3);
 
@@ -63,23 +86,23 @@ function App() {
     // moveBoards(current_depth, current_index, "top", setBoards);
   });
 
-  console.log(state);
+  console.log(nearbyBoards);
   return <div style={cssVars}>
-    <div className='board-wrapper top-board'>
+    {/* <div className='board-wrapper top-board'>
       {nearbyBoards.top && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index-3]}/>}
     </div>
     <div className='board-wrapper left-board'>
       {nearbyBoards.left && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index-1]}/>}
-    </div>
+    </div> */}
     <div className='board-wrapper middle-board'>
-      {nearbyBoards.middle && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index]}/>}
+      {nearbyBoards.middle && <Board depth={current_depth} makeMove={makeMove} coordinates={[4]} externalSetIsWon={wrapper} initState={state.cells[current_index]}/>}
     </div>
-    <div className='board-wrapper right-board'>
+    {/* <div className='board-wrapper right-board'>
       {nearbyBoards.right && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index+1]}/>}
     </div>
     <div className='board-wrapper bottom-board'>
       {nearbyBoards.bottom && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index+3]}/>}
-    </div>
+    </div> */}
   </div>;
 };
 

@@ -8,9 +8,7 @@ import draw from './assets/Peace.svg' ;
 // import draw from './assets/CrossCircle.svg' ;
 // import draw from './assets/Square.svg' ;
 
-function Board({depth, xIsNext, setXIsNext, externalSetIsWon, initState}) {
-  // console.log(xIsNext);
-
+function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
   const [squares, setSquares] = useState(initState.cells);
   const [isWon, setIsWon] = useState(initState.game_state);
 
@@ -21,16 +19,10 @@ function Board({depth, xIsNext, setXIsNext, externalSetIsWon, initState}) {
     if (isWon != null) { return; }
     if (nextSquares[i] != null) { return; }
 
-    console.log(xIsNext);
-    if (xIsNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
-    setXIsNext(!xIsNext);
+    makeMove(nextSquares, i, coordinates);
     setSquares(nextSquares);
 
-    setIsWon(calculateWinner(nextSquares, externalSetIsWon, depth));
+    setIsWon(calculateWinner(nextSquares, externalSetIsWon));
   }
 
   //1+ recursion
@@ -40,7 +32,7 @@ function Board({depth, xIsNext, setXIsNext, externalSetIsWon, initState}) {
     nextSquares[i] = winningPlayer;
     setSquares(nextSquares);
 
-    setIsWon(calculateWinner(nextSquares, externalSetIsWon, depth));
+    setIsWon(calculateWinner(nextSquares, externalSetIsWon));
   }
 
   //I like my code WET
@@ -71,19 +63,19 @@ function Board({depth, xIsNext, setXIsNext, externalSetIsWon, initState}) {
         {isWon}
       </div>
       <div className='board-row top-row'>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(0, winningPlayer)} initState={initState.cells[0]}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(1, winningPlayer)} initState={initState.cells[1]}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(2, winningPlayer)} initState={initState.cells[2]}/>
+        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([0])} externalSetIsWon={(winningPlayer) => handleWin(0, winningPlayer)} initState={initState.cells[0]}/>
+        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([1])} externalSetIsWon={(winningPlayer) => handleWin(1, winningPlayer)} initState={initState.cells[1]}/>
+        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([2])} externalSetIsWon={(winningPlayer) => handleWin(2, winningPlayer)} initState={initState.cells[2]}/>
       </div>
       <div className='board-row center-row'>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(3, winningPlayer)} initState={initState.cells[3]}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(4, winningPlayer)} initState={initState.cells[4]}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(5, winningPlayer)} initState={initState.cells[5]}/>
+        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([3])} externalSetIsWon={(winningPlayer) => handleWin(3, winningPlayer)} initState={initState.cells[3]}/>
+        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([4])} externalSetIsWon={(winningPlayer) => handleWin(4, winningPlayer)} initState={initState.cells[4]}/>
+        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([5])} externalSetIsWon={(winningPlayer) => handleWin(5, winningPlayer)} initState={initState.cells[5]}/>
       </div>
       <div className='board-row bottom-row'>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(6, winningPlayer)} initState={initState.cells[6]}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(7, winningPlayer)} initState={initState.cells[7]}/>
-        <Board depth={depth-1} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={(winningPlayer) => handleWin(8, winningPlayer)} initState={initState.cells[8]}/>
+        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([6])} externalSetIsWon={(winningPlayer) => handleWin(6, winningPlayer)} initState={initState.cells[6]}/>
+        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([7])} externalSetIsWon={(winningPlayer) => handleWin(7, winningPlayer)} initState={initState.cells[7]}/>
+        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([8])} externalSetIsWon={(winningPlayer) => handleWin(8, winningPlayer)} initState={initState.cells[8]}/>
       </div>
       </div>;
   }
@@ -92,7 +84,8 @@ function Board({depth, xIsNext, setXIsNext, externalSetIsWon, initState}) {
 
 export default Board;
 
-function calculateWinner(squares, externalSetIsWon, depth) {
+//externalSetIsWon not really necessary
+function calculateWinner(squares, externalSetIsWon) {
   const style={
     "width": "100%",
     "height": "auto",
