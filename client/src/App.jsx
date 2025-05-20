@@ -20,11 +20,13 @@ function initBoard(depth) {
 }
 
 function recursiveEdit(state, coordinates, value) {
-  if (coordinates.length == 1) {
-    state.cells[coordinates[0]] = value;
+  const next_coordinate = coordinates.pop()
+  if (coordinates.length == 0) {
+    console.log("FINAL COORDINATE: " + next_coordinate);
+    state.cells[next_coordinate] = value;
   } else {
-    const next_coordinate = coordinates.pop()
-    return recursiveEdit(state.cells[next_coordinate], coordinates, value)
+    console.log("COORDINATE: " + next_coordinate);
+    recursiveEdit(state.cells[next_coordinate], coordinates, value)
   }
 }
 
@@ -48,7 +50,7 @@ function App() {
   let [state, setState] = useState(initBoard(depth));
 
   function makeMove(nextSquares, i, coordinates) {
-    console.log(coordinates);
+    // console.log(coordinates);
     let reverse_coordinates = coordinates.reverse();
   
     if (xIsNext) {
@@ -61,8 +63,10 @@ function App() {
     let new_state = JSON.parse(JSON.stringify(state));
     recursiveEdit(new_state, reverse_coordinates, nextSquares[i]);
     setState(new_state); 
+    console.log("NEW STATE: ");
+    console.log(state.cells[4]);
 
-    return
+    return;
   }
 
   const boardSize = 75;

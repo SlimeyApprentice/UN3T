@@ -19,7 +19,7 @@ function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
     if (isWon != null) { return; }
     if (nextSquares[i] != null) { return; }
 
-    makeMove(nextSquares, i, coordinates);
+    makeMove(nextSquares, i, coordinates.concat([i]));
     setSquares(nextSquares);
 
     setIsWon(calculateWinner(nextSquares, externalSetIsWon));
