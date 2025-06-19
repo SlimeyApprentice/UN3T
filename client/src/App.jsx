@@ -3,28 +3,6 @@ import { useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import Board from './Board.jsx';
 
-class GlobalState {
-  makeMove(nextSquares, i, coordinates) {
-    // console.log(coordinates);
-    let reverse_coordinates = coordinates.reverse();
-  
-    if (xIsNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
-    setXIsNext(!xIsNext);
-  
-    let new_state = JSON.parse(JSON.stringify(state));
-    recursiveEdit(new_state, reverse_coordinates, nextSquares[i]);
-    setState(new_state); 
-    // console.log("NEW STATE: ");
-    // console.log(state.cells[4]);
-
-    return;
-  }
-}
-
 function initBoard(depth) {
   let state = {
     "cells": [],
@@ -41,12 +19,11 @@ function initBoard(depth) {
   return state
 }
 
-function recursiveEdit(state, coordinates, value, game_state) {
+function recursiveEdit(state, coordinates, value) {
   const next_coordinate = coordinates.pop()
   if (coordinates.length == 0) {
     // console.log("FINAL COORDINATE: " + next_coordinate);
     state.cells[next_coordinate] = value;
-    state.game_state = game_state;
   } else {
     // console.log("COORDINATE: " + next_coordinate);
     recursiveEdit(state.cells[next_coordinate], coordinates, value)
@@ -71,6 +48,26 @@ function App() {
     "bottom": false,
   });
   let [state, setState] = useState(initBoard(depth));
+
+  function makeMove(nextSquares, i, coordinates) {
+    // console.log(coordinates);
+    let reverse_coordinates = coordinates.reverse();
+  
+    if (xIsNext) {
+      nextSquares[i] = "X";
+    } else {
+      nextSquares[i] = "O";
+    }
+    setXIsNext(!xIsNext);
+  
+    let new_state = JSON.parse(JSON.stringify(state));
+    recursiveEdit(new_state, reverse_coordinates, nextSquares[i]);
+    setState(new_state); 
+    // console.log("NEW STATE: ");
+    // console.log(state.cells[4]);
+
+    return;
+  }
 
   const boardSize = 75;
   const borderSize = 2;

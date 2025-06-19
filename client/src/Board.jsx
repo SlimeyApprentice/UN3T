@@ -9,11 +9,18 @@ import draw from './assets/Peace.svg' ;
 // import draw from './assets/Square.svg' ;
 
 const GameState = {
-  CROSS: "cross",
-  CIRCLE: "circle",
-  DRAW: "draw",
+  CROSS: "X",
+  CIRCLE: "O",
+  DRAW: "D",
   UNDECIDED: null
 };
+
+const gameStateStyle={
+  "width": "100%",
+  "height": "auto",
+  // "top": (-8 + (16*depth)) + "px",
+  "top": "0px",
+}
 
 function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
   const [squares, setSquares] = useState(initState.cells);
@@ -30,12 +37,16 @@ function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
     setSquares(nextSquares);
 
     const result = calculateWinner(nextSquares, externalSetIsWon);
+    console.log("RESULT: " + result);
     let element;
-    switch (result) {
-      case GameState.CROSS: element = <img src={cross} className="X" style={style}/>;
-      case GameState.CIRCLE: element = <img src={circle} className="O" style={style}/>;
-      case GameState.DRAW: element = <img src={draw} className="D" style={style}/>;
-      case GameState.UNDECIDED: element = null;
+    if (result == GameState.CROSS) {
+      element = <img src={cross} className="X" style={gameStateStyle}/>;
+    } else if (result == GameState.CIRCLE) {
+      element = <img src={circle} className="O" style={gameStateStyle}/>;
+    } else if (result == GameState.DRAW) {
+      element = <img src={draw} className="D" style={gameStateStyle}/>;
+    } else if (result == GameState.UNDECIDED) {
+      element = null;
     }
     setIsWon(element);
   }
@@ -47,7 +58,21 @@ function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
     nextSquares[i] = winningPlayer;
     setSquares(nextSquares);
 
-    setIsWon(calculateWinner(nextSquares, externalSetIsWon));
+    const result = calculateWinner(nextSquares, externalSetIsWon);
+    console.log("RESULT: " + result);
+    let element;
+    if (result == GameState.CROSS) {
+      element = <img src={cross} className="X" style={gameStateStyle}/>;
+    } else if (result == GameState.CIRCLE) {
+      element = <img src={circle} className="O" style={gameStateStyle}/>;
+    } else if (result == GameState.DRAW) {
+      element = <img src={draw} className="D" style={gameStateStyle}/>;
+    } else if (result == GameState.UNDECIDED) {
+      element = null;
+    }
+    setIsWon(element);
+
+    // setIsWon(calculateWinner(nextSquares, externalSetIsWon));
   }
 
   //I like my code WET
@@ -99,14 +124,7 @@ function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
 export default Board;
 
 //externalSetIsWon not really necessary
-function calculateWinner(squares, externalSetIsWon) {
-  const style={
-    "width": "100%",
-    "height": "auto",
-    // "top": (-8 + (16*depth)) + "px",
-    "top": "0px",
-  }
-    
+function calculateWinner(squares, externalSetIsWon) {    
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -123,9 +141,9 @@ function calculateWinner(squares, externalSetIsWon) {
       externalSetIsWon(squares[a])
 
       if (squares[a] == 'X') {
-        return <img src={cross} className="X" style={style}/>;
+        return GameState.CROSS;
       } else {
-        return <img src={circle} className="O" style={style}/>;
+        return GameState.CIRCLE;
       }
     }
   }
@@ -142,7 +160,8 @@ function calculateWinner(squares, externalSetIsWon) {
   console.log(squares);
   //Regular check for a draw
   if (has_space == false) {
-    return <img src={draw} className="D" style={style}/>;
+    externalSetIsWon("D")
+    return GameState.DRAW;
   }
 
   return GameState.UNDECIDED;
