@@ -3,6 +3,28 @@ import { useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import Board from './Board.jsx';
 
+class GlobalState {
+  makeMove(nextSquares, i, coordinates) {
+    // console.log(coordinates);
+    let reverse_coordinates = coordinates.reverse();
+  
+    if (xIsNext) {
+      nextSquares[i] = "X";
+    } else {
+      nextSquares[i] = "O";
+    }
+    setXIsNext(!xIsNext);
+  
+    let new_state = JSON.parse(JSON.stringify(state));
+    recursiveEdit(new_state, reverse_coordinates, nextSquares[i]);
+    setState(new_state); 
+    // console.log("NEW STATE: ");
+    // console.log(state.cells[4]);
+
+    return;
+  }
+}
+
 function initBoard(depth) {
   let state = {
     "cells": [],
@@ -19,13 +41,14 @@ function initBoard(depth) {
   return state
 }
 
-function recursiveEdit(state, coordinates, value) {
+function recursiveEdit(state, coordinates, value, game_state) {
   const next_coordinate = coordinates.pop()
   if (coordinates.length == 0) {
-    console.log("FINAL COORDINATE: " + next_coordinate);
+    // console.log("FINAL COORDINATE: " + next_coordinate);
     state.cells[next_coordinate] = value;
+    state.game_state = game_state;
   } else {
-    console.log("COORDINATE: " + next_coordinate);
+    // console.log("COORDINATE: " + next_coordinate);
     recursiveEdit(state.cells[next_coordinate], coordinates, value)
   }
 }
@@ -49,26 +72,6 @@ function App() {
   });
   let [state, setState] = useState(initBoard(depth));
 
-  function makeMove(nextSquares, i, coordinates) {
-    // console.log(coordinates);
-    let reverse_coordinates = coordinates.reverse();
-  
-    if (xIsNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
-    setXIsNext(!xIsNext);
-  
-    let new_state = JSON.parse(JSON.stringify(state));
-    recursiveEdit(new_state, reverse_coordinates, nextSquares[i]);
-    setState(new_state); 
-    console.log("NEW STATE: ");
-    console.log(state.cells[4]);
-
-    return;
-  }
-
   const boardSize = 75;
   const borderSize = 2;
 
@@ -90,7 +93,7 @@ function App() {
     // moveBoards(current_depth, current_index, "top", setBoards);
   });
 
-  console.log(nearbyBoards);
+  // console.log(nearbyBoards);
   return <div style={cssVars}>
     {/* <div className='board-wrapper top-board'>
       {nearbyBoards.top && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index-3]}/>}

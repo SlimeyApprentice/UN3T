@@ -8,11 +8,18 @@ import draw from './assets/Peace.svg' ;
 // import draw from './assets/CrossCircle.svg' ;
 // import draw from './assets/Square.svg' ;
 
+const GameState = {
+  CROSS: "cross",
+  CIRCLE: "circle",
+  DRAW: "draw",
+  UNDECIDED: null
+};
+
 function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
   const [squares, setSquares] = useState(initState.cells);
   const [isWon, setIsWon] = useState(initState.game_state);
 
-  //Used just for 0 recursion boards
+  //Base case, 0 recursion
   function handleClick(i) {
     const nextSquares = squares.slice();
 
@@ -22,10 +29,18 @@ function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
     makeMove(nextSquares, i, coordinates.concat([i]));
     setSquares(nextSquares);
 
-    setIsWon(calculateWinner(nextSquares, externalSetIsWon));
+    const result = calculateWinner(nextSquares, externalSetIsWon);
+    let element;
+    switch (result) {
+      case GameState.CROSS: element = <img src={cross} className="X" style={style}/>;
+      case GameState.CIRCLE: element = <img src={circle} className="O" style={style}/>;
+      case GameState.DRAW: element = <img src={draw} className="D" style={style}/>;
+      case GameState.UNDECIDED: element = null;
+    }
+    setIsWon(element);
   }
 
-  //1+ recursion
+  //Recursive step, 1+ recursion
   function handleWin(i, winningPlayer) {
     const nextSquares = squares.slice();
 
@@ -81,7 +96,6 @@ function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
   }
 
 };
-
 export default Board;
 
 //externalSetIsWon not really necessary
@@ -116,9 +130,20 @@ function calculateWinner(squares, externalSetIsWon) {
     }
   }
 
-  if (!squares.includes(null)) {
+  const has_space = squares.some((x) => { 
+      if (x === null || x.game_state === null) { 
+        return true; 
+      }
+
+      return false;
+    });
+
+  console.log("Has space? : " + has_space);
+  console.log(squares);
+  //Regular check for a draw
+  if (has_space == false) {
     return <img src={draw} className="D" style={style}/>;
   }
 
-  return null;
+  return GameState.UNDECIDED;
 }
