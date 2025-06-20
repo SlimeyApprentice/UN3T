@@ -1,7 +1,10 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useSelector, useDispatch } from 'react-redux';
+
 import Board from './Board.jsx';
+import { switchTurn, zoomUp, zoomDown } from './state/gameSlice.jsx'
 
 function recursiveEdit(state, coordinates, value) {
   const next_coordinate = coordinates.pop()
@@ -15,23 +18,25 @@ function recursiveEdit(state, coordinates, value) {
 }
 
 function App() {
-  const [xIsNext, setXIsNext] = useState(true);
+  const dispatch = useDispatch()
+
+  const boardSize = useSelector((state) => state.game.boardSize);
+  const borderSize = useSelector((state) => state.game.borderSize);
+
+  const nearbyBoards = useSelector((state) => state.game.nearbyBoards);
+
+  const globalBoard = useSelector((state) => state.game.globalBoard);
+
+  const current_depth = useSelector((state) => state.game.current_depth);
+  const current_index = useSelector((state) => state.game.current_index);
+
+  const xIsNext = useSelector((state) => state.game.xIsNext);
+
   const [isWon, setIsWon] = useState(null);
-  const depth = 2;
   const wrapper = (winningPlayer) => {
     setIsWon(winningPlayer);
     console.log(winningPlayer);
   }
-  const [current_depth, setDepth] = useState(depth-1);
-  const [current_index, setIdx] = useState(4);
-  const [nearbyBoards, showBoards] = useState({
-    "top": false,
-    "left": false,
-    "middle": true,
-    "right": false,
-    "bottom": false,
-  });
-  let [state, setState] = useState(initBoard(depth));
 
   function makeMove(nextSquares, i, coordinates) {
     // console.log(coordinates);
@@ -43,16 +48,16 @@ function App() {
     } else {
       player = "O";
     }
-    setXIsNext(!xIsNext);
+    dispatch(switchTurn())
     //Possibly redundant as it will read from init state
     nextSquares[i] = player; //Mutate state of component
 
-    useEffect(() => {
-      fetch('https://api.example.com/data')
-        .then(response => response.json())
-        .then(json => setState(json))
-        .catch(error => console.error(error));
-    }, []);
+    // useEffect(() => {
+    //   fetch('https://api.example.com/data')
+    //     .then(response => response.json())
+    //     .then(json => setState(json))
+    //     .catch(error => console.error(error));
+    // }, []);
 
     // let new_state = JSON.parse(JSON.stringify(state));
     // recursiveEdit(new_state, reverse_coordinates, player);
@@ -63,28 +68,24 @@ function App() {
     return;
   }
 
-  const boardSize = 75;
-  const borderSize = 2;
+  // useHotkeys('w', () => {
+  //   if (current_depth == depth || current_index < 3) { return }
+  //   console.log("TRIGGER");
+
+  //   //You'd do a transition from one to the other here
+
+  //   setIdx(current_index-3);
+
+  //   // setBoards(<Board depth={2} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper}/>);
+  //   // moveBoards(current_depth, current_index, "top", setBoards);
+  // });
 
   const cssVars = {
     "--board-size": boardSize + "px",
     "--border-size": borderSize + "px",
     "width": "fit-content",
-  }
-
-  useHotkeys('w', () => {
-    if (current_depth == depth || current_index < 3) { return }
-    console.log("TRIGGER");
-
-    //You'd do a transition from one to the other here
-
-    setIdx(current_index-3);
-
-    // setBoards(<Board depth={2} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper}/>);
-    // moveBoards(current_depth, current_index, "top", setBoards);
-  });
-
-  // console.log(nearbyBoards);
+  };
+  console.log(nearbyBoards);
   return <div style={cssVars}>
     {/* <div className='board-wrapper top-board'>
       {nearbyBoards.top && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index-3]}/>}
@@ -93,7 +94,7 @@ function App() {
       {nearbyBoards.left && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index-1]}/>}
     </div> */}
     <div className='board-wrapper middle-board'>
-      {nearbyBoards.middle && <Board depth={current_depth} makeMove={makeMove} coordinates={[4]} externalSetIsWon={wrapper} initState={state.cells[current_index]}/>}
+      {nearbyBoards.middle && <Board depth={current_depth} makeMove={makeMove} coordinates={[4]} externalSetIsWon={wrapper} initState={globalBoard.cells[current_index]}/>}
     </div>
     {/* <div className='board-wrapper right-board'>
       {nearbyBoards.right && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index+1]}/>}
