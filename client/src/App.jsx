@@ -20,15 +20,14 @@ function recursiveEdit(state, coordinates, value) {
 function App() {
   const dispatch = useDispatch()
 
+  const nearbyBoards = useSelector((state) => state.control.nearbyBoards);
+  const current_depth = useSelector((state) => state.control.current_depth);
+  const current_index = useSelector((state) => state.control.current_index);
+
   const boardSize = useSelector((state) => state.game.boardSize);
   const borderSize = useSelector((state) => state.game.borderSize);
 
-  const nearbyBoards = useSelector((state) => state.game.nearbyBoards);
-
   const globalBoard = useSelector((state) => state.game.globalBoard);
-
-  const current_depth = useSelector((state) => state.game.current_depth);
-  const current_index = useSelector((state) => state.game.current_index);
 
   const xIsNext = useSelector((state) => state.game.xIsNext);
 
