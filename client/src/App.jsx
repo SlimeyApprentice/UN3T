@@ -2,23 +2,6 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import Board from './Board.jsx';
-import callMove from './API.jsx';
-
-function initBoard(depth) {
-  let state = {
-    "cells": [],
-    "game_state": null
-  };
-  for (let i = 0; i < 9; i++) {
-    if (depth > 0) {
-      state.cells[i] = initBoard(depth-1)
-    } else {
-      state.cells[i] = null;
-    }
-  }
-
-  return state
-}
 
 function recursiveEdit(state, coordinates, value) {
   const next_coordinate = coordinates.pop()
