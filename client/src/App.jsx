@@ -1,7 +1,8 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import Board from './Board.jsx';
+import callMove from './API.jsx';
 
 function initBoard(depth) {
   let state = {
@@ -52,17 +53,27 @@ function App() {
   function makeMove(nextSquares, i, coordinates) {
     // console.log(coordinates);
     let reverse_coordinates = coordinates.reverse();
-  
+    
+    let player;
     if (xIsNext) {
-      nextSquares[i] = "X";
+      player = "X"
     } else {
-      nextSquares[i] = "O";
+      player = "O";
     }
     setXIsNext(!xIsNext);
-  
-    let new_state = JSON.parse(JSON.stringify(state));
-    recursiveEdit(new_state, reverse_coordinates, nextSquares[i]);
-    setState(new_state); 
+    //Possibly redundant as it will read from init state
+    nextSquares[i] = player; //Mutate state of component
+
+    useEffect(() => {
+      fetch('https://api.example.com/data')
+        .then(response => response.json())
+        .then(json => setState(json))
+        .catch(error => console.error(error));
+    }, []);
+
+    // let new_state = JSON.parse(JSON.stringify(state));
+    // recursiveEdit(new_state, reverse_coordinates, player);
+    // setState(new_state); 
     // console.log("NEW STATE: ");
     // console.log(state.cells[4]);
 
