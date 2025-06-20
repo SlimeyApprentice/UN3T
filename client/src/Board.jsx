@@ -1,6 +1,8 @@
 import React from 'react';
-import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
 import Cell from './Cell.jsx';
+import { makeMove } from './state/gameSlice.jsx'
 
 import cross from './assets/Cross.svg' ;
 import circle from './assets/Circle.svg';
@@ -22,64 +24,82 @@ const gameStateStyle={
   "top": "0px",
 }
 
-function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
-  const [squares, setSquares] = useState(initState.cells);
-  const [isWon, setIsWon] = useState(initState.game_state);
+function Board({depth, coordinates, externalSetIsWon}) {
+  const dispatch = useDispatch()
+
+  // console.log("GLOBAL BOARD: ");
+  const globalBoard = useSelector((state) => state.game.globalBoard );
+  console.log(globalBoard);
+
+  let localBoard = globalBoard;
+  for (const i in coordinates.reverse()) {
+    localBoard = localBoard.cells[i];
+  }
+
+  if (coordinates[0] == 0) {
+    console.log("LOCAL BOARD");
+    console.log(localBoard);
+  }
+
+  //Is this being updated?
+  const squares = localBoard.cells;
+  const isWon = localBoard.game_state;
+
+  //If board over, pick from the following images
+  let winElement;
+  if (isWon == GameState.CROSS) {
+    winElement = <img src={cross} className="X" style={gameStateStyle}/>;
+  } else if (isWon == GameState.CIRCLE) {
+    winElement = <img src={circle} className="O" style={gameStateStyle}/>;
+  } else if (isWon == GameState.DRAW) {
+    winElement = <img src={draw} className="D" style={gameStateStyle}/>;
+  } else if (isWon == GameState.UNDECIDED) {
+    winElement = null;
+  }
 
   //Base case, 0 recursion
   function handleClick(i) {
-    const nextSquares = squares.slice();
-
     if (isWon != null) { return; }
-    if (nextSquares[i] != null) { return; }
+    if (squares[i] != null) { return; }
 
-    makeMove(nextSquares, i, coordinates.concat([i]));
-    setSquares(nextSquares);
-
-    const result = calculateWinner(nextSquares, externalSetIsWon);
-    console.log("RESULT: " + result);
-    let element;
-    if (result == GameState.CROSS) {
-      element = <img src={cross} className="X" style={gameStateStyle}/>;
-    } else if (result == GameState.CIRCLE) {
-      element = <img src={circle} className="O" style={gameStateStyle}/>;
-    } else if (result == GameState.DRAW) {
-      element = <img src={draw} className="D" style={gameStateStyle}/>;
-    } else if (result == GameState.UNDECIDED) {
-      element = null;
-    }
-    setIsWon(element);
+    dispatch(makeMove(coordinates.concat([i])));
   }
 
-  //Recursive step, 1+ recursion
-  function handleWin(i, winningPlayer) {
-    const nextSquares = squares.slice();
+  // // Suspended as this won't be used when API works and it's a pain to get working rn
+  // //Recursive step, 1+ recursion
+  // function handleWin(i, winningPlayer) {
+  //   const nextSquares = squares.slice();
 
-    nextSquares[i] = winningPlayer;
-    setSquares(nextSquares);
+  //   nextSquares[i] = winningPlayer;
+  //   setSquares(nextSquares);
 
-    const result = calculateWinner(nextSquares, externalSetIsWon);
-    console.log("RESULT: " + result);
-    let element;
-    if (result == GameState.CROSS) {
-      element = <img src={cross} className="X" style={gameStateStyle}/>;
-    } else if (result == GameState.CIRCLE) {
-      element = <img src={circle} className="O" style={gameStateStyle}/>;
-    } else if (result == GameState.DRAW) {
-      element = <img src={draw} className="D" style={gameStateStyle}/>;
-    } else if (result == GameState.UNDECIDED) {
-      element = null;
-    }
-    setIsWon(element);
+  //   const result = calculateWinner(nextSquares, externalSetIsWon);
+  //   console.log("RESULT: " + result);
+  //   let element;
+  //   if (result == GameState.CROSS) {
+  //     element = <img src={cross} className="X" style={gameStateStyle}/>;
+  //   } else if (result == GameState.CIRCLE) {
+  //     element = <img src={circle} className="O" style={gameStateStyle}/>;
+  //   } else if (result == GameState.DRAW) {
+  //     element = <img src={draw} className="D" style={gameStateStyle}/>;
+  //   } else if (result == GameState.UNDECIDED) {
+  //     element = null;
+  //   }
+  //   setIsWon(element);
 
-    // setIsWon(calculateWinner(nextSquares, externalSetIsWon));
-  }
+  //   // setIsWon(calculateWinner(nextSquares, externalSetIsWon));
+  // }
 
   //I like my code WET
   if (depth == 0) {
+    if (coordinates[0] == 0) {
+      console.log("SQUARES: ");
+      console.log(squares);
+    }
+
     return <div className="board">
     <div className='win-container' style={{"zIndex": 1}}>
-      {isWon}
+      {winElement}
     </div>
     <div className='board-row top-row'>
       <Cell value={squares[0]} onSquareClick={() => handleClick(0)}/>
@@ -100,22 +120,22 @@ function Board({depth, makeMove, coordinates, externalSetIsWon, initState}) {
   } else {
       return <div className="board meta">
       <div className='win-container' style={{"zIndex": depth+1}}>
-        {isWon}
+        {winElement}
       </div>
       <div className='board-row top-row'>
-        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([0])} externalSetIsWon={(winningPlayer) => handleWin(0, winningPlayer)} initState={initState.cells[0]}/>
-        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([1])} externalSetIsWon={(winningPlayer) => handleWin(1, winningPlayer)} initState={initState.cells[1]}/>
-        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([2])} externalSetIsWon={(winningPlayer) => handleWin(2, winningPlayer)} initState={initState.cells[2]}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} externalSetIsWon={(winningPlayer) => handleWin(0, winningPlayer)} />
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} externalSetIsWon={(winningPlayer) => handleWin(1, winningPlayer)} />
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} externalSetIsWon={(winningPlayer) => handleWin(2, winningPlayer)} />
       </div>
       <div className='board-row center-row'>
-        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([3])} externalSetIsWon={(winningPlayer) => handleWin(3, winningPlayer)} initState={initState.cells[3]}/>
-        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([4])} externalSetIsWon={(winningPlayer) => handleWin(4, winningPlayer)} initState={initState.cells[4]}/>
-        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([5])} externalSetIsWon={(winningPlayer) => handleWin(5, winningPlayer)} initState={initState.cells[5]}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} externalSetIsWon={(winningPlayer) => handleWin(3, winningPlayer)} />
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} externalSetIsWon={(winningPlayer) => handleWin(4, winningPlayer)} />
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} externalSetIsWon={(winningPlayer) => handleWin(5, winningPlayer)} />
       </div>
       <div className='board-row bottom-row'>
-        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([6])} externalSetIsWon={(winningPlayer) => handleWin(6, winningPlayer)} initState={initState.cells[6]}/>
-        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([7])} externalSetIsWon={(winningPlayer) => handleWin(7, winningPlayer)} initState={initState.cells[7]}/>
-        <Board depth={depth-1} makeMove={makeMove} coordinates={coordinates.slice().concat([8])} externalSetIsWon={(winningPlayer) => handleWin(8, winningPlayer)} initState={initState.cells[8]}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} externalSetIsWon={(winningPlayer) => handleWin(6, winningPlayer)} />
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} externalSetIsWon={(winningPlayer) => handleWin(7, winningPlayer)} />
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} externalSetIsWon={(winningPlayer) => handleWin(8, winningPlayer)} />
       </div>
       </div>;
   }

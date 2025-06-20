@@ -4,18 +4,9 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Board from './Board.jsx';
-import { switchTurn, zoomUp, zoomDown } from './state/gameSlice.jsx'
+import { switchTurn } from './state/gameSlice.jsx'
+import { zoomUp, zoomDown } from './state/controlSlice.jsx'
 
-function recursiveEdit(state, coordinates, value) {
-  const next_coordinate = coordinates.pop()
-  if (coordinates.length == 0) {
-    // console.log("FINAL COORDINATE: " + next_coordinate);
-    state.cells[next_coordinate] = value;
-  } else {
-    // console.log("COORDINATE: " + next_coordinate);
-    recursiveEdit(state.cells[next_coordinate], coordinates, value)
-  }
-}
 
 function App() {
   const dispatch = useDispatch()
@@ -37,7 +28,7 @@ function App() {
     console.log(winningPlayer);
   }
 
-  function makeMove(nextSquares, i, coordinates) {
+  function exampleexampletesttest(nextSquares, i, coordinates) {
     // console.log(coordinates);
     let reverse_coordinates = coordinates.reverse();
     
@@ -84,7 +75,6 @@ function App() {
     "--border-size": borderSize + "px",
     "width": "fit-content",
   };
-  console.log(nearbyBoards);
   return <div style={cssVars}>
     {/* <div className='board-wrapper top-board'>
       {nearbyBoards.top && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index-3]}/>}
@@ -93,7 +83,7 @@ function App() {
       {nearbyBoards.left && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index-1]}/>}
     </div> */}
     <div className='board-wrapper middle-board'>
-      {nearbyBoards.middle && <Board depth={current_depth} makeMove={makeMove} coordinates={[4]} externalSetIsWon={wrapper} initState={globalBoard.cells[current_index]}/>}
+      {nearbyBoards.middle && <Board depth={current_depth} coordinates={[4]} externalSetIsWon={wrapper}/>}
     </div>
     {/* <div className='board-wrapper right-board'>
       {nearbyBoards.right && <Board depth={current_depth} xIsNext={xIsNext} setXIsNext={setXIsNext} externalSetIsWon={wrapper} initState={state.cells[current_index+1]}/>}

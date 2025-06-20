@@ -17,6 +17,17 @@ function initBoard(depth) {
     return state
   }
 
+function recursiveEdit(state, coordinates, player) {
+    const next_coordinate = coordinates.pop()
+    if (coordinates.length == 0) {
+        // console.log("FINAL COORDINATE: " + next_coordinate);
+        state.cells[next_coordinate] = player;
+    } else {
+        // console.log("COORDINATE: " + next_coordinate);
+        recursiveEdit(state.cells[next_coordinate], coordinates, player)
+    }
+}
+
 export const gameSlice = createSlice({
   name: 'Game State',
   initialState: {
@@ -29,10 +40,24 @@ export const gameSlice = createSlice({
     switchTurn: (state) => {
         state.xIsNext = !state.xIsNext;
     },
+    makeMove: (state, action) => {
+        const coordinates = action.payload;
+        let player;
+        if (state.xIsNext) {
+          player = "X"
+        } else {
+          player = "O";
+        }
+        state.xIsNext = !state.xIsNext;
+
+        //Here would go the API call soon
+        // recursiveEdit(state.globalBoard, coordinates.reverse(), player);
+        state.globalBoard.cells[0].cells[0].cells[0] = player;
+    }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { switchTurn } = gameSlice.actions
+export const { switchTurn, makeMove } = gameSlice.actions
 
 export default gameSlice.reducer
