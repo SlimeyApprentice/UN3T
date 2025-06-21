@@ -20,10 +20,10 @@ function initBoard(depth) {
 function recursiveEdit(state, coordinates, player) {
     const next_coordinate = coordinates.pop()
     if (coordinates.length == 0) {
-        // console.log("FINAL COORDINATE: " + next_coordinate);
+        console.log("FINAL COORDINATE: " + next_coordinate);
         state.cells[next_coordinate] = player;
     } else {
-        // console.log("COORDINATE: " + next_coordinate);
+        console.log("COORDINATE: " + next_coordinate);
         recursiveEdit(state.cells[next_coordinate], coordinates, player)
     }
 }
@@ -41,7 +41,7 @@ export const gameSlice = createSlice({
         state.xIsNext = !state.xIsNext;
     },
     makeMove: (state, action) => {
-        const coordinates = action.payload;
+        const coordinates = action.payload.slice();
         let player;
         if (state.xIsNext) {
           player = "X"
@@ -50,9 +50,11 @@ export const gameSlice = createSlice({
         }
         state.xIsNext = !state.xIsNext;
 
+        console.log("Making move according to coordinates: ");
+        console.log(coordinates);
+
         //Here would go the API call soon
-        // recursiveEdit(state.globalBoard, coordinates.reverse(), player);
-        state.globalBoard.cells[0].cells[0].cells[0] = player;
+        recursiveEdit(state.globalBoard, coordinates.reverse(), player);
     }
   },
 })

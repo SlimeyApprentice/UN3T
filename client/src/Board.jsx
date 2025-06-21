@@ -29,17 +29,18 @@ function Board({depth, coordinates, externalSetIsWon}) {
 
   // console.log("GLOBAL BOARD: ");
   const globalBoard = useSelector((state) => state.game.globalBoard );
-  console.log(globalBoard);
 
   let localBoard = globalBoard;
-  for (const i in coordinates.reverse()) {
+  for (const i of coordinates) {
     localBoard = localBoard.cells[i];
   }
 
-  if (coordinates[0] == 0) {
-    console.log("LOCAL BOARD");
-    console.log(localBoard);
-  }
+  // if (coordinates[1] == 0) {
+  //   console.log("LOCAL BOARD");
+  //   console.log(localBoard);
+  //   console.log("LOCAL BOARDS COORDINATES: ");
+  //   console.log(coordinates);
+  // }
 
   //Is this being updated?
   const squares = localBoard.cells;
@@ -62,7 +63,7 @@ function Board({depth, coordinates, externalSetIsWon}) {
     if (isWon != null) { return; }
     if (squares[i] != null) { return; }
 
-    dispatch(makeMove(coordinates.concat([i])));
+    dispatch(makeMove(coordinates.slice().concat([i])));
   }
 
   // // Suspended as this won't be used when API works and it's a pain to get working rn
@@ -92,16 +93,19 @@ function Board({depth, coordinates, externalSetIsWon}) {
 
   //I like my code WET
   if (depth == 0) {
-    if (coordinates[0] == 0) {
-      console.log("SQUARES: ");
-      console.log(squares);
-    }
+    // let newSquares = globalBoard.cells[4].cells[0].cells;
+    let newSquares = squares;
+
+    // if (coordinates[0] == 0) {
+    //   console.log("SQUARES: ");
+    //   console.log(newSquares);
+    // }
 
     return <div className="board">
     <div className='win-container' style={{"zIndex": 1}}>
       {winElement}
     </div>
-    <div className='board-row top-row'>
+    {/* <div className='board-row top-row'>
       <Cell value={squares[0]} onSquareClick={() => handleClick(0)}/>
       <Cell value={squares[1]} onSquareClick={() => handleClick(1)}/>
       <Cell value={squares[2]} onSquareClick={() => handleClick(2)}/>
@@ -115,6 +119,21 @@ function Board({depth, coordinates, externalSetIsWon}) {
       <Cell value={squares[6]} onSquareClick={() => handleClick(6)}/>
       <Cell value={squares[7]} onSquareClick={() => handleClick(7)}/>
       <Cell value={squares[8]} onSquareClick={() => handleClick(8)}/>
+    </div> */}
+        <div className='board-row top-row'>
+      <Cell value={newSquares[0]} onSquareClick={() => handleClick(0)}/>
+      <Cell value={newSquares[1]} onSquareClick={() => handleClick(1)}/>
+      <Cell value={newSquares[2]} onSquareClick={() => handleClick(2)}/>
+    </div>
+    <div className='board-row center-row'>
+      <Cell value={newSquares[3]} onSquareClick={() => handleClick(3)}/>
+      <Cell value={newSquares[4]} onSquareClick={() => handleClick(4)}/>
+      <Cell value={newSquares[5]} onSquareClick={() => handleClick(5)}/>
+    </div>
+    <div className='board-row bottom-row'>
+      <Cell value={newSquares[6]} onSquareClick={() => handleClick(6)}/>
+      <Cell value={newSquares[7]} onSquareClick={() => handleClick(7)}/>
+      <Cell value={newSquares[8]} onSquareClick={() => handleClick(8)}/>
     </div>
     </div>;
   } else {
