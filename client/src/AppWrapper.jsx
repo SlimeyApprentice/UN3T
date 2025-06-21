@@ -12,7 +12,9 @@ function AppWrapper() {
       initialScale={1}
       maxScale={2}
       minScale={1}
+      disablePadding={true}
       centerOnInit={true}
+      doubleClick={{disabled: true}}
     >
       <TransformComponent>
         <App />

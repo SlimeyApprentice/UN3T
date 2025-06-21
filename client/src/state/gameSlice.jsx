@@ -1,4 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
+import axios from 'axios';
+
 import { max_depth } from './controlSlice';
 
 function initBoard(depth) {
@@ -55,6 +57,15 @@ export const gameSlice = createSlice({
 
         //Here would go the API call soon
         recursiveEdit(state.globalBoard, coordinates.reverse(), player);
+
+        // axios.get('https://api.example.com/users')
+        // .then(response => {
+        //   // Handle the response data
+        //   console.log(response);
+        // })
+        // .catch(error => {
+        //   // Handle errors
+        // });
     }
   },
 })
