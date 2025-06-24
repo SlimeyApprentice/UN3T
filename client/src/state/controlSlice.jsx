@@ -30,6 +30,7 @@ export const controlSlice = createSlice({
         "right": false,
         "bottom": false,
     },
+    direction: "column",
   },
   reducers: {
     zoomUp: (state) => {
@@ -42,27 +43,19 @@ export const controlSlice = createSlice({
         state.focus_coordinates = state.focus_coordinates.concat([coordinate]);
         state.current_depth--;
     },
-    //We handle inputs that are too early here
-    moveUp: (state) => {
-      if (is_trans()) {
-        return;
-      } else {
-        state.nearbyBoards.top = true;
-      }
+    directionColumn: (state) => {
+      state.direction = "column";
     },
-    moveReset: (state) => {
-      state.nearbyBoards = {
-        "top": false,
-        "left": false,
-        "middle": true,
-        "right": false,
-        "bottom": false,
-      }
+    directionRow: (state) => {
+      state.direction = "row";
+    },
+    movedUp: (state) => {
+      
     }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { zoomUp, zoomDown, moveUp } = controlSlice.actions
+export const { zoomUp, zoomDown, directionColumn, directionRow } = controlSlice.actions
 
 export default controlSlice.reducer

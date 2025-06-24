@@ -4,24 +4,64 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Board from './Board.jsx';
-import { MAX_DEPTH, zoomUp, zoomDown, moveUp } from './state/controlSlice.jsx'
+import { MAX_DEPTH, zoomUp, zoomDown } from './state/controlSlice.jsx'
 
 function App() {
   const dispatch = useDispatch()
 
   const nearbyBoards = useSelector((state) => state.control.nearbyBoards);
-  const allBoards = useSelector((state) => state.control.allBoards);
   const current_depth = useSelector((state) => state.control.current_depth);
   const focus_coordinates = useSelector((state) => state.control.focus_coordinates);
 
+  //CSS variables and the CSS for the element we change dynamically
+  const boardSize = useSelector((state) => state.game.boardSize);
+  const borderSize = useSelector((state) => state.game.borderSize);
+  const [direction, setDirection] = useState("column");
+  var cssVars = {
+    "--board-size": boardSize + "px",
+    "--border-size": borderSize + "px",
+    "width": "fit-content",
+    "display": "flex",
+    "flex-direction": direction,
+  };
+
+  const [renderedBoards, setBoards] = useState([<Board depth={current_depth} coordinates={focus_coordinates} key={"middle"}/>]);
   //All the hotkeys
   useHotkeys('w', () => {
-    if (current_depth == MAX_DEPTH || focus_coordinates[focus_coordinates.length-1] < 3) { return }
+    if (current_depth == MAX_DEPTH || focus_coordinates[focus_coordinates.length-1] < 3 || renderedBoards.length > 1) { return }
     console.log("TRIGGER");
 
-    //You'd do a transition from one to the other here
-    dispatch(moveUp());
+    // //You'd do a transition from one to the other here
+    // dispatch(moveUp());
+
+    let new_coords = focus_coordinates.slice();
+    new_coords[new_coords.length-1] -= 3 
+
+    let newBoards = [];
+    newBoards.push(<Board depth={current_depth} coordinates={new_coords} key={"top"}/>);
+    newBoards.push(<Board depth={current_depth} coordinates={focus_coordinates} key={"middle"}/>);
+    setDirection("column");
+
+    setBoards(newBoards);
   });
+  useHotkeys('d', () => {
+    if (current_depth == MAX_DEPTH || [2, 5, 8].includes(focus_coordinates[focus_coordinates.length-1]) || renderedBoards.length > 1) { return }
+    console.log("TRIGGER");
+
+    // //You'd do a transition from one to the other here
+    // dispatch(moveUp());
+
+    let new_coords = focus_coordinates.slice();
+    new_coords[new_coords.length-1] += 1 
+
+    let newBoards = [];
+    newBoards.push(<Board depth={current_depth} coordinates={focus_coordinates} key={"middle"}/>);
+    newBoards.push(<Board depth={current_depth} coordinates={new_coords} key={"right"}/>);
+    setDirection("row");
+
+    setBoards(newBoards);
+  });
+  
   useHotkeys('q', () => {
     if (current_depth == MAX_DEPTH) { return }
 
@@ -44,21 +84,9 @@ function App() {
     }
   });
 
-  //Handle the active boards and transitions
-  //State guarantees only up to two active boards
-  //HERE BE DRAGONS
-
-  const boardSize = useSelector((state) => state.game.boardSize);
-  const borderSize = useSelector((state) => state.game.borderSize);
-  const cssVars = {
-    "--board-size": boardSize + "px",
-    "--border-size": borderSize + "px",
-    "width": "fit-content",
-    "display": "flex",
-    "flex-direction": "column"
-  };
+  console.log(renderedBoards);
   return <div className="game-wrapper" style={cssVars}>
-    {allBoards}
+    {renderedBoards}
 {/* 
     <div className='board-wrapper top-board'>
       {nearbyBoards.middle && <Board depth={current_depth} coordinates={focus_coordinates} externalSetIsWon={wrapper}/>}
