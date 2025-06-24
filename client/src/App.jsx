@@ -14,16 +14,7 @@ function App() {
   const current_depth = useSelector((state) => state.control.current_depth);
   const focus_coordinates = useSelector((state) => state.control.focus_coordinates);
 
-  const boardSize = useSelector((state) => state.game.boardSize);
-  const borderSize = useSelector((state) => state.game.borderSize);
-
-  const [isWon, setIsWon] = useState(null);
-  const wrapper = (winningPlayer) => {
-    setIsWon(winningPlayer);
-    console.log(winningPlayer);
-  }
-
-
+  //All the hotkeys
   useHotkeys('w', () => {
     if (current_depth == MAX_DEPTH || focus_coordinates[focus_coordinates.length-1] < 3) { return }
     console.log("TRIGGER");
@@ -53,14 +44,12 @@ function App() {
     }
   });
 
-  let rendered_boards = [];
-  Object.entries(nearbyBoards).forEach(([key, value]) => {
-    if (value != null) {
-      rendered_boards.push(value);
-    }
-  });
-  console.log(rendered_boards);
+  //Handle the active boards and transitions
+  //State guarantees only up to two active boards
+  //HERE BE DRAGONS
 
+  const boardSize = useSelector((state) => state.game.boardSize);
+  const borderSize = useSelector((state) => state.game.borderSize);
   const cssVars = {
     "--board-size": boardSize + "px",
     "--border-size": borderSize + "px",
