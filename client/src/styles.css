@@ -29,6 +29,14 @@ Width: 70px */
     padding: var(--padding);
 }
 
+.game-wrapper > * {
+    border: var(--border-size) solid rgb(0, 0, 0);
+}
+
+.active-board:hover {
+    background-color: rgba(119, 136, 153, 0.165);
+}
+
 :not(.meta) {
     width: var(--board-size);
 }

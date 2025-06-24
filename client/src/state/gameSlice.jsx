@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios';
 
-import { max_depth } from './controlSlice';
+import { MAX_DEPTH } from './controlSlice';
 
 function initBoard(depth) {
     let state = {
@@ -22,10 +22,10 @@ function initBoard(depth) {
 function recursiveEdit(state, coordinates, player) {
     const next_coordinate = coordinates.pop()
     if (coordinates.length == 0) {
-        console.log("FINAL COORDINATE: " + next_coordinate);
+        // console.log("FINAL COORDINATE: " + next_coordinate);
         state.cells[next_coordinate] = player;
     } else {
-        console.log("COORDINATE: " + next_coordinate);
+        // console.log("COORDINATE: " + next_coordinate);
         recursiveEdit(state.cells[next_coordinate], coordinates, player)
     }
 }
@@ -36,12 +36,9 @@ export const gameSlice = createSlice({
     xIsNext: true,
     boardSize: 75,
     borderSize: 2,
-    globalBoard: initBoard(max_depth)
+    globalBoard: initBoard(MAX_DEPTH)
   },
   reducers: {
-    switchTurn: (state) => {
-        state.xIsNext = !state.xIsNext;
-    },
     makeMove: (state, action) => {
         const coordinates = action.payload.slice();
         let player;
@@ -51,9 +48,6 @@ export const gameSlice = createSlice({
           player = "O";
         }
         state.xIsNext = !state.xIsNext;
-
-        console.log("Making move according to coordinates: ");
-        console.log(coordinates);
 
         //Here would go the API call soon
         recursiveEdit(state.globalBoard, coordinates.reverse(), player);
@@ -71,6 +65,6 @@ export const gameSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { switchTurn, makeMove } = gameSlice.actions
+export const { makeMove } = gameSlice.actions
 
 export default gameSlice.reducer

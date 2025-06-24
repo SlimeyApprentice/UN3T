@@ -24,7 +24,7 @@ const gameStateStyle={
   "top": "0px",
 }
 
-function Board({depth, coordinates, externalSetIsWon}) {
+function Board({depth, coordinates, is_active}) {
   const dispatch = useDispatch()
 
   // console.log("GLOBAL BOARD: ");
@@ -34,13 +34,6 @@ function Board({depth, coordinates, externalSetIsWon}) {
   for (const i of coordinates) {
     localBoard = localBoard.cells[i];
   }
-
-  // if (coordinates[1] == 0) {
-  //   console.log("LOCAL BOARD");
-  //   console.log(localBoard);
-  //   console.log("LOCAL BOARDS COORDINATES: ");
-  //   console.log(coordinates);
-  // }
 
   //Is this being updated?
   const squares = localBoard.cells;
@@ -91,21 +84,30 @@ function Board({depth, coordinates, externalSetIsWon}) {
   //   // setIsWon(calculateWinner(nextSquares, externalSetIsWon));
   // }
 
+  const current_depth = useSelector((state) => state.control.current_depth );
+  //Top-lever board
+  let is_child_active = false;
+  if (current_depth == depth) {
+    is_child_active = true;
+  }
+
+  let activeBoardClass = "";
+  if (is_active == true) {
+    activeBoardClass = "active-board";
+  }
+
+  let coordinateClass = "";
+  if (coordinates.length != 0) {
+    coordinateClass = coordinates[coordinates.length-1];
+  }
+
   //I like my code WET
   if (depth == 0) {
-    // let newSquares = globalBoard.cells[4].cells[0].cells;
-    let newSquares = squares;
-
-    // if (coordinates[0] == 0) {
-    //   console.log("SQUARES: ");
-    //   console.log(newSquares);
-    // }
-
-    return <div className="board">
+    return <div className={"board " + activeBoardClass + " " + coordinateClass}>
     <div className='win-container' style={{"zIndex": 1}}>
       {winElement}
     </div>
-    {/* <div className='board-row top-row'>
+    <div className='board-row top-row'>
       <Cell value={squares[0]} onSquareClick={() => handleClick(0)}/>
       <Cell value={squares[1]} onSquareClick={() => handleClick(1)}/>
       <Cell value={squares[2]} onSquareClick={() => handleClick(2)}/>
@@ -119,42 +121,28 @@ function Board({depth, coordinates, externalSetIsWon}) {
       <Cell value={squares[6]} onSquareClick={() => handleClick(6)}/>
       <Cell value={squares[7]} onSquareClick={() => handleClick(7)}/>
       <Cell value={squares[8]} onSquareClick={() => handleClick(8)}/>
-    </div> */}
-        <div className='board-row top-row'>
-      <Cell value={newSquares[0]} onSquareClick={() => handleClick(0)}/>
-      <Cell value={newSquares[1]} onSquareClick={() => handleClick(1)}/>
-      <Cell value={newSquares[2]} onSquareClick={() => handleClick(2)}/>
-    </div>
-    <div className='board-row center-row'>
-      <Cell value={newSquares[3]} onSquareClick={() => handleClick(3)}/>
-      <Cell value={newSquares[4]} onSquareClick={() => handleClick(4)}/>
-      <Cell value={newSquares[5]} onSquareClick={() => handleClick(5)}/>
-    </div>
-    <div className='board-row bottom-row'>
-      <Cell value={newSquares[6]} onSquareClick={() => handleClick(6)}/>
-      <Cell value={newSquares[7]} onSquareClick={() => handleClick(7)}/>
-      <Cell value={newSquares[8]} onSquareClick={() => handleClick(8)}/>
     </div>
     </div>;
   } else {
-      return <div className="board meta">
+      //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
+      return <div className={"board meta " + activeBoardClass + " " + coordinateClass}>
       <div className='win-container' style={{"zIndex": depth+1}}>
         {winElement}
       </div>
-      <div className='board-row top-row'>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} externalSetIsWon={(winningPlayer) => handleWin(0, winningPlayer)} />
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} externalSetIsWon={(winningPlayer) => handleWin(1, winningPlayer)} />
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} externalSetIsWon={(winningPlayer) => handleWin(2, winningPlayer)} />
+      <div className='board-row top-row'> 
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} is_active={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} is_active={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} is_active={is_child_active}/>
       </div>
       <div className='board-row center-row'>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} externalSetIsWon={(winningPlayer) => handleWin(3, winningPlayer)} />
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} externalSetIsWon={(winningPlayer) => handleWin(4, winningPlayer)} />
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} externalSetIsWon={(winningPlayer) => handleWin(5, winningPlayer)} />
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} is_active={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} is_active={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} is_active={is_child_active}/>
       </div>
       <div className='board-row bottom-row'>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} externalSetIsWon={(winningPlayer) => handleWin(6, winningPlayer)} />
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} externalSetIsWon={(winningPlayer) => handleWin(7, winningPlayer)} />
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} externalSetIsWon={(winningPlayer) => handleWin(8, winningPlayer)} />
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} is_active={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} is_active={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} is_active={is_child_active}/>
       </div>
       </div>;
   }
