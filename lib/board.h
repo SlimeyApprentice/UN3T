@@ -1,6 +1,8 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include "cJSON.h"
+
 #define X_OFFSET 0x06U
 #define O_OFFSET 0x0FU
 #define LINE_MASK_1 0b000000111
@@ -12,8 +14,8 @@
 #define LINE_MASK_7 0b100010001
 #define LINE_MASK_8 0b001010100
 #define PARENT_LOCATION_MASK 0b1111
-#define EMPTY_GAME(depth) {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, depth}, NULL, X}
-#define FAIL_UPDATE(code) {0, NULL, code, NULL}
+#define EMPTY_GAME(depth) {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, depth}, "", X}
+#define FAIL_UPDATE(code) {0, "", code, ""}
 
 typedef enum {
     ALPHA_ONE,      // 0x0
@@ -47,22 +49,17 @@ typedef struct Board {
     unsigned int depth; // contains the number of steps down before hitting the bottom
 } Board;
 
-typedef struct Move {
-    Position coordinate;
-    struct Move *next;
-} Move;
-
 typedef struct Game {
     Board board;
-    Move *restriction;
+    char *restriction;
     Verdict turn;
 } Game;
 
 typedef struct Update {
     int successful;
-    Move *location;
+    char *location;
     Verdict value;
-    Move *restriction;
+    char *restriction;
 } Update;
 
 /**
@@ -70,29 +67,7 @@ typedef struct Update {
  * @param restriction  A pointer to another move
  * @returns            Whether both moves agree until one of them ends
  */
-int _check_move_compatibility(Move *move, Move *restriction);
-
-/**
- * @param move   A pointer to the move to be copied
- * @param depth  How many entries to copy (or 0, to copy all)
- * @returns      A pointer to a Move object with the same data as the input Move up to the specified depth
- */
-Move *_copy_move(Move *move);
-
-/**
- * @param move   A pointer to the move to be clipped
- * @param depth  The length after which to cut the move
- * @returns      Nothing
- */
-void _clip_move(Move *move, int depth);
-
-/**
- * Calculate the number of descents required to process a move, i.e. the length minus one
- * 
- * @param move  The move
- * @returns     Descent count
- */
-int _count_descent(Move *move);
+int _check_move_compatibility(char *move, char *restriction);
 
 /**
  * Descend to the indicated child node, creating it if it doesn't exist.
@@ -137,7 +112,7 @@ Verdict _judge_board(Board *board);
  * @param player  The player makign the move
  * @returns       A struct encoding movement success, as well as location and content of largest update
  */
-Update process_move(Game *world, Move *move, Verdict player);
+cJSON *process_move(Game *world, char *move, Verdict player);
 
 /** 
  * Retrieve the state of the board centered on a sub-board up to a certain depth
@@ -147,6 +122,6 @@ Update process_move(Game *world, Move *move, Verdict player);
  * @param depth     The number of layers downwards to retrive
  * @returns         A Board object containing the desired state.
  */
-Board retrieve_state(Game *world, Move *location, unsigned int depth);
+cJSON *retrieve_state(Game *world, char *location, unsigned int depth);
 
 #endif // BOARD_H

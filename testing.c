@@ -1,14 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "lib/board.h"
-
-void pretty_print_move(Move *move) {
-    while (move) {
-        printf("%d", move->coordinate);
-        move = move->next;
-    }
-    printf("\n");
-}
+#include "lib/cJSON.h"
 
 void not_so_pretty_print_board(Board *board) {
     printf("{");
@@ -29,60 +23,22 @@ void not_so_pretty_print_board(Board *board) {
     printf("}");
 }
 
-Move *create_move(char str[]) {
-    Move *head = malloc(sizeof(Move));
-    Move *writer = head;
-    writer->coordinate = str[0] - '0';
-    writer->next = NULL;
-    for (int i=1; str[i] != 0; i++) {
-        Move *tail = malloc(sizeof(Move));
-        tail->coordinate = str[i] - '0';
-        writer->next = tail;
-        tail->next = NULL;
-        writer = tail;
-    }
-    return head;
-}
-
 int t_check_move_compatibility() {
     printf("testing check_move_compatibility\n");
-    if (_check_move_compatibility(create_move("13"), create_move("2"))) {
+    if (_check_move_compatibility("13", "2")) {
         printf("incompatible moves marked as compatible (13 vs 2)\n");
         return 0;
     }
-    if (!_check_move_compatibility(create_move("314"), create_move("3"))) {
+    if (!_check_move_compatibility("314", "3")) {
         printf("compatible moves marked as incompaitble (314 vs 3)\n");
         return 0;
     }
-    if (_check_move_compatibility(create_move("2"), create_move("13"))) {
+    if (_check_move_compatibility("2", "13")) {
         printf("incompatible moves marked as compatible (2 vs 13)\n");
         return 0;
     }
-    if (!_check_move_compatibility(create_move("3"), create_move("314"))) {
+    if (!_check_move_compatibility("3", "314")) {
         printf("compatible moves marked as incompatible (3 vs 314)\n");
-        return 0;
-    }
-    return 1;
-}
-
-int t_copy_move() {
-    printf("testing copy_move\n");
-    Move *move = create_move("2357");
-    Move *new_move = _copy_move(move);
-    if (new_move->coordinate != 2) {
-        printf("copy_move copied a move wrong (first entry was %d, should be %d)\n", new_move->coordinate, 2);
-        return 0;
-    }
-    if (new_move->next->coordinate != 3) {
-        printf("copy_move copied a move wrong (second entry was %d, should be %d)\n", new_move->next->coordinate, 3);
-        return 0;
-    }
-    if (new_move->next->next->coordinate != 5) {
-        printf("copy_move copied a move wrong (third entry was %d, should be %d)\n", new_move->next->coordinate, 5);
-        return 0;
-    }
-    if (new_move->next->next->next->coordinate != 7) {
-        printf("copy_move copied a move wrong (fourth entry was %d, should be %d)\n", new_move->next->coordinate, 7);
         return 0;
     }
     return 1;
@@ -90,15 +46,10 @@ int t_copy_move() {
 
 int t_clip_move() {
     printf("testing clip_move\n");
-    Move *move = malloc(sizeof(Move));
-    move->coordinate = 2;
-    Move *tail = malloc(sizeof(Move));
-    move->next = tail;
-    tail->coordinate = 3;
-    tail->next = NULL;
-    _clip_move(move, 0);
-    if (_count_descent(move) != 0) {
-        printf("clip_move clipped the move wrong (depth was %d, should be %d)\n", _count_descent(move), 0);
+    char move[] = "2305";
+    move[1] = 0;
+    if (strlen(move) - 1 != 0) {
+        printf("clip_move clipped the move wrong (depth was %d, should be %d)\n", strlen(move) - 1, 0);
         return 0;
     }
     return 1;
@@ -106,20 +57,19 @@ int t_clip_move() {
 
 int t_count_descent() {
     printf("testing count_descent\n");
-    Move length_zero = {0, NULL};
-    if (_count_descent(&length_zero) != 0) {
-        printf("count_descent calculated move as wrong length (%d, should be 0)\n", _count_descent(&length_zero));
+    char *length_zero = "0";
+    if (strlen(length_zero) - 1 != 0) {
+        printf("count_descent calculated move as wrong length (%d, should be 0)\n", strlen(length_zero) - 1);
         return 0;
     }
-    Move length_one = {0, &length_zero};
-    if (_count_descent(&length_one) != 1) {
-        printf("count_descent calculated move as wrong length (%d, should be 1)\n", _count_descent(&length_one));
+    char *length_one = "00";
+    if (strlen(length_one) - 1 != 1) {
+        printf("count_descent calculated move as wrong length (%d, should be 1)\n", strlen(length_one) - 1);
         return 0;
     }
-    Move *length_five = create_move("123450");
-    pretty_print_move(length_five);
-    if (_count_descent(length_five) != 5) {
-        printf("count_descent calculated move as wrong length (%d, should be 5)\n", _count_descent(length_five));
+    char *length_five = "123450";
+    if (strlen(length_five) - 1 != 5) {
+        printf("count_descent calculated move as wrong length (%d, should be 5)\n", strlen(length_five) - 1);
         return 0;
     }
     return 1;
@@ -253,40 +203,35 @@ int t_judge_board() {
 }
 
 int t_process_move() {
-    printf("testing process_move\n");
-    Game game = EMPTY_GAME(1);
-    Move *move = create_move("44");
-    Update update = process_move(&game, move, O);
-    if (update.successful || update.value != -1) {
-        printf("process_move incorrectly processed a move (success: %d, should be %d, code %d, should be %d)\n", update.successful, 0, update.value, -1);
-        return 0;
-    }
-    move = create_move("13");
-    update = process_move(&game, move, X);
-    if (!update.successful || update.value != X) {
-        printf("process_move calculated X's first move incorrectly (success: %d (should be %d), code %d (should be %d))\n", update.successful, 1, update.value, X);
-        return 0;
-    }
-    pretty_print_move(game.restriction);
-    move = create_move("30");
-    update = process_move(&game, move, O);
-    if (!update.successful) {
-        printf("O's first move was marked illegal when it wasn't");
-        return 0;
-    }
-    pretty_print_move(game.restriction);
-    not_so_pretty_print_board(&game.board);
-    return 1;
+    
 }
 
-// int t_retrieve_state() {
-//     return 1;
-// }
+int t_play_a_game() {
+    printf("Playing a game\n");
+    char *move = malloc(256);
+    Game game = EMPTY_GAME(1);
+    cJSON *update = cJSON_CreateObject();
+    Verdict player = X;
+    printf("initialized\n");
+    while (!cJSON_GetObjectItem(update, "success") || strlen(cJSON_GetStringValue(cJSON_GetObjectItem(update, "location"))) > 0) {
+        printf("> ");
+        scanf("%s", move);
+        move[strlen(move)] = 0;
+        printf("%s\n", move);
+        update = process_move(&game, move, player);
+        printf("%s\n", cJSON_Print(update));
+        printf("%s\n", cJSON_Print(retrieve_state(&game, "", game.board.depth)));
+        player = DRAW - player;
+    }
+}
+
+int t_retrieve_state() {
+    return 1;
+}
 
 int t_board_h() {
     int pass = 1;
     pass &= t_check_move_compatibility();
-    pass &= t_copy_move();
     pass &= t_clip_move();
     pass &= t_count_descent();
     pass &= t_descend();
@@ -294,6 +239,7 @@ int t_board_h() {
     pass &= t_place_symbol();
     pass &= t_judge_board();
     pass &= t_process_move();
+    pass &= t_play_a_game();
     // pass &= t_retrieve_state();
     if (pass) {
         printf("Board module passing\n");

@@ -1,94 +1,22 @@
 #include "board.h"
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
+#include "cJSON.h"
 
 /**
  * @param move         A pointer to a move
  * @param restriction  A pointer to another move
  * @returns            Whether both moves agree until one of them ends
  */
-int _check_move_compatibility(Move *move, Move *restriction) {
-    while (restriction && move) {
-        if (move->coordinate != restriction->coordinate) {
+int _check_move_compatibility(char *move, char *restriction) {
+    for (int i = 0; move[i] && restriction[i]; i++) {
+        if (move[i] != restriction[i]) {
             return 0;
         }
-        restriction = restriction->next;
-        move = move->next;
     }
     return 1;
 }
-
-/**
- * @param move   A pointer to the move to be copied
- * @returns      A pointer to a Move object with the same data as the input Move
- */
-Move *_copy_move(Move *move) {
-    Move *head = malloc(sizeof(Move));
-    head->coordinate = move->coordinate;
-    head->next = NULL;
-    Move *reader = move->next;
-    Move *writer = head;
-    while (reader) {
-        Move *tail = malloc(sizeof(Move));
-        tail->coordinate = reader->coordinate;
-        tail->next = NULL;
-        writer->next = tail;
-        writer = tail;
-        reader = reader->next;
-    }
-    return head;
-}
-
-/**
- * @param move   A pointer to the move to be clipped
- * @param depth  The length after which to clip the move
- * @returns      Nothing
- */
-void _clip_move(Move *move, int depth) {
-    while (depth > 0) {
-        if (!(move->next)) {
-            return;
-        }
-        move = move->next;
-        depth--;
-    }
-    if (!(move->next)) {
-        return;
-    }
-    Move *new_move = move->next;
-    move->next = NULL;
-    move = new_move;
-    while (move->next) {
-        Move *next_move = move->next;
-        move->next = NULL;
-        free(move);
-        move = next_move;
-    }
-}
-
-void _delete_move(Move *move) {
-    while (move) {
-        Move *next_move = move->next;
-        free(move);
-        move = next_move;
-    }
-}
-
-/**
- * Calculate the number of descents required to process a move, i.e. the length minus one
- * 
- * @param move  The move
- * @returns     Descent count
- */
-int _count_descent(Move *move) {
-    int count = -1;
-    while (move) {
-        move = move->next;
-        count++;
-    }
-    return count;
-}
-
 
 /**
  * Descend to the indicated child node, creating it if it doesn't exist.
@@ -166,16 +94,16 @@ void _place_symbol(Board *board, Position position, Verdict symbol) {
  * @param move   The move
  * @returns      Whether the move is legal
  */
-int _move_lookahead(Board *board, Move *move) {
-    if (!move) {
-        return 0; // This shouldn't happen in normal gameplay, but it helps with the restriction system
-    }
-    if (board->cells[move->coordinate]) {
-        board = board->cells[move->coordinate];
-        move = move->next;
-    }
-    else if (_retrieve_symbol(board, move->coordinate)) {
-        return 0;
+int _move_lookahead(Board *board, char *move) {
+    for (int i = 0; move[i]; i++) {
+        if (_retrieve_symbol(board, move[i] - '0')) {
+            return 0;
+        }
+        if (board->cells[move[i] - '0']) {
+            board = board->cells[move[i] - '0'];
+            continue;
+        }
+        return 1;
     }
     return 1;
 }
@@ -214,35 +142,49 @@ Verdict _judge_board(Board *board) {
  * @param player  The player making the move
  * @returns       A struct encoding movement success, as well as location and content of largest update
  */
-Update process_move(Game *world, Move *move, Verdict player) {
+cJSON *process_move(Game *world, char *move, Verdict player) {
+    cJSON *root = cJSON_CreateObject();
     Board *board = &world->board;
     // Check that the right player has made the move
     if (player != world->turn) {
-        Update fail_value = FAIL_UPDATE(-1);
-        return fail_value;
-    }
-    // Check move is in the correct small board by comparing to restriction provided by the world
-    if (!_check_move_compatibility(move, world->restriction)) {
-        Update fail_value = FAIL_UPDATE(-2);
-        return fail_value;
+        cJSON_AddBoolToObject(root, "success?", cJSON_False);
+        cJSON_AddNumberToObject(root, "value", -1);
+        return root;
     }
     // Check the move is the correct depth
-    if (_count_descent(move) != board->depth) {
-        Update fail_value = FAIL_UPDATE(-3);
-        return fail_value;
+    if (strlen(move) - 1 != board->depth) {
+        cJSON_AddBoolToObject(root, "success?", cJSON_False);
+        cJSON_AddNumberToObject(root, "value", -2);
+        return root;
+    }
+    for (int i = 0; move[i]; i++) {
+        if (move[i] - '0' > 8 || move[i] - '0' < 0) {
+            cJSON_AddBoolToObject(root, "success?", cJSON_False);
+            cJSON_AddNumberToObject(root, "value", -2);
+            return root;
+        }
     }
     // Check that the move is not in an already won board
     if (!_move_lookahead(board, move)) {
-        Update fail_value = FAIL_UPDATE(-4);
-        return fail_value;
+        cJSON_AddBoolToObject(root, "success?", cJSON_False);
+        cJSON_AddNumberToObject(root, "value", -3);
+        return root;
+    }
+    // Check move is in the correct small board by comparing to restriction provided by the world
+    if (!_check_move_compatibility(move, world->restriction)) {
+        cJSON_AddBoolToObject(root, "success?", cJSON_False);
+        cJSON_AddNumberToObject(root, "value", -4);
+        return root;
     }
     // We know the move is good, so now process it
-    Move *saved_move = _copy_move(move);
+    char *saved_move = malloc(strlen(move) + 1);
+    strcpy(saved_move, move);
+    int i = 0;
     while (board->depth > 0) {
-        board = _descend(board, move->coordinate);
-        move = move->next;
+        board = _descend(board, move[i] - '0');
+        i++;
     }
-    _place_symbol(board, move->coordinate, player);
+    _place_symbol(board, move[i] -'0', player);
     Verdict judgement = player;
     Verdict verdict = player;
     int depth = world->board.depth;
@@ -258,29 +200,68 @@ Update process_move(Game *world, Move *move, Verdict player) {
                 free(board->cells[location]);
                 continue;
             }
-            Update return_value = {1, NULL, judgement};
-            return return_value;
+            cJSON_AddBoolToObject(root, "success?", cJSON_True);
+            cJSON_AddStringToObject(root, "location", "");
+            cJSON_AddNumberToObject(root, "value", judgement);
+            cJSON_AddStringToObject(root, "restriction", "");
+            return root;
             // Stop the game, because we have a winner!
             // (We really should deallocate the board and such, if we're handling more than one game at once)
         }
     }
-    // Clear the previous restriction
-    _delete_move(world->restriction);
-    world->restriction = NULL;
     // Copy the move into the restriction field of the game state
-    world->restriction = _copy_move(saved_move->next);
+    world->restriction = strcpy(malloc(strlen(saved_move) + 1), saved_move);
     // Zoom out until the restriction has a legal move
-    while (world->restriction && !_move_lookahead(&world->board, world->restriction)) {
-        Move *new_restriction = world->restriction->next;
-        free(world->restriction);
-        world->restriction = new_restriction;
+    while (world->restriction[0] && !_move_lookahead(&world->board, world->restriction)) {
+        world->restriction++;
     }
     // flip the player
-    world->turn = 3 - world->turn;
+    world->turn = DRAW - world->turn;
     // finally, clip our saved move to the right size to indicate the update
-    _clip_move(saved_move, depth);
-    Update return_value = {1, saved_move, verdict};
-    return return_value;
+    saved_move[depth+1] = 0;
+    Update return_value = {1, saved_move, verdict, world->restriction};
+    cJSON_AddBoolToObject(root, "success?", cJSON_True);
+    cJSON_AddStringToObject(root, "location", saved_move);
+    cJSON_AddNumberToObject(root, "value", verdict);
+    cJSON_AddStringToObject(root, "restriction", world->restriction);
+    return root;
+}
+
+cJSON *_empty_board(unsigned int depth) {
+    cJSON *root = cJSON_CreateObject();
+    char *key = strcpy(malloc(2), "0");
+    for (int i = 0; i < 9; i++) {
+        key[0] = i + '0';
+        if (depth == 0) {
+            cJSON_AddNumberToObject(root, key, 0);
+        }
+        else {
+            cJSON *child = _empty_board(depth - 1);
+            cJSON_AddItemToObject(root, key, child);
+        }
+    }
+    return root;
+}
+
+cJSON *_parse_board(Board *world, unsigned int depth) {
+    cJSON *root = cJSON_CreateObject();
+    char *key = strcpy(malloc(2), "0");
+    for (int i = 0; i < 9; i++) {
+        key[0] = i + '0';
+        Verdict symbol = _retrieve_symbol(world, i);
+        if (depth == 0 || symbol) {
+            cJSON_AddNumberToObject(root, key, symbol);
+        }
+        else if (!world->cells[i]) {
+            cJSON *child = _empty_board(depth - 1);
+            cJSON_AddItemToObject(root, key, child);
+        }
+        else {
+            cJSON *child = _parse_board(world->cells[i], depth - 1);
+            cJSON_AddItemToObject(root, key, child);
+        }
+    }
+    return root;
 }
 
 /** 
@@ -291,6 +272,11 @@ Update process_move(Game *world, Move *move, Verdict player) {
  * @param depth     The number of layers downwards to retrive
  * @returns         A Board object containing the desired state.
  */
-Board retrieve_state(Game *world, Move *location, unsigned int depth) {
-
+cJSON *retrieve_state(Game *world, char *location, unsigned int depth) {
+    Board *board = &world->board;
+    while (location[0]) {
+        board = board->cells[location[0]];
+        location++;
+    }
+    return _parse_board(board, depth);
 }
