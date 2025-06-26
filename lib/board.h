@@ -14,8 +14,8 @@
 #define LINE_MASK_7 0b100010001
 #define LINE_MASK_8 0b001010100
 #define PARENT_LOCATION_MASK 0b1111
-#define EMPTY_GAME(depth) {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, depth}, "", X}
-#define FAIL_UPDATE(code) {0, "", code, ""}
+#define EMPTY_GAME(depth) {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, depth}, calloc(1, 1), X}
+#define FAIL_UPDATE(code) {0, calloc(1, 1), code, calloc(1, 1)}
 
 typedef enum {
     ALPHA_ONE,      // 0x0

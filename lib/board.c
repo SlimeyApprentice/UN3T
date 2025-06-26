@@ -206,24 +206,26 @@ cJSON *process_move(Game *world, char *move, Verdict player) {
             cJSON_AddStringToObject(root, "restriction", "");
             return root;
             // Stop the game, because we have a winner!
-            // (We really should deallocate the board and such, if we're handling more than one game at once)
+            // (Deallocation is the resposiblity of the server that created the game objects)
         }
     }
+    // Free the previous move restriction
+    free(world->restriction);
     // Copy the move into the restriction field of the game state
     world->restriction = strcpy(malloc(strlen(saved_move) + 1), saved_move);
     // Zoom out until the restriction has a legal move
     while (world->restriction[0] && !_move_lookahead(&world->board, world->restriction)) {
-        world->restriction++;
+        memmove(world->restriction, world->restriction+1, strlen(world->restriction));
     }
     // flip the player
     world->turn = DRAW - world->turn;
     // finally, clip our saved move to the right size to indicate the update
     saved_move[depth+1] = 0;
-    Update return_value = {1, saved_move, verdict, world->restriction};
     cJSON_AddBoolToObject(root, "success?", cJSON_True);
     cJSON_AddStringToObject(root, "location", saved_move);
     cJSON_AddNumberToObject(root, "value", verdict);
     cJSON_AddStringToObject(root, "restriction", world->restriction);
+    free(saved_move);
     return root;
 }
 
