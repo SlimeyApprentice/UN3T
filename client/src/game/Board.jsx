@@ -1,12 +1,12 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import Cell from '../Cell.jsx';
-import { makeMove } from './state/gameSlice.jsx'
+import Cell from './Cell.jsx';
+import { makeMove } from '../state/gameSlice.jsx'
 
-import cross from './assets/Cross.svg' ;
-import circle from './assets/Circle.svg';
-import draw from './assets/Peace.svg' ;
+import cross from '../assets/Cross.svg' ;
+import circle from '../assets/Circle.svg';
+import draw from '../assets/Peace.svg' ;
 // import draw from './assets/CrossCircle.svg' ;
 // import draw from './assets/Square.svg' ;
 

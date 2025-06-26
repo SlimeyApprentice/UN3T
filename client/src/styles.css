@@ -46,16 +46,16 @@ body {
 .game-wrapper > .board {
     border: var(--border-size) solid rgb(0, 0, 0);
 }
-.game-wrapper > .top-board {
+.game-wrapper > #top-board {
     border-bottom: none;
 }
-.game-wrapper > .bottom-board {
+.game-wrapper > #bottom-board {
     border-top: none;
 }
-.game-wrapper > .right-board {
+.game-wrapper > #right-board {
     border-left: none;
 }
-.game-wrapper > .left-board {
+.game-wrapper > #left-board {
     border-right: none;
 }
 

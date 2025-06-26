@@ -1,24 +1,12 @@
-import React, { useRef } from "react";
-import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
-import { Provider, useSelector } from "react-redux";
+import React from "react";
+import { Provider } from "react-redux";
 import store from "./state/store.jsx";
-import App from "./Game.jsx";
+import Game from "./game/Game.jsx";
 
 function App() {
   return <Provider store={store}>
-    <TransformWrapper
-      initialScale={1}
-      // maxScale={2}
-      // minScale={1}
-      disablePadding={true}
-      centerOnInit={true}
-      doubleClick={{disabled: true}}
-    >
-      <TransformComponent>
-        <App />
-      </TransformComponent>
-    </TransformWrapper>
+    <Game/>
   </Provider>;
 };
 
-export default AppWrapper;
+export default App;

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import React from 'react';
 
-import Board from '../Board.jsx';
+import Board from '../game/Board.jsx';
 
 //Check if state is mid transition
 function is_trans(nearbyBoards) {
@@ -18,11 +18,21 @@ function is_trans(nearbyBoards) {
 
 export const MAX_DEPTH = 2;
 
+const init_idx = 6;
+
 export const controlSlice = createSlice({
   name: 'Control State',
   initialState: {
     current_depth: MAX_DEPTH-1,
-    focus_coordinates: [4],
+    focus_coordinates: [init_idx],
+    renderBoards: [
+      {
+        depth: MAX_DEPTH-1,
+        coordinates: [init_idx],
+        id: "middle-board",
+        key: "middle-board",
+      }
+    ],
     transitionStates: {
         "top": null,
         "left": null,
@@ -30,6 +40,7 @@ export const controlSlice = createSlice({
         "bottom": null,
     },
     direction: "column",
+    window_width: "fit-content",
   },
   reducers: {
     zoomUp: (state) => {
@@ -42,13 +53,139 @@ export const controlSlice = createSlice({
         state.focus_coordinates = state.focus_coordinates.concat([coordinate]);
         state.current_depth--;
     },
-    movedUp: (state) => {
-      state.transitionStates.top = "spawned";
+    moveUp: (state) => {
+      let new_coords = state.focus_coordinates.slice();
+      new_coords[new_coords.length-1] -= 3 
+
+      let newBoards = [];
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: new_coords,
+        id: "top-board",
+        key: "top-board",
+      })
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: state.focus_coordinates,
+        id: "middle-board",
+        key: "middle-board",
+      })
+      state.renderBoards = newBoards;
+
+      //Capture width of window now and do not let it expand.
+      const locked_width = document.querySelector(".react-transform-wrapper").offsetWidth; //Might need .getBoundingClientRect()
+      state.window_width = locked_width;
+
+      state.direction = "column";
+      state.transitionStates.top = new_coords;
+    },
+    moveLeft: (state) => {
+      let new_coords = state.focus_coordinates.slice();
+      new_coords[new_coords.length-1] += 1; 
+
+      let newBoards = [];
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: state.focus_coordinates,
+        id: "middle-board",
+        key: "middle-board",
+      })
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: new_coords,
+        id: "right-board",
+        key: "right-board",
+      })
+      state.renderBoards = newBoards;
+
+      //Capture width of window now and do not let it expand.
+      const locked_width = document.querySelector(".react-transform-wrapper").offsetWidth; //Might need .getBoundingClientRect()
+      state.window_width = locked_width;
+
+      state.direction = "row";
+      state.transitionStates.top = new_coords;
+    },
+    moveDown: (state) => {
+      let new_coords = state.focus_coordinates.slice();
+      new_coords[new_coords.length-1] += 1; 
+
+      let newBoards = [];
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: state.focus_coordinates,
+        id: "middle-board",
+        key: "middle-board",
+      })
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: new_coords,
+        id: "right-board",
+        key: "right-board",
+      })
+      state.renderBoards = newBoards;
+
+      //Capture width of window now and do not let it expand.
+      const locked_width = document.querySelector(".react-transform-wrapper").offsetWidth; //Might need .getBoundingClientRect()
+      state.window_width = locked_width;
+
+      state.direction = "row";
+      state.transitionStates.top = new_coords;
+    },
+    moveRight: (state) => {
+      let new_coords = state.focus_coordinates.slice();
+      new_coords[new_coords.length-1] += 1; 
+
+      let newBoards = [];
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: state.focus_coordinates,
+        id: "middle-board",
+        key: "middle-board",
+      })
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: new_coords,
+        id: "right-board",
+        key: "right-board",
+      })
+      state.renderBoards = newBoards;
+
+      //Capture width of window now and do not let it expand.
+      const locked_width = document.querySelector(".react-transform-wrapper").offsetWidth; //Might need .getBoundingClientRect()
+      state.window_width = locked_width;
+
+      state.direction = "row";
+      state.transitionStates.top = new_coords;
+    },
+    transitionComplete: (state) => {
+      Object.values(state.transitionStates).forEach((value) => {
+        if (value !== null) {
+          state.focus_coordinates = value;
+        }
+      })
+
+      let newBoards = [];
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: state.focus_coordinates,
+        id: "middle-board",
+        key: "middle-board",
+      })
+      state.renderBoards = newBoards;
+
+      state.transitionStates = {
+        "top": null,
+        "left": null,
+        "right": null,
+        "bottom": null,
+      };
+
+      state.window_width = "fit-content";
     }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { zoomUp, zoomDown, movedUp } = controlSlice.actions
+export const { zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight, transitionComplete } = controlSlice.actions
 
 export default controlSlice.reducer
