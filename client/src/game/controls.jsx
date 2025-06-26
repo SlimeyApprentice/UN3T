@@ -60,6 +60,11 @@ function process_input() {
       console.warn("coordinate found when zooming in wasn't valid");
     }
   });
+
+  useHotkeys('h', () => {
+    console.log(current_depth);
+    console.log(focus_coordinates);
+  });
 };
 
 export default process_input;

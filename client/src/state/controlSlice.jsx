@@ -16,6 +16,17 @@ function is_trans(nearbyBoards) {
   }
 }
 
+function refresh_board(state) {
+  state.renderBoards = [
+    {
+      depth: state.current_depth,
+      coordinates: state.focus_coordinates,
+      id: "middle-board",
+      key: "middle-board",
+    }
+  ]
+}
+
 export const MAX_DEPTH = 2;
 
 const init_idx = 6;
@@ -46,12 +57,14 @@ export const controlSlice = createSlice({
     zoomUp: (state) => {
         state.current_depth++;
         state.focus_coordinates.pop();
+        refresh_board(state);
     },
     zoomDown: (state, action) => {
         const coordinate = action.payload;
 
         state.focus_coordinates = state.focus_coordinates.concat([coordinate]);
         state.current_depth--;
+        refresh_board(state);
     },
     moveUp: (state) => {
       let new_coords = state.focus_coordinates.slice();
