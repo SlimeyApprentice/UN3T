@@ -22,6 +22,7 @@ function Renderer({ renderedBoards, cssVars }) {
 
         //Not incredibly strictly enforced but we expect only one of these to be on
         if (transitionStates["top"] !== null) {            
+            console.log("Transition Top");
             //??????????????
             //I struggle to understand why this works but it has. setTransform will not complete unless it's in timeout
                 //It moves by some small fraction of a pixel when animationTime is 100+
@@ -37,30 +38,31 @@ function Renderer({ renderedBoards, cssVars }) {
             setTimeout(() => {
                 resetTransform(animationTime); //Move to top board which is at 0,0
             }, COMICALLY_SMALL_NUMBER);
-            setTimeout(() => {
-                dispatch(transitionComplete());
-            }, animationTime)
         } else if (transitionStates["left"] !== null) {
-
-        } else if (transitionStates["down"] !== null) {
-            // setTimeout(() => {
-            //     setTransform(0, -element.offsetWidth, 1, 0); //Instantly go back to middle
-            // }, COMICALLY_SMALL_NUMBER);
-
-            // setTimeout(() => {
-            //     resetTransform(animationTime); //Move to top board which is at 0,0
-            // }, COMICALLY_SMALL_NUMBER);
-            // setTimeout(() => {
-            //     dispatch(transitionComplete());
-            // }, animationTime)
-        } else if (transitionStates["right"] !== null) {
+            console.log("Transition Left");
             setTimeout(() => {
-                setTransform(element.offsetWidth, 0, 1, animationTime); //Move right
+                setTransform(-element.offsetWidth, 0, 1, 0); //Instantly go back to middle
             }, COMICALLY_SMALL_NUMBER);
 
             setTimeout(() => {
+                setTransform(0, 0, 1, animationTime); //Move left
+            }, COMICALLY_SMALL_NUMBER);
+        } else if (transitionStates["bottom"] !== null) {
+            console.log("Transition Down");
+            setTimeout(() => {
+                setTransform(0, -element.offsetWidth, 1, animationTime); //Move down
+            }, COMICALLY_SMALL_NUMBER);
+        } else if (transitionStates["right"] !== null) {
+            console.log("Transition Right");
+            setTimeout(() => {
+                setTransform(-element.offsetWidth, 0, 1, animationTime); //Move right
+            }, COMICALLY_SMALL_NUMBER);
+        }
+
+        if (Object.values(transitionStates).filter((x) => { if (x !== null) { return x }}).length != 0) {
+            setTimeout(() => {
                 dispatch(transitionComplete());
-            }, animationTime)
+            }, animationTime) //Report back that it's done
         }
 
     }, [transitionStates])

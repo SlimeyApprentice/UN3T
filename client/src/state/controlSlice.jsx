@@ -77,24 +77,24 @@ export const controlSlice = createSlice({
       state.window_width = locked_width;
 
       state.direction = "column";
-      state.transitionStates.top = new_coords;
+      state.transitionStates["top"] = new_coords;
     },
     moveLeft: (state) => {
       let new_coords = state.focus_coordinates.slice();
-      new_coords[new_coords.length-1] += 1; 
+      new_coords[new_coords.length-1] -= 1; 
 
       let newBoards = [];
+      newBoards.push({
+        depth: state.current_depth,
+        coordinates: new_coords,
+        id: "left-board",
+        key: "left-board",
+      })
       newBoards.push({
         depth: state.current_depth,
         coordinates: state.focus_coordinates,
         id: "middle-board",
         key: "middle-board",
-      })
-      newBoards.push({
-        depth: state.current_depth,
-        coordinates: new_coords,
-        id: "right-board",
-        key: "right-board",
       })
       state.renderBoards = newBoards;
 
@@ -103,11 +103,11 @@ export const controlSlice = createSlice({
       state.window_width = locked_width;
 
       state.direction = "row";
-      state.transitionStates.top = new_coords;
+      state.transitionStates["left"] = new_coords;
     },
     moveDown: (state) => {
       let new_coords = state.focus_coordinates.slice();
-      new_coords[new_coords.length-1] += 1; 
+      new_coords[new_coords.length-1] += 3; 
 
       let newBoards = [];
       newBoards.push({
@@ -119,8 +119,8 @@ export const controlSlice = createSlice({
       newBoards.push({
         depth: state.current_depth,
         coordinates: new_coords,
-        id: "right-board",
-        key: "right-board",
+        id: "bottom-board",
+        key: "bottom-board",
       })
       state.renderBoards = newBoards;
 
@@ -128,8 +128,8 @@ export const controlSlice = createSlice({
       const locked_width = document.querySelector(".react-transform-wrapper").offsetWidth; //Might need .getBoundingClientRect()
       state.window_width = locked_width;
 
-      state.direction = "row";
-      state.transitionStates.top = new_coords;
+      state.direction = "column";
+      state.transitionStates["bottom"] = new_coords;
     },
     moveRight: (state) => {
       let new_coords = state.focus_coordinates.slice();
@@ -155,7 +155,7 @@ export const controlSlice = createSlice({
       state.window_width = locked_width;
 
       state.direction = "row";
-      state.transitionStates.top = new_coords;
+      state.transitionStates["right"] = new_coords;
     },
     transitionComplete: (state) => {
       Object.values(state.transitionStates).forEach((value) => {

@@ -1,7 +1,7 @@
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { MAX_DEPTH, zoomUp, zoomDown, moveUp } from '../state/controlSlice.jsx'
+import { MAX_DEPTH, zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight } from '../state/controlSlice.jsx'
 
 //All we do here is get input, check it's a valid state to receive input, then call state
 function process_input() {
@@ -21,20 +21,20 @@ function process_input() {
     if (
       current_depth == MAX_DEPTH 
       || renderBoards.length > 1 
-      || ![0, 3, 6].includes(focus_coordinates[focus_coordinates.length-1]))
+      || [0, 3, 6].includes(focus_coordinates[focus_coordinates.length-1]))
     { return }
 
     dispatch(moveLeft());
   });
   useHotkeys('s', () => {
-    if (current_depth == MAX_DEPTH || renderBoards.length > 1 || focus_coordinates[focus_coordinates.length-1] > 6) { return }
+    if (current_depth == MAX_DEPTH || renderBoards.length > 1 || focus_coordinates[focus_coordinates.length-1] > 5) { return }
     dispatch(moveDown());
   });
   useHotkeys('d', () => {
     if (
       current_depth == MAX_DEPTH 
       || renderBoards.length > 1 
-      || ![2, 5, 8].includes(focus_coordinates[focus_coordinates.length-1]))
+      || [2, 5, 8].includes(focus_coordinates[focus_coordinates.length-1]))
     { return }
     
     dispatch(moveRight());
