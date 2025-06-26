@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import Cell from './Cell.jsx';
+import Cell from '../Cell.jsx';
 import { makeMove } from './state/gameSlice.jsx'
 
 import cross from './assets/Cross.svg' ;
@@ -24,7 +24,7 @@ const gameStateStyle={
   "top": "0px",
 }
 
-function Board({depth, coordinates, is_active}) {
+function Board({depth, coordinates, className, id}) {
   const dispatch = useDispatch()
 
   // console.log("GLOBAL BOARD: ");
@@ -86,14 +86,9 @@ function Board({depth, coordinates, is_active}) {
 
   const current_depth = useSelector((state) => state.control.current_depth );
   //Top-lever board
-  let is_child_active = false;
+  let is_child_active = "";
   if (current_depth == depth) {
-    is_child_active = true;
-  }
-
-  let activeBoardClass = "";
-  if (is_active == true) {
-    activeBoardClass = "active-board";
+    is_child_active = "active-board";
   }
 
   let coordinateClass = "";
@@ -103,7 +98,7 @@ function Board({depth, coordinates, is_active}) {
 
   //I like my code WET
   if (depth == 0) {
-    return <div className={"board " + activeBoardClass + " " + coordinateClass}>
+    return <div className={"board " + className + " " + coordinateClass} id={id}>
     <div className='win-container' style={{"zIndex": 1}}>
       {winElement}
     </div>
@@ -125,24 +120,24 @@ function Board({depth, coordinates, is_active}) {
     </div>;
   } else {
       //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
-      return <div className={"board meta " + activeBoardClass + " " + coordinateClass}>
+      return <div className={"board meta " + className + " " + coordinateClass} id={id}>
       <div className='win-container' style={{"zIndex": depth+1}}>
         {winElement}
       </div>
       <div className='board-row top-row'> 
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} is_active={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} is_active={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} is_active={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} className={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} className={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} className={is_child_active}/>
       </div>
       <div className='board-row center-row'>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} is_active={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} is_active={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} is_active={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} className={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} className={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} className={is_child_active}/>
       </div>
       <div className='board-row bottom-row'>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} is_active={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} is_active={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} is_active={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} className={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} className={is_child_active}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} className={is_child_active}/>
       </div>
       </div>;
   }

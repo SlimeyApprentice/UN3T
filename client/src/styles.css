@@ -18,8 +18,22 @@ Width: 70px */
     --color-3b: rgb(0, 230, 42, var(--opacity));
 
     /* background-color: var(--color-2); */
+    /* width: 100%; */
 }
 /* BOARD AND BORDER SIZE ARE NOW HANDLED INSIDE OF APP.JSX */
+
+body {
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.react-transform-wrapper {
+    width: fit-content;
+    aspect-ratio: 1;
+    /* border: 2px solid red; */
+    box-shadow: 0px 0px 5px rgb(255, 0, 0);
+}
 
 .board {
     display: inline-flex;
@@ -29,16 +43,28 @@ Width: 70px */
     padding: var(--padding);
 }
 
-.game-wrapper > * {
+.game-wrapper > .board {
     border: var(--border-size) solid rgb(0, 0, 0);
+}
+.game-wrapper > .top-board {
+    border-bottom: none;
+}
+.game-wrapper > .bottom-board {
+    border-top: none;
+}
+.game-wrapper > .right-board {
+    border-left: none;
+}
+.game-wrapper > .left-board {
+    border-right: none;
+}
+
+.board-row > :not(.meta)  {
+    width: var(--board-size);
 }
 
 .active-board:hover {
     background-color: rgba(119, 136, 153, 0.165);
-}
-
-:not(.meta) {
-    width: var(--board-size);
 }
 
 .board:nth-child(2) {
@@ -120,15 +146,4 @@ Width: 70px */
 }
 .board:has(> .win-container > .D) {
     background-color: var(--color-3b);
-}
-
-.react-transform-wrapper {
-    width: fit-content;
-}
-.react-transform-component {
-    width: inherit;
-}
-
-.board-wrapper {
-    width: inherit;
 }

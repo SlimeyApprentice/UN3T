@@ -23,12 +23,11 @@ export const controlSlice = createSlice({
   initialState: {
     current_depth: MAX_DEPTH-1,
     focus_coordinates: [4],
-    nearbyBoards: {
-        "top": false,
-        "left": false,
-        "middle": true,
-        "right": false,
-        "bottom": false,
+    transitionStates: {
+        "top": null,
+        "left": null,
+        "right": null,
+        "bottom": null,
     },
     direction: "column",
   },
@@ -43,19 +42,13 @@ export const controlSlice = createSlice({
         state.focus_coordinates = state.focus_coordinates.concat([coordinate]);
         state.current_depth--;
     },
-    directionColumn: (state) => {
-      state.direction = "column";
-    },
-    directionRow: (state) => {
-      state.direction = "row";
-    },
     movedUp: (state) => {
-      
+      state.transitionStates.top = "spawned";
     }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { zoomUp, zoomDown, directionColumn, directionRow } = controlSlice.actions
+export const { zoomUp, zoomDown, movedUp } = controlSlice.actions
 
 export default controlSlice.reducer
