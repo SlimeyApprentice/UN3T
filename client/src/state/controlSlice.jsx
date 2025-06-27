@@ -24,7 +24,7 @@ function refresh_board(state) {
   ]
 }
 
-export const MAX_DEPTH = 2;
+export const MAX_DEPTH = 3;
 
 const init_idx = 6;
 

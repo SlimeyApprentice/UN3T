@@ -7,7 +7,7 @@ Width: 70px */
     /* --color-1: rgb(49.833% 0.4817% 15.448%); */
 
     --opacity: 20%;
-    --padding: 10px;
+    --padding: 8px;
 
     /* Unfortunately these don't actually control color of the pieces */
     --color-1: rgba(236, 0, 71, 100%);
@@ -42,6 +42,7 @@ body {
     height: 100%;
     aspect-ratio: 1;
 }
+
 .board {
     display: inline-flex;
     flex-direction: column;
@@ -49,6 +50,19 @@ body {
     position: relative;
     padding: var(--padding);
 }
+/* Currently manually writing padding for depths  */
+/* .depth-0 {
+    padding: var(--padding/2.5);
+} 
+.depth-1 {
+    padding: calc(var(--padding)/2);
+} 
+.depth-2 {
+    padding: calc(var(--padding)/2);
+} 
+.depth-3 {
+    padding: calc(var(--padding)/1.5);
+}  */
 
 .game-wrapper {
     height: 100%;
@@ -80,6 +94,24 @@ body {
     background-color: rgba(119, 136, 153, 0.165);
 }
 
+.cell {
+    display: flex;
+
+    background-color: transparent;
+    border: none;
+
+    font-family: monospace;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px;
+    /* padding: 0px; */
+
+    aspect-ratio: 1/1;
+    /* width: calc(round(33%, 5px)); */
+    /* width: 33%; */
+    /* font-family:'Courier New', Courier, monospace; */
+}
+
 .board:nth-child(2) {
     border-left: var(--border-size) solid rgb(0, 0, 0);
     border-right: var(--border-size) solid rgb(0, 0, 0);
@@ -106,27 +138,11 @@ body {
     border-top: var(--border-size) solid rgb(0, 0, 0);
 }
 
-.cell {
-    display: flex;
-
-    background-color: transparent;
-    border: none;
-
-    font-family: monospace;
-    font-weight: bold;
-    text-align: center;
-    padding: 1px;
-    /* padding: 0px; */
-
-    aspect-ratio: 1/1;
-    /* width: calc(round(33%, 5px)); */
-    width: 33%;
-    /* font-family:'Courier New', Courier, monospace; */
-}
-
 .cell:nth-child(2) {
     border-left: var(--border-size) solid rgb(0, 0, 0);
     border-right: var(--border-size) solid rgb(0, 0, 0);
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 .win-container-active {

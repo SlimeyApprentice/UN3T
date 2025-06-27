@@ -90,11 +90,13 @@ function Board({depth, coordinates, className, id}) {
   // }
 
   const current_depth = useSelector((state) => state.control.current_depth );
-  //Top-lever board
+  //Top-level board
   let is_child_active = "";
   if (current_depth == depth) {
     is_child_active = "active-board";
   }
+
+  let depth_class = "depth-" + depth;
 
   let coordinateClass = "";
   if (coordinates.length != 0) {
@@ -103,7 +105,7 @@ function Board({depth, coordinates, className, id}) {
 
   //I like my code WET
   if (depth == 0) {
-    return <div className={"board " + className + " " + coordinateClass} id={id}>
+    return <div className={"board " + depth_class + " " + className + " " + coordinateClass} id={id}>
     <div className={winElementClassName} style={{"zIndex": 1}}>
       {winElement}
     </div>
@@ -125,7 +127,7 @@ function Board({depth, coordinates, className, id}) {
     </div>;
   } else {
       //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
-      return <div className={"board meta " + className + " " + coordinateClass} id={id}>
+      return <div className={"board meta " + depth_class + " " + className + " " + coordinateClass} id={id}>
       <div className={winElementClassName} style={{"zIndex": depth+1}}>
         {winElement}
       </div>
@@ -150,46 +152,46 @@ function Board({depth, coordinates, className, id}) {
 };
 export default Board;
 
-//externalSetIsWon not really necessary
-function calculateWinner(squares, externalSetIsWon) {    
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      externalSetIsWon(squares[a])
+// //externalSetIsWon not really necessary
+// function calculateWinner(squares, externalSetIsWon) {    
+//   const lines = [
+//     [0, 1, 2],
+//     [3, 4, 5],
+//     [6, 7, 8],
+//     [0, 3, 6],
+//     [1, 4, 7],
+//     [2, 5, 8],
+//     [0, 4, 8],
+//     [2, 4, 6]
+//   ];
+//   for (let i = 0; i < lines.length; i++) {
+//     const [a, b, c] = lines[i];
+//     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+//       externalSetIsWon(squares[a])
 
-      if (squares[a] == 'X') {
-        return GameState.CROSS;
-      } else {
-        return GameState.CIRCLE;
-      }
-    }
-  }
+//       if (squares[a] == 'X') {
+//         return GameState.CROSS;
+//       } else {
+//         return GameState.CIRCLE;
+//       }
+//     }
+//   }
 
-  const has_space = squares.some((x) => { 
-      if (x === null || x.game_state === null) { 
-        return true; 
-      }
+//   const has_space = squares.some((x) => { 
+//       if (x === null || x.game_state === null) { 
+//         return true; 
+//       }
 
-      return false;
-    });
+//       return false;
+//     });
 
-  console.log("Has space? : " + has_space);
-  console.log(squares);
-  //Regular check for a draw
-  if (has_space == false) {
-    externalSetIsWon("D")
-    return GameState.DRAW;
-  }
+//   console.log("Has space? : " + has_space);
+//   console.log(squares);
+//   //Regular check for a draw
+//   if (has_space == false) {
+//     externalSetIsWon("D")
+//     return GameState.DRAW;
+//   }
 
-  return GameState.UNDECIDED;
-}
+//   return GameState.UNDECIDED;
+// }
