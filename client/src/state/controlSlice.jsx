@@ -1,7 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import React from 'react';
-
-import Board from '../game/Board.jsx';
 
 //Check if state is mid transition
 function is_trans(nearbyBoards) {

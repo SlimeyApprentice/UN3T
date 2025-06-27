@@ -17,6 +17,7 @@ const GameState = {
   UNDECIDED: null
 };
 
+//Should try to remove
 const gameStateStyle={
   "width": "100%",
   "height": "auto",
@@ -41,20 +42,24 @@ function Board({depth, coordinates, className, id}) {
 
   //If board over, pick from the following images
   let winElement;
+  let winElementClassName = "off";
   if (isWon == GameState.CROSS) {
     winElement = <img src={cross} className="X" style={gameStateStyle}/>;
+    winElementClassName += " win-container-active"
   } else if (isWon == GameState.CIRCLE) {
     winElement = <img src={circle} className="O" style={gameStateStyle}/>;
+    winElementClassName += " win-container-active"
   } else if (isWon == GameState.DRAW) {
     winElement = <img src={draw} className="D" style={gameStateStyle}/>;
+    winElementClassName += " win-container-active"
   } else if (isWon == GameState.UNDECIDED) {
     winElement = null;
   }
 
   //Base case, 0 recursion
   function handleClick(i) {
-    if (isWon != null) { return; }
-    if (squares[i] != null) { return; }
+    if (isWon !== null) { return; }
+    if (squares[i] !== null) { return; }
 
     dispatch(makeMove(coordinates.slice().concat([i])));
   }
@@ -99,7 +104,7 @@ function Board({depth, coordinates, className, id}) {
   //I like my code WET
   if (depth == 0) {
     return <div className={"board " + className + " " + coordinateClass} id={id}>
-    <div className='win-container' style={{"zIndex": 1}}>
+    <div className={winElementClassName} style={{"zIndex": 1}}>
       {winElement}
     </div>
     <div className='board-row top-row'>
@@ -121,7 +126,7 @@ function Board({depth, coordinates, className, id}) {
   } else {
       //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
       return <div className={"board meta " + className + " " + coordinateClass} id={id}>
-      <div className='win-container' style={{"zIndex": depth+1}}>
+      <div className={winElementClassName} style={{"zIndex": depth+1}}>
         {winElement}
       </div>
       <div className='board-row top-row'> 
