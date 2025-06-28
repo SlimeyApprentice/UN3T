@@ -37,8 +37,8 @@ function Game() {
     return <div className="game">
         <TransformWrapper
         initialScale={1}
-        maxScale={2}
-        minScale={0.5}
+        maxScale={2.5}
+        minScale={1}
         disablePadding={true}
         centerOnInit={true}
         doubleClick={{disabled: true}}
