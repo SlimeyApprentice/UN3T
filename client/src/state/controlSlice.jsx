@@ -48,7 +48,7 @@ export const controlSlice = createSlice({
         "bottom": null,
     },
     direction: "column",
-    window_width: "fit-content",
+    window_width: "100%",
   },
   reducers: {
     zoomUp: (state) => {
