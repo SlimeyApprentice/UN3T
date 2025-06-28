@@ -44,7 +44,8 @@ body {
 }
 
 .board {
-    display: inline-flex;
+    /* We'll see if inline-flex is necessary when we get to win images */
+    display: flex; 
     flex-direction: column;
     aspect-ratio: 1/1;
     position: relative;
@@ -85,17 +86,13 @@ body {
     border-right: none;
 }
 
-.board-row > .board :not(.meta)  {
-    /* width: var(--board-size); */
-    width: 100%;
-}
-
 .active-board:hover {
     background-color: rgba(119, 136, 153, 0.165);
 }
 
 .cell {
     display: flex;
+    justify-content: center;
 
     background-color: transparent;
     border: none;
@@ -103,7 +100,7 @@ body {
     font-family: monospace;
     font-weight: bold;
     text-align: center;
-    padding: 2px;
+    padding: 3px;
     /* padding: 0px; */
 
     aspect-ratio: 1/1;
@@ -141,8 +138,8 @@ body {
 .cell:nth-child(2) {
     border-left: var(--border-size) solid rgb(0, 0, 0);
     border-right: var(--border-size) solid rgb(0, 0, 0);
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 1px;
+    padding-right: 1px;
 }
 
 .win-container-active {
