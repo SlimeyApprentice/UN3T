@@ -38,7 +38,7 @@ function Game() {
         <TransformWrapper
         initialScale={1}
         maxScale={2}
-        minScale={1}
+        minScale={0.5}
         disablePadding={true}
         centerOnInit={true}
         doubleClick={{disabled: true}}

@@ -8,6 +8,8 @@ Width: 70px */
 
     --opacity: 20%;
     --padding: 8px;
+    --cell-padding: 3px;
+
 
     /* Unfortunately these don't actually control color of the pieces */
     --color-1: rgba(236, 0, 71, 100%);
@@ -47,6 +49,10 @@ body {
     /* We'll see if inline-flex is necessary when we get to win images */
     display: flex; 
     flex-direction: column;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+
     aspect-ratio: 1/1;
     position: relative;
     padding: var(--padding);
@@ -93,6 +99,8 @@ body {
 .cell {
     display: flex;
     justify-content: center;
+    
+    box-sizing: border-box;
 
     background-color: transparent;
     border: none;
@@ -100,7 +108,7 @@ body {
     font-family: monospace;
     font-weight: bold;
     text-align: center;
-    padding: 3px;
+    padding: var(--cell-padding);
     /* padding: 0px; */
 
     aspect-ratio: 1/1;
@@ -112,6 +120,8 @@ body {
 .board:nth-child(2) {
     border-left: var(--border-size) solid rgb(0, 0, 0);
     border-right: var(--border-size) solid rgb(0, 0, 0);
+    padding-left: calc(var(--padding) - var(--border-size));
+    padding-right: calc(var(--padding) - var(--border-size));
 }
 
 .board-row {
@@ -128,8 +138,8 @@ body {
     border-bottom: var(--border-size) solid rgb(0, 0, 0);
 }
 .center-row {
-    /* padding-top: calc(var(--border-size)/2);
-    padding-bottom: calc(var(--border-size)/2); */
+    /* margin-top: calc(var(--border-size)/2);
+    margin-bottom: calc(var(--border-size)/2); */
 }
 .bottom-row {
     border-top: var(--border-size) solid rgb(0, 0, 0);
@@ -138,8 +148,8 @@ body {
 .cell:nth-child(2) {
     border-left: var(--border-size) solid rgb(0, 0, 0);
     border-right: var(--border-size) solid rgb(0, 0, 0);
-    padding-left: 1px;
-    padding-right: 1px;
+    /* padding-left: calc(var(--cell-padding) - var(--border-size));
+    padding-right: calc(var(--cell-padding) - var(--border-size)); */
 }
 
 .win-container-active {
