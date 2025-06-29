@@ -55,7 +55,7 @@ function process_input() {
 
     const validInts = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
     if (validInts.includes(coordinate)) {
-      dispatch(zoomDown(coordinate));
+      dispatch(zoomDown(parseInt(coordinate)));
     } else {
       console.warn("coordinate found when zooming in wasn't valid");
     }
