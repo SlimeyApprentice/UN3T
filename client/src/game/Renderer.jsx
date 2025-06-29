@@ -9,6 +9,7 @@ import { transitionComplete } from "../state/controlSlice";
 //See below for reason
 const COMICALLY_SMALL_NUMBER = 0.000000000000000000000000000000000000000000000000000001
 const animationTime = 300; //miliseconds
+const animationOffset = 17;
 const animationType = "easeOutQuart";
 
 function Renderer({ renderedBoards, cssVars }) {
@@ -56,7 +57,7 @@ function Renderer({ renderedBoards, cssVars }) {
 
             setTimeout(() => {
                 resetTransform(0); //Move to top board which is at 0,0
-            }, animationTime + 1);
+            }, animationTime + animationOffset);
         } else if (transitionStates["right"] !== null) {
             console.log("Transition Right");
             setTimeout(() => {
@@ -65,7 +66,7 @@ function Renderer({ renderedBoards, cssVars }) {
 
             setTimeout(() => {
                 resetTransform(0); //Move to top board which is at 0,0
-            }, animationTime + 1);
+            }, animationTime + animationOffset);
         }
 
         if (Object.values(transitionStates).filter((x) => { if (x !== null) { return x }}).length != 0) {
@@ -73,7 +74,7 @@ function Renderer({ renderedBoards, cssVars }) {
                 console.log("Reset");
                 // resetTransform(0); //Make sure we are at center
                 dispatch(transitionComplete());
-            }, animationTime);
+            }, animationTime + animationOffset);
         }
 
     }, [transitionStates])

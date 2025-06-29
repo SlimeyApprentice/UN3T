@@ -38,7 +38,6 @@ const default_transition_states = {
   "bottom": null,
 }
 
-
 export const controlSlice = createSlice({
   name: 'Control State',
   initialState: {
