@@ -69,12 +69,19 @@ function Renderer({ renderedBoards, cssVars }) {
             }, animationTime + animationOffset);
         }
 
-        if (Object.values(transitionStates).filter((x) => { if (x !== null) { return x }}).length != 0) {
-            setTimeout(() => {
+        const check = (offset) => {setTimeout(() => {
                 console.log("Reset");
-                // resetTransform(0); //Make sure we are at center
+
+                setTimeout(() => {
+                    resetTransform(0); //Make sure we are at center
+                }, COMICALLY_SMALL_NUMBER)
+                
                 dispatch(transitionComplete());
-            }, animationTime + animationOffset);
+            }, animationTime + offset) 
+        };
+
+        if (Object.values(transitionStates).filter((x) => { if (x !== null) { return x }}).length != 0) {
+            check(animationOffset);
         }
 
     }, [transitionStates])
