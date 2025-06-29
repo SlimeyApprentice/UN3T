@@ -25,6 +25,7 @@ function Game() {
         "--border-size": borderSize + "px",
         "width": window_width,
         "flex-direction": direction,
+        "aspect-ratio": "1"
     };
 
     //Convert props in state into components

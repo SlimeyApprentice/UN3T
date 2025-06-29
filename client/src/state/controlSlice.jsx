@@ -25,30 +25,36 @@ function refresh_board(state) {
 }
 
 export const MAX_DEPTH = 3;
+const default_depth = MAX_DEPTH-1;
 
-const init_idx = 6;
+const init_idx = 4;
+const default_coordinates = [init_idx];
+const default_direction = "column";
+const default_width = "100%"
+const default_transition_states = {
+  "top": null,
+  "left": null,
+  "right": null,
+  "bottom": null,
+}
+
 
 export const controlSlice = createSlice({
   name: 'Control State',
   initialState: {
-    current_depth: MAX_DEPTH-1,
-    focus_coordinates: [init_idx],
+    current_depth: default_depth,
+    focus_coordinates: default_coordinates,
     renderBoards: [
       {
-        depth: MAX_DEPTH-1,
-        coordinates: [init_idx],
+        depth: default_depth,
+        coordinates: default_coordinates,
         id: "middle-board",
         key: "middle-board",
       }
     ],
-    transitionStates: {
-        "top": null,
-        "left": null,
-        "right": null,
-        "bottom": null,
-    },
-    direction: "column",
-    window_width: "100%",
+    transitionStates: default_transition_states,
+    direction: default_direction,
+    window_width: default_width,
   },
   reducers: {
     zoomUp: (state) => {
@@ -168,29 +174,20 @@ export const controlSlice = createSlice({
       state.transitionStates["right"] = new_coords;
     },
     transitionComplete: (state) => {
+      console.log("Transition Complete");
+
       Object.values(state.transitionStates).forEach((value) => {
         if (value !== null) {
           state.focus_coordinates = value;
         }
       })
 
-      let newBoards = [];
-      newBoards.push({
-        depth: state.current_depth,
-        coordinates: state.focus_coordinates,
-        id: "middle-board",
-        key: "middle-board",
-      })
-      state.renderBoards = newBoards;
+      refresh_board(state); //New board is the middle and only board
 
-      state.transitionStates = {
-        "top": null,
-        "left": null,
-        "right": null,
-        "bottom": null,
-      };
+      state.transitionStates = default_transition_states;
 
-      state.window_width = "fit-content";
+      state.window_width = default_width;
+      state.direction = default_direction;
     }
   },
 })

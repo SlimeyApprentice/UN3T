@@ -8,7 +8,8 @@ import { transitionComplete } from "../state/controlSlice";
 
 //See below for reason
 const COMICALLY_SMALL_NUMBER = 0.000000000000000000000000000000000000000000000000000001
-const animationTime = 400; //miliseconds
+const animationTime = 300; //miliseconds
+const animationType = "easeOutQuart";
 
 function Renderer({ renderedBoards, cssVars }) {
     const dispatch = useDispatch()
@@ -36,7 +37,7 @@ function Renderer({ renderedBoards, cssVars }) {
             }, COMICALLY_SMALL_NUMBER);
 
             setTimeout(() => {
-                resetTransform(animationTime); //Move to top board which is at 0,0
+                resetTransform(animationTime, animationType); //Move to top board which is at 0,0
             }, COMICALLY_SMALL_NUMBER);
         } else if (transitionStates["left"] !== null) {
             console.log("Transition Left");
@@ -45,24 +46,34 @@ function Renderer({ renderedBoards, cssVars }) {
             }, COMICALLY_SMALL_NUMBER);
 
             setTimeout(() => {
-                setTransform(0, 0, 1, animationTime); //Move left
+                setTransform(0, 0, 1, animationTime, animationType); //Move left
             }, COMICALLY_SMALL_NUMBER);
         } else if (transitionStates["bottom"] !== null) {
             console.log("Transition Down");
             setTimeout(() => {
-                setTransform(0, -element.offsetWidth, 1, animationTime); //Move down
+                setTransform(0, -element.offsetWidth, 1, animationTime, animationType); //Move down
             }, COMICALLY_SMALL_NUMBER);
+
+            setTimeout(() => {
+                resetTransform(0); //Move to top board which is at 0,0
+            }, animationTime + 1);
         } else if (transitionStates["right"] !== null) {
             console.log("Transition Right");
             setTimeout(() => {
-                setTransform(-element.offsetWidth, 0, 1, animationTime); //Move right
+                setTransform(-element.offsetWidth, 0, 1, animationTime, animationType); //Move right
             }, COMICALLY_SMALL_NUMBER);
+
+            setTimeout(() => {
+                resetTransform(0); //Move to top board which is at 0,0
+            }, animationTime + 1);
         }
 
         if (Object.values(transitionStates).filter((x) => { if (x !== null) { return x }}).length != 0) {
             setTimeout(() => {
+                console.log("Reset");
+                // resetTransform(0); //Make sure we are at center
                 dispatch(transitionComplete());
-            }, animationTime) //Report back that it's done
+            }, animationTime);
         }
 
     }, [transitionStates])
