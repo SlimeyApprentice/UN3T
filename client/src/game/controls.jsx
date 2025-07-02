@@ -10,11 +10,12 @@ function process_input() {
   const current_depth = useSelector((state) => state.control.current_depth);
   const focus_coordinates = useSelector((state) => state.control.focus_coordinates);
   const renderBoards = useSelector((state) => state.control.renderBoards);
-
+  const transitionStates = useSelector((state) => state.control.transitionStates);
 
   //All the hotkeys
   useHotkeys('w', () => {
     if (current_depth == MAX_DEPTH || renderBoards.length > 1 || focus_coordinates[focus_coordinates.length-1] < 3) { return }
+
     dispatch(moveUp());
   });
   useHotkeys('a', () => {
@@ -42,10 +43,21 @@ function process_input() {
 
   useHotkeys('q', () => {
     if (current_depth == MAX_DEPTH) { return }
+
+    //If mid transition
+    if (Object.values(transitionStates).filter((x) => { if (x !== null) { return x }}).length != 0) {
+      return;
+    }
+
     dispatch(zoomUp());
   });
   useHotkeys('e', () => {
     if (current_depth == 0) { return }
+
+    //If mid transition
+    if (Object.values(transitionStates).filter((x) => { if (x !== null) { return x }}).length != 0) {
+      return;
+    }
 
     const hoverElement = document.querySelector(".active-board:hover");
 
