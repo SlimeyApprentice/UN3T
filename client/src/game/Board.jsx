@@ -28,7 +28,7 @@ const gameStateStyle={
 function Board({depth, coordinates, className, id}) {
   const dispatch = useDispatch()
 
-  // console.log("GLOBAL BOARD: ");
+  const current_depth = useSelector((state) => state.control.current_depth );
   const globalBoard = useSelector((state) => state.game.globalBoard );
 
   let localBoard = globalBoard;
@@ -64,32 +64,6 @@ function Board({depth, coordinates, className, id}) {
     dispatch(makeMove(coordinates.slice().concat([i])));
   }
 
-  // // Suspended as this won't be used when API works and it's a pain to get working rn
-  // //Recursive step, 1+ recursion
-  // function handleWin(i, winningPlayer) {
-  //   const nextSquares = squares.slice();
-
-  //   nextSquares[i] = winningPlayer;
-  //   setSquares(nextSquares);
-
-  //   const result = calculateWinner(nextSquares, externalSetIsWon);
-  //   console.log("RESULT: " + result);
-  //   let element;
-  //   if (result == GameState.CROSS) {
-  //     element = <img src={cross} className="X" style={gameStateStyle}/>;
-  //   } else if (result == GameState.CIRCLE) {
-  //     element = <img src={circle} className="O" style={gameStateStyle}/>;
-  //   } else if (result == GameState.DRAW) {
-  //     element = <img src={draw} className="D" style={gameStateStyle}/>;
-  //   } else if (result == GameState.UNDECIDED) {
-  //     element = null;
-  //   }
-  //   setIsWon(element);
-
-  //   // setIsWon(calculateWinner(nextSquares, externalSetIsWon));
-  // }
-
-  const current_depth = useSelector((state) => state.control.current_depth );
   //Top-level board
   let is_child_active = "";
   if (current_depth == depth) {
@@ -102,6 +76,18 @@ function Board({depth, coordinates, className, id}) {
   if (coordinates.length != 0) {
     coordinateClass = coordinates[coordinates.length-1];
   }
+
+  //If board to deep and won't render properly, put summary placeholder
+  //Perhaps better to be based on size of board but it's difficult to know beforehand
+  //I say that depth 3 is too big for now
+  // if (current_depth - depth >= 3) {
+  //   return <div className={"summary board " + depth_class + " " + className + " " + coordinateClass} id={id}>
+  //   <div className={winElementClassName} style={{"zIndex": 1}}>
+  //     {winElement}
+  //   </div>
+  //   <div></div>
+  //   </div>;
+  // }
 
   //I like my code WET
   if (depth == 0) {
