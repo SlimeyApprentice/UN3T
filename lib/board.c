@@ -212,7 +212,7 @@ cJSON *process_move(Game *world, char *move, Verdict player) {
     // Free the previous move restriction
     free(world->restriction);
     // Copy the move into the restriction field of the game state
-    world->restriction = strcpy(malloc(strlen(saved_move) + 1), saved_move);
+    world->restriction = saved_move;
     // Zoom out until the restriction has a legal move
     while (world->restriction[0] && !_move_lookahead(&world->board, world->restriction)) {
         memmove(world->restriction, world->restriction+1, strlen(world->restriction));
