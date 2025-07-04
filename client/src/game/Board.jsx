@@ -43,7 +43,6 @@ function recursiveCount(board) {
   //Base step
   else {
     for (const cell of board.cells) {
-      console.log(cell);
       switch (cell) {
         case "X":
           result.cross_count++;
@@ -156,7 +155,6 @@ function Board({depth, coordinates, className, id}) {
     //I say that depth 3 is too big for now
 
     const count_result = recursiveCount(localBoard);
-    console.log(count_result);
     const is_cross_off = (count_result.cross_count == 0) ? 'off' : '';
     const is_circle_off = (count_result.circle_count == 0) ? 'off' : '';
     const is_empty_off = (is_cross_off !== "off" || is_circle_off !== "off") ? 'off' : '';

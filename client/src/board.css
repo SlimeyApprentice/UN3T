@@ -18,6 +18,8 @@ Width: 70px */
     --color-1b: rgba(236, 0, 71, var(--opacity));
     --color-2b: rgba(26, 187, 225, var(--opacity));
     --color-3b: rgb(0, 230, 42, var(--opacity));
+
+    width: 100vw;
 }
 /* BOARD AND BORDER SIZE ARE NOW HANDLED INSIDE OF APP.JSX */
 
@@ -25,9 +27,17 @@ body {
     width: 100%;
     height: 100vh;
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+}
+.game {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+
+    justify-content: center;
 }
 
 .off {
@@ -141,8 +151,8 @@ body {
     font-family: monospace;
     font-weight: bold;
     text-align: center;
-    padding: var(--cell-padding);
-    /* padding: 0px; */
+    /* padding: var(--cell-padding); */
+    padding: 0px;
 
     aspect-ratio: 1/1;
     /* width: calc(round(33%, 5px)); */
@@ -175,6 +185,11 @@ body {
 
     /* height: 33%; */
     /* aspect-ratio: 1/3; */
+}
+
+.move {
+    width: 100%;
+    height: 100%;
 }
 
 .top-row {
