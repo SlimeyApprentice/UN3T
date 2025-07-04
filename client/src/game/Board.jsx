@@ -9,6 +9,57 @@ import circle from '../assets/Circle.svg';
 import draw from '../assets/Peace.svg' ;
 // import draw from './assets/CrossCircle.svg' ;
 // import draw from './assets/Square.svg' ;
+import empty from '../assets/Empty.svg' ;
+
+function add_counts(res1, res2) {
+  let result = {
+    cross_count: 0,
+    circle_count: 0,
+    empty_count: 0
+  }
+
+  //Probably a cleaner prototype method out there
+  result.cross_count = res1.cross_count + res2.cross_count;
+  result.circle_count = res1.circle_count + res2.circle_count;
+  result.empty_count = res1.empty_count + res2.empty_count;
+
+  return result;
+}
+
+function recursiveCount(board) {
+  let result = {
+    cross_count: 0,
+    circle_count: 0,
+    empty_count: 0,
+  }
+
+  //Recursive step
+  if (typeof(board.cells[0]) === "object" && board.cells[0] !== null) {
+    for (const subBoard of board.cells) {
+      result = add_counts(result, recursiveCount(subBoard));
+    }
+    return result;
+  } 
+  //Base step
+  else {
+    for (const cell of board.cells) {
+      console.log(cell);
+      switch (cell) {
+        case "X":
+          result.cross_count++;
+          break;
+        case "O":
+          result.circle_count++;
+          break;
+        case null:
+          result.empty_count++;
+          break;
+      }
+    }
+
+    return result;
+  }
+}
 
 const GameState = {
   CROSS: "X",
@@ -77,18 +128,6 @@ function Board({depth, coordinates, className, id}) {
     coordinateClass = coordinates[coordinates.length-1];
   }
 
-  //If board to deep and won't render properly, put summary placeholder
-  //Perhaps better to be based on size of board but it's difficult to know beforehand
-  //I say that depth 3 is too big for now
-  // if (current_depth - depth >= 3) {
-  //   return <div className={"summary board " + depth_class + " " + className + " " + coordinateClass} id={id}>
-  //   <div className={winElementClassName} style={{"zIndex": 1}}>
-  //     {winElement}
-  //   </div>
-  //   <div></div>
-  //   </div>;
-  // }
-
   //I like my code WET
   if (depth == 0) {
     return <div className={"board " + depth_class + " " + className + " " + coordinateClass} id={id}>
@@ -110,6 +149,48 @@ function Board({depth, coordinates, className, id}) {
       <Cell value={squares[7]} onSquareClick={() => handleClick(7)}/>
       <Cell value={squares[8]} onSquareClick={() => handleClick(8)}/>
     </div>
+    </div>;
+  } else if (current_depth == depth + 2) {
+    //If board too deep and won't render properly, put summary placeholder
+    //Perhaps better to be based on size of board but it's difficult to know beforehand
+    //I say that depth 3 is too big for now
+
+    const count_result = recursiveCount(localBoard);
+    console.log(count_result);
+    const is_cross_off = (count_result.cross_count == 0) ? 'off' : '';
+    const is_circle_off = (count_result.circle_count == 0) ? 'off' : '';
+    const is_empty_off = (is_cross_off !== "off" || is_circle_off !== "off") ? 'off' : '';
+
+    //rgb(255, 120, 98)
+    //rgb(150, 111, 255)
+    let summary_style = {
+      "background-color": "none"
+    }
+    if (count_result.cross_count != count_result.circle_count) {
+      if (count_result.cross_count > count_result.circle_count) {
+        const alpha = (count_result.cross_count - count_result.circle_count) / count_result.empty_count;
+
+        summary_style["background-color"] = `rgba(255, 120, 98, ${alpha+0.1})`;
+      } else {
+        const alpha = (count_result.circle_count - count_result.cross_count) / count_result.empty_count;
+
+        summary_style["background-color"] = `rgba(150, 111, 255, ${alpha+0.1})`;
+      }
+    }
+
+    //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
+    return <div className={"summary board meta " + depth_class + " " + className + " " + coordinateClass} id={id} style={summary_style}>
+    <div className={winElementClassName} style={{"zIndex": depth+1}}>
+      {winElement}
+    </div>
+    <img src={cross} className={'summary-image ' + is_cross_off}/>
+    <img src={circle} className={'summary-image ' + is_circle_off}/>
+
+    <span className={'move-count ' + is_cross_off}>{count_result.cross_count}</span> 
+    <span className={'move-count ' + is_circle_off}>{count_result.circle_count}</span> 
+
+    <img src={empty} className={'summary-image empty-image ' + is_empty_off}/>
+
     </div>;
   } else {
       //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
@@ -137,47 +218,3 @@ function Board({depth, coordinates, className, id}) {
 
 };
 export default Board;
-
-// //externalSetIsWon not really necessary
-// function calculateWinner(squares, externalSetIsWon) {    
-//   const lines = [
-//     [0, 1, 2],
-//     [3, 4, 5],
-//     [6, 7, 8],
-//     [0, 3, 6],
-//     [1, 4, 7],
-//     [2, 5, 8],
-//     [0, 4, 8],
-//     [2, 4, 6]
-//   ];
-//   for (let i = 0; i < lines.length; i++) {
-//     const [a, b, c] = lines[i];
-//     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-//       externalSetIsWon(squares[a])
-
-//       if (squares[a] == 'X') {
-//         return GameState.CROSS;
-//       } else {
-//         return GameState.CIRCLE;
-//       }
-//     }
-//   }
-
-//   const has_space = squares.some((x) => { 
-//       if (x === null || x.game_state === null) { 
-//         return true; 
-//       }
-
-//       return false;
-//     });
-
-//   console.log("Has space? : " + has_space);
-//   console.log(squares);
-//   //Regular check for a draw
-//   if (has_space == false) {
-//     externalSetIsWon("D")
-//     return GameState.DRAW;
-//   }
-
-//   return GameState.UNDECIDED;
-// }
