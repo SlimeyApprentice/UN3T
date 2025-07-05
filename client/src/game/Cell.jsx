@@ -18,9 +18,9 @@ function Cell({value, onSquareClick}) {
   const image = get_image(value);
 
   return <>
-    <button className='cell' onClick={onSquareClick}>
+    <div className='cell' onClick={onSquareClick}>
       {image}
-    </button>
+    </div>
   </>;
 };
 
