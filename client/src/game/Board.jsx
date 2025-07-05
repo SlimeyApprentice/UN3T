@@ -172,18 +172,17 @@ function Board({depth, coordinates, className, id}) {
 
     //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
     return <div className={"summary board meta " + depth_class + " " + className + " " + coordinateClass} id={id} style={summary_style}>
-    <div className='flexgrid'>
-      <div className={winElementClassName} style={{"zIndex": depth+1}}>
-        {winElement}
-      </div>
-      <img src={cross} className={'summary-image ' + is_cross_off}/>
-      <img src={circle} className={'summary-image ' + is_circle_off}/>
-
-      <span className={'move-count ' + is_cross_off}>{count_result.cross_count}</span> 
-      <span className={'move-count ' + is_circle_off}>{count_result.circle_count}</span> 
-
-      <img src={empty} className={'summary-image empty-image ' + is_empty_off}/>
+    <div className={winElementClassName} style={{"zIndex": depth+1}}>
+      {winElement}
     </div>
+    <img src={cross} className={'summary-image ' + is_cross_off}/>
+    <img src={circle} className={'summary-image ' + is_circle_off}/>
+
+    <span className={'move-count ' + is_cross_off}>{count_result.cross_count}</span> 
+    <span className={'move-count ' + is_circle_off}>{count_result.circle_count}</span> 
+
+    <img src={empty} className={'summary-image empty-image ' + is_empty_off}/>
+
     </div>;
   } else {
       //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
