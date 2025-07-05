@@ -1,3 +1,11 @@
+all: testing server
+
+server: server.o board.o cJSON.o
+	gcc server.o board.o cJSON.o -o server
+
+server.o: server.c
+	gcc -g3 -c server.c
+
 testing: testing.o board.o cJSON.o
 	gcc testing.o board.o cJSON.o -o testing
 

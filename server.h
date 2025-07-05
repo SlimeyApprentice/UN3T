@@ -1,5 +1,6 @@
-#include "board.h"
+#include "lib/board.h"
 #include "lib/cJSON.h"
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <poll.h>
 
@@ -31,7 +32,7 @@ typedef struct ServerData {
     Games *games_head;
     Connections *connections_head;
     struct sockaddr_in addr;
-    fd_set readfds, writefds, activefds;
+    struct pollfd *pollfds;
 } ServerData;
 
 ServerData *init_server();
