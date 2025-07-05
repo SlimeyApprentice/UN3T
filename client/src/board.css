@@ -80,18 +80,13 @@ body {
 }
 
 .board {
-    /* We'll see if inline-flex is necessary when we get to win images */
-    display: flex; 
-    flex-direction: column;
+    display: grid; 
     box-sizing: border-box;
     justify-content: center;
     align-items: center;
 
     width: 100%;
     height: 100%;
-
-    /* width: round(100%, 1px);
-    height: round(100%, 1px); */
 
     aspect-ratio: 1/1;
     position: relative;

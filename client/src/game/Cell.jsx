@@ -8,10 +8,10 @@ function get_image(value) {
     return <img src={cross} className="move"/>;
   } else if (value == "O") {
     return <img src={circle} className="move"/>;
+  } else {
+    //Dummy
+    // return <div className="move dummy-move"/>
   }
-
-  //If empty
-  return value;
 }
 
 function Cell({value, onSquareClick}) {

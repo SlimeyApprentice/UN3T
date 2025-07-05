@@ -133,21 +133,15 @@ function Board({depth, coordinates, className, id}) {
     <div className={winElementClassName} style={{"zIndex": 1}}>
       {winElement}
     </div>
-    <div className='board-row top-row'>
       <Cell value={squares[0]} onSquareClick={() => handleClick(0)}/>
       <Cell value={squares[1]} onSquareClick={() => handleClick(1)}/>
       <Cell value={squares[2]} onSquareClick={() => handleClick(2)}/>
-    </div>
-    <div className='board-row center-row'>
       <Cell value={squares[3]} onSquareClick={() => handleClick(3)}/>
       <Cell value={squares[4]} onSquareClick={() => handleClick(4)}/>
       <Cell value={squares[5]} onSquareClick={() => handleClick(5)}/>
-    </div>
-    <div className='board-row bottom-row'>
       <Cell value={squares[6]} onSquareClick={() => handleClick(6)}/>
       <Cell value={squares[7]} onSquareClick={() => handleClick(7)}/>
       <Cell value={squares[8]} onSquareClick={() => handleClick(8)}/>
-    </div>
     </div>;
   } else if (current_depth == depth + 2) {
     //If board too deep and won't render properly, put summary placeholder
@@ -196,21 +190,15 @@ function Board({depth, coordinates, className, id}) {
       <div className={winElementClassName} style={{"zIndex": depth+1}}>
         {winElement}
       </div>
-      <div className='board-row top-row'> 
         <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} className={is_child_active}/>
         <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} className={is_child_active}/>
         <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} className={is_child_active}/>
-      </div>
-      <div className='board-row center-row'>
         <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} className={is_child_active}/>
         <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} className={is_child_active}/>
         <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} className={is_child_active}/>
-      </div>
-      <div className='board-row bottom-row'>
         <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} className={is_child_active}/>
         <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} className={is_child_active}/>
         <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} className={is_child_active}/>
-      </div>
       </div>;
   }
 
