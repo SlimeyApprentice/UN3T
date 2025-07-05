@@ -10,7 +10,7 @@ function get_image(value) {
     return <img src={circle} className="move"/>;
   } else {
     //Dummy
-    // return <div className="move dummy-move"/>
+    return <div className="move dummy-move"/>
   }
 }
 
