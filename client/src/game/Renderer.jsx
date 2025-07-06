@@ -86,6 +86,9 @@ function Renderer({ renderedBoards, cssVars }) {
 
     }, [transitionStates])
 
+    addEventListener("animationend", (event) => {console.log("AAAAAAAAAAAAAAAAA") })
+    addEventListener("transitionend", (event) => {console.log("AAAAAAAAAAAAAAAAA") })
+
     return <TransformComponent>
         <div className="game-wrapper" style={cssVars}>
             {renderedBoards}

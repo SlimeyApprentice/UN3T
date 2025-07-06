@@ -159,7 +159,7 @@ body {
 }
 
 .move {
-    width: 80%;
+    width: 90%;
     /* aspect-ratio: 1; */
     /* height: 100%; */
 }
@@ -214,8 +214,8 @@ body {
 }
 
 .summary-image {
-    width: 80%;
-    height: 80%;
+    width: 90%;
+    height: 90%;
 
     justify-self: center;
     align-self: center;
