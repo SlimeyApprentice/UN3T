@@ -20,6 +20,7 @@ function refresh_board(state) {
       coordinates: state.focus_coordinates,
       id: "middle-board",
       key: "middle-board",
+      className: "top-board"
     }
   ]
 }
@@ -49,6 +50,7 @@ export const controlSlice = createSlice({
         coordinates: default_coordinates,
         id: "middle-board",
         key: "middle-board",
+        className: "top-board"
       }
     ],
     transitionStates: default_transition_states,
@@ -78,12 +80,14 @@ export const controlSlice = createSlice({
         coordinates: new_coords,
         id: "top-board",
         key: "top-board",
+        className: "top-board"
       })
       newBoards.push({
         depth: state.current_depth,
         coordinates: state.focus_coordinates,
         id: "middle-board",
         key: "middle-board",
+        className: "top-board"
       })
       state.renderBoards = newBoards;
 
@@ -104,12 +108,14 @@ export const controlSlice = createSlice({
         coordinates: new_coords,
         id: "left-board",
         key: "left-board",
+        className: "top-board"
       })
       newBoards.push({
         depth: state.current_depth,
         coordinates: state.focus_coordinates,
         id: "middle-board",
         key: "middle-board",
+        className: "top-board"
       })
       state.renderBoards = newBoards;
 
@@ -130,12 +136,14 @@ export const controlSlice = createSlice({
         coordinates: state.focus_coordinates,
         id: "middle-board",
         key: "middle-board",
+        className: "top-board"
       })
       newBoards.push({
         depth: state.current_depth,
         coordinates: new_coords,
         id: "bottom-board",
         key: "bottom-board",
+        className: "top-board"
       })
       state.renderBoards = newBoards;
 
@@ -156,12 +164,14 @@ export const controlSlice = createSlice({
         coordinates: state.focus_coordinates,
         id: "middle-board",
         key: "middle-board",
+        className: "top-board"
       })
       newBoards.push({
         depth: state.current_depth,
         coordinates: new_coords,
         id: "right-board",
         key: "right-board",
+        className: "top-board"
       })
       state.renderBoards = newBoards;
 

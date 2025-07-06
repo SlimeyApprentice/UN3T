@@ -81,6 +81,10 @@ body {
 
     padding: var(--padding);
 }
+.top-board {
+    aspect-ratio: 1;
+}
+
 .cell {
     display: flex;
     justify-content: center;
