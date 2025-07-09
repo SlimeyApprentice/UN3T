@@ -1,14 +1,12 @@
 #include "lib/board.h"
 #include "lib/cJSON.h"
-#include <netinet/in.h>
-#include <sys/socket.h>
 #include <poll.h>
 
-#define UN3T_SERVER_PORT 8332
-#define UN3T_LISTEN_BACKLOG 64
+#define UN3T_SERVER_PORT "8332"
+#define UN3T_LISTEN_BACKLOG 8
 
 typedef struct Games {
-    int id;
+    int game_id;
     Game game;
     int X_fd;
     int O_fd;
@@ -32,5 +30,3 @@ typedef struct ServerData {
     struct pollfd *pollfds;
     int flush_needed;
 } ServerData;
-
-ServerData *init_server();
