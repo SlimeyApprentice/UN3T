@@ -283,6 +283,9 @@ cJSON *retrieve_state(Game *world, char *location, unsigned int depth) {
     return _parse_board(board, depth);
 }
 
-char *retrieve_restriction(Game *world) {
-	return world->restriction;
+cJSON *retrieve_restriction(Game *world) {
+	cJSON *root = cJSON_CreateObject();
+	cJSON_AddStringToObject(root, "restriction", world->restriction);
+	cJSON_AddNumberToObject(root, "player", world->turn);
+	return root;
 }

@@ -110,7 +110,7 @@ Verdict _judge_board(Board *board);
  * @param world   A pointer to the top-level board
  * @param move    The player's move
  * @param player  The player makign the move
- * @returns       A struct encoding movement success, as well as location and content of largest update
+ * @returns       A JSON object encoding movement success, as well as location and content of largest update
  */
 cJSON *process_move(Game *world, char *move, Verdict player);
 
@@ -120,8 +120,16 @@ cJSON *process_move(Game *world, char *move, Verdict player);
  * @param world     A pointer to the top-level board
  * @param location  The coordinates leading to the desired sub-board
  * @param depth     The number of layers downwards to retrive
- * @returns         A Board object containing the desired state.
+ * @returns         A JSON object containing the desired state.
  */
 cJSON *retrieve_state(Game *world, char *location, unsigned int depth);
+
+/**
+ * Retrive the board-agnostic metadata (turn and restriction)
+ *
+ * @param world  A pointer to the top-level board
+ * @returns      A JSON object containing the restriction and the current player
+ */
+cJSON *retrieve_restriction(Game *world);
 
 #endif // BOARD_H

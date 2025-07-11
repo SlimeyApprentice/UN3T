@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
 #include "server.h"
@@ -43,7 +44,7 @@ ServerData *init_server() {
 	    printf("gethostname failed to resolve hostname :(\n");
 	    exit(EXIT_FAILURE);
     }
-    printf("hostname to bind to: %s\n", host);
+    printf("hostname to bind to: %s:%s\n", host, UN3T_SERVER_PORT);
     struct addrinfo hints, *result;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
@@ -52,6 +53,9 @@ ServerData *init_server() {
 	    printf("getaddrinfo failed to resolve host :(\n");
 	    exit(EXIT_FAILURE);
     }
+    inet_ntop(AF_INET, result, host, sizeof(host));
+    
+    printf("%s\n", host);
     server->sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server->sock_fd < 0) {
 	    perror("socket creation failed :(\n");
