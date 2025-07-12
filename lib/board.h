@@ -109,7 +109,7 @@ Verdict _judge_board(Board *board);
  * 
  * @param world   A pointer to the top-level board
  * @param move    The player's move
- * @param player  The player makign the move
+ * @param player  The player making the move
  * @returns       A JSON object encoding movement success, as well as location and content of largest update
  */
 cJSON *process_move(Game *world, char *move, Verdict player);

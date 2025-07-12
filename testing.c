@@ -203,7 +203,7 @@ int t_judge_board() {
 }
 
 int t_process_move() {
-    
+
 }
 
 int t_play_a_game() {
