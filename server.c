@@ -84,10 +84,11 @@ void connect_client(ServerData *server) {
 	Connections *client = malloc(sizeof(Connections));
 	client->fd = accept(server->sock_fd, NULL, NULL);
 	client->game_id = -1;
-	client->role = 0;
+	client->role = EMPTY;
 	client->buffer_size = 0;
 	client->buffer_max_size = READ_BUFFER_BYTES;
 	client->message_buffer = malloc(client->buffer_max_size);
+	memset(client->message_buffer, 0, client->buffer_max_size);
 	client->next = server->connections_head;
 	server->connections_head = client;
 	server->flush_needed = 1;
@@ -106,20 +107,16 @@ void disconnect_client(ServerData *server, int fd) {
 	}
 	if (!connection) return;
 	close(connection->fd);
-	if (connection->game_id > -1 && connection->role > 0) {
-		Games *game = server->games_head;
-		Games *prev = NULL;
-
-		while (game && game->game_id != connection->game_id) {
-			prev = game;
-			game = game->next;
-		}
-
+	
+	Games *game = server->games_head;
+	while (game) {
 		if (connection->role & X && game->X_fd == fd) game->X_fd = -1;
 		if (connection->role & O && game->O_fd == fd) game->O_fd = -1;
+		game = game->next;
 	}
 	if (pred) pred->next = connection->next;
 	else server->connections_head = connection->next;
+
 	free(connection->message_buffer);
 	free(connection);
 	server->connection_counter--;
@@ -135,17 +132,20 @@ Connections *find_client_from_fd(Connections *head, int fd) {
 	return NULL;
 }
 
-int create_game(ServerData *server, Connections *creator, Verdict role) {
+int create_game(ServerData *server, Connections *creator, int depth) {
 	Games *game = malloc(sizeof(Games));
 	game->game_id = server->game_counter++;
-	game->X_fd = -1;
+	game->X_fd = creator->fd;
 	game->O_fd = -1;
-	if (role & 0x1) game->X_fd = creator->fd;
-	else game->O_fd = creator->fd;
 	game->next = server->games_head;
+	memset(&game->game, 0, sizeof(Game));
+	game->game.restriction = calloc(1,1);
+	game->game.turn = X;
+	game->game.board.depth = depth;
 	server->games_head = game;
 	creator->game_id = game->game_id;
-	printf("New game created by %d (player %d) with game id %d\n", creator->fd, role, game->game_id);
+	creator->role = X;
+	printf("New game created by %d of depth %u with game id %d\n", creator->fd, depth, game->game_id);
 	return game->game_id;
 }	
 
@@ -160,7 +160,12 @@ bool validate(char *buffer, int buffer_size, Signature sig) {
 	int i = 1;
 	switch (sig) {
 		case UN3T_SIG_NEW:
-			if (buffer[i] != 'X' && buffer[i] != 'O') return false;
+			while (buffer[i] != ';') {
+				if (buffer[i] - '0' > 9 || buffer[i] - '0' < 0) return false;
+				i++;
+				if (i >= buffer_size) return false;
+			}
+			i++;
 			return true;	
 		case UN3T_SIG_JOIN:
 			while (buffer[i] != ';') {
@@ -169,7 +174,6 @@ bool validate(char *buffer, int buffer_size, Signature sig) {
 				if (i >= buffer_size) return false;
 			}
 			i++;
-			if (buffer[i] != 'X' && buffer[i] != 'O') return false;
 			return true;
 		case UN3T_SIG_TURN:
 			return true;
@@ -198,10 +202,38 @@ bool validate(char *buffer, int buffer_size, Signature sig) {
 	}
 }
 
+Games *find_game_from_id(Games *head, int game_id) {
+	for (;head;head = head->next) {
+		if (head->game_id == game_id) return head;
+	}
+	return NULL;
+}
+
+int join_game(ServerData *server, Connections *client, int game_id) {
+	if (client->game_id > 0) return -1;
+	Games *game = find_game_from_id(server->games_head, game_id);
+	if (!game) return -1;
+	if (game->X_fd < 0) {
+		game->X_fd = client->fd;
+		client->game_id = game_id;
+		client->role = X;
+	}
+	else if (game->O_fd < 0) {
+		game->O_fd = client->fd;
+		client->game_id = game_id;
+		client->role = O;
+	}
+	else {
+		client->game_id = game_id;
+		client->role = EMPTY;
+	}
+	return 0;
+}
+
 /**
  * API:
  *
- * N                                         creates a new game, returns the game id. fails if the client is already in a game
+ * N <int string: depth>                     creates a new game, returning the game id. fails if the client is already in a game
  * J <int string: game_id>                   joins a game, fails if the game doesn't exist
  * T                                         returns the current game's current restriction and the current player as a JSON object
  * M <string: location>                      makes a move in the current game, fails if the client hasn't created or joined a game yet
@@ -213,25 +245,75 @@ void process_request(ServerData *server, Connections *client) {
 	int message_size = command_length(client->message_buffer, client->buffer_size);
 	if (message_size < 0) return;
 	if (!validate(client->message_buffer, client->buffer_size, client->message_buffer[0])) {
-		memmove(client->message_buffer, client->message_buffer + message_size, client->buffer_size - message_size);
-		client->buffer_size -= message_size;
 		send(client->fd, "INVALID\n", 8, 0);
-		printf("%d\n", message_size);
-		return;
-	}	
-	if (client->message_buffer[0] == 'N') {
-		Verdict role;
-		if (client->message_buffer[1] == 'X') role = X;
-		else if (client->message_buffer[1] == 'O') role = O;
-		int game_id = create_game(server, client, role);
-		int length = snprintf(NULL, 0, "%d", game_id);
-		char *message = malloc(length + 2);
-		sprintf(message, "%d\n", game_id);
+		goto clear;
+	}
+	Signature c = client->message_buffer[0];
+	if (c == UN3T_SIG_NEW) {
+		unsigned int depth;
+		sscanf(client->message_buffer, "N%u;", &depth);
+		printf("N%u;\n", depth);
+		int game_id = create_game(server, client, depth);
+		int length = snprintf(NULL, 0, "%u;\n", game_id);
+		char *message = malloc(length+1);
+		sprintf(message, "%d;\n", game_id);
 		send(client->fd, message, length+1, 0);
 	}
+	else if (c == UN3T_SIG_JOIN) {
+		int game_id;
+		sscanf(client->message_buffer, "J%d;", &game_id);
+		printf("J%d;\n", game_id);
+		int error = join_game(server, client, game_id);
+		if (error) send(client->fd, "FAILURE\n", 8, 0);
+		else send(client->fd, "SUCCESS\n", 8, 0); 
+	}
+	else if (c == UN3T_SIG_TURN) {
+		Games *game = find_game_from_id(server->games_head, client->game_id);
+		if (!game) {
+			send(client->fd, "FAILURE\n", 8, 0);
+			goto clear;
+		}
+		printf("T\n");
+		cJSON *data = retrieve_restriction(&game->game);
+		char *message = cJSON_PrintUnformatted(data);
+		send(client->fd, message, strlen(message) + 1, 0);
+		free(message);
+		cJSON_Delete(data);
+	}
+	else if (c == UN3T_SIG_MOVE) {
+		Games *game = find_game_from_id(server->games_head, client->game_id);
+		if (!game) {
+			send(client->fd, "FAILURE\n", 8, 0);
+			goto clear;
+		}
+		char *move;
+		sscanf(client->message_buffer, "M%m[0-8];", &move);
+		printf("M%s;\n",move);
+		cJSON *data = process_move(&game->game, move, client->role);
+		free(move);
+		// TODO free up the game if it's won
+		char *message = cJSON_PrintUnformatted(data);
+		send(client->fd, message, strlen(message) + 1, 0);
+		free(message);
+		cJSON_Delete(data);
+	}
+	else if (c == UN3T_SIG_SCAN) {
+		Games *game = find_game_from_id(server->games_head, client->game_id);
+		if (!game) {
+			send(client->fd, "FAILURE\n", 8, 0);
+			goto clear;
+		}
+		char *location;
+		int depth;
+		sscanf(client->message_buffer, "S%m[0-8];%d;", &location, &depth);
+		printf("S%s;%d;\n", location, depth);
+		cJSON *data = retrieve_state(&game->game, location, depth);
+
+	}
+	clear:
 	memmove(client->message_buffer, client->message_buffer + message_size, client->buffer_size - message_size);
 	client->buffer_size -= message_size;
-	printf("%s\n", client->message_buffer);
+	return;
 }
 
 void receive_client_data(ServerData *server, Connections *client) {
@@ -244,9 +326,9 @@ void receive_client_data(ServerData *server, Connections *client) {
 	while (client->buffer_size + bytes_read > client->buffer_max_size) {
 		client->buffer_max_size	*= 2;
 		char *new_buffer = malloc(client->buffer_max_size);
+		memset(new_buffer, 0, client->buffer_max_size);
 		memmove(new_buffer, client->message_buffer, client->buffer_size);
 		client->message_buffer = new_buffer;
-		printf("!!!\n", client->buffer_size, client->message_buffer);
 	}
 	memmove(client->message_buffer + client->buffer_size, buffer, bytes_read);
 	client->buffer_size += bytes_read;
