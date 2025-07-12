@@ -6,6 +6,7 @@ import process_input from "./controls";
 import Board from "./Board";
 import Renderer from "./Renderer";
 import Minimap from "./Minimap";
+import '../grid_board.css';
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
