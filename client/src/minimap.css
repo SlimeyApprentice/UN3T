@@ -1,0 +1,18 @@
+.minimap-container {
+    display: flex;
+
+    margin-left: 5px;
+
+    height: 100%;
+    width: 25vmin;
+}
+
+.minimap {
+    width: 25vmin;
+    height: 25vmin;
+    
+    display: grid;
+
+    border: 2px solid black;
+
+}
