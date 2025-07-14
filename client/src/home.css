@@ -1,0 +1,78 @@
+#root {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    height: 150%;
+    aspect-ratio: 1;
+
+    /* Background image is added in jsx */
+    background-size: 100% 100% ;
+    background-position: center; 
+}
+.background-cover {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffffbf;
+}
+
+.menu-button {
+    width: 40%;
+    height: 40px;
+
+    margin: 20px;
+
+    background-color: #ffffff;
+	border: #000000 solid 2px;
+	border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 24px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.menu-button > span {
+    color: black;
+}
+
+.menu-button:active {
+    background: #e5e5e5;
+    -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+       -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+            box-shadow: inset 0px 0px 5px #c1c1c1;
+     outline: none;
+}
+
+.spiiin {
+    position: relative;
+} 
+.spiiin > span {
+    position: relative;
+    display: inline-block;
+    text-transform: uppercase;
+    animation: 0s flip 0s infinite;
+    animation-duration: 4s;
+    animation-delay: 0.2s;
+    animation-delay: calc(.1s * var(--i))
+}
+@keyframes flip {
+    0%,80% {
+      transform: rotateY(360deg) 
+    }
+}

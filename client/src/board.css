@@ -1,0 +1,250 @@
+/* Height: 67px
+Width: 70px */
+
+:root {
+    /* --color-2: rgb(87.89,227.98,179.19);
+    --color-1: rgb(34.77,12.31,39.66); */
+    /* --color-1: rgb(49.833% 0.4817% 15.448%); */
+
+    --opacity: 20%;
+    --padding: 8px;
+    --cell-padding: 3px;
+
+
+    /* Unfortunately these don't actually control color of the pieces */
+    --color-1: rgba(236, 0, 71, 100%);
+    --color-2: rgb(26, 187, 225);
+    --color-3: rgb(0, 230, 42);
+    --color-1b: rgba(236, 0, 71, var(--opacity));
+    --color-2b: rgba(26, 187, 225, var(--opacity));
+    --color-3b: rgb(0, 230, 42, var(--opacity));
+
+    width: 100vw;
+}
+/* BOARD AND BORDER SIZE ARE NOW HANDLED INSIDE OF APP.JSX */
+
+body {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+.game {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+
+    justify-content: center;
+}
+
+.off {
+    /* display: none; */
+    visibility: collapse;
+}
+
+.react-transform-wrapper {
+    width: 85vmin;
+    aspect-ratio: 1;
+    /* border: 2px solid red; */
+    box-shadow: 0px 0px 5px rgb(255, 0, 0);
+}
+.react-transform-component {
+    height: 100%;
+    aspect-ratio: 1;
+}
+
+/* This horrendous CSS mishap has been fixed to the tune of Young Girl A */
+/* The issue was width fit-content as opposed to 100% */
+/* .game-wrapper {
+    width: 100%;
+    aspect-ratio: 1;
+} */
+
+.game-wrapper > .board {
+    border: var(--border-size) solid rgb(0, 0, 0);
+}
+.game-wrapper > #top-board {
+    border-bottom: none;
+}
+.game-wrapper > #bottom-board {
+    border-top: none;
+}
+.game-wrapper > #right-board {
+    border-left: none;
+}
+.game-wrapper > #left-board {
+    border-right: none;
+}
+
+.board {
+    display: grid; 
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+
+    aspect-ratio: 1/1;
+    position: relative;
+    padding: var(--padding);
+}
+
+.summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* grid-template-rows: 1fr 1fr; */
+
+    padding: 5px;
+
+    column-gap: var(--cell-padding);
+    row-gap: var(--cell-padding);
+}
+.summary-image {
+    width: 100%;
+    height: 100%;
+    opacity: 60%;
+}
+.empty-image {
+    opacity: 20%;
+}
+.move-count {
+    z-index: 1;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: justify;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: large;
+    /* text-justify:auto; */
+}
+.summary-image:nth-child(2) { grid-area: 1 / 1 / 2 / 2; }
+.summary-image:nth-child(3) { grid-area: 1 / 2 / 2 / 3; }
+.move-count:nth-child(4) { grid-area: 1 / 1 / 2 / 2; }
+.move-count:nth-child(5) { grid-area: 1 / 2 / 2 / 3; }
+.summary-image:nth-child(6) { grid-area: 1 / 1 / 2 / 3; }
+    
+
+.cell {
+    display: flex;
+    justify-content: center;
+    
+    box-sizing: border-box;
+
+    background-color: transparent;
+    border: none;
+
+    font-family: monospace;
+    font-weight: bold;
+    text-align: center;
+    /* padding: var(--cell-padding); */
+    padding: 0px;
+
+    aspect-ratio: 1/1;
+    /* width: calc(round(33%, 5px)); */
+    /* width: 33%; */
+    /* font-family:'Courier New', Courier, monospace; */
+}
+
+.board:nth-child(2) {
+    border-left: var(--border-size) solid rgb(0, 0, 0);
+    border-right: var(--border-size) solid rgb(0, 0, 0);
+    /* padding-left: calc(var(--padding) - var(--border-size));
+    padding-right: calc(var(--padding) - var(--border-size)); */
+}
+
+.active-board:hover {
+    background-color: rgba(119, 136, 153, 0.165);
+}
+
+.board-row {
+    /* width: inherit; */
+    display: flex;
+    flex-direction: row;
+
+    /* flex-grow: 1; */
+    width: 100%;
+    height: 33%;
+    aspect-ratio: 1/3;
+
+    /* height: calc(round(33%, 5px) - 2px); */
+
+    /* height: 33%; */
+    /* aspect-ratio: 1/3; */
+}
+
+.move {
+    width: 100%;
+    height: 100%;
+}
+
+.top-row {
+    border-bottom: var(--border-size) solid rgb(0, 0, 0);
+    /* padding-bottom: 0px; */
+}
+.center-row {
+    /* margin-top: calc(var(--border-size)/2);
+    margin-bottom: calc(var(--border-size)/2); */
+}
+.bottom-row {
+    border-top: var(--border-size) solid rgb(0, 0, 0);
+    /* padding-top: 0px; */
+}
+
+.cell:nth-child(2) {
+    border-left: var(--border-size) solid rgb(0, 0, 0);
+    border-right: var(--border-size) solid rgb(0, 0, 0);
+    /* padding-left: calc(var(--cell-padding) - var(--border-size));
+    padding-right: calc(var(--cell-padding) - var(--border-size)); */
+}
+
+.win-container-active {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    /* color: var(--color-1); */
+    /* z-index: 10; */
+    /* ^^^^ Handled by JS */
+    flex: 1;
+}
+
+.X, .O, .D {
+    position: absolute;
+    text-align: center;
+    height: calc(var(--padding)*2 + var(--board-size));
+    width: calc(var(--padding)*2 + var(--board-size));
+    top: calc(var(--padding) * -1);
+}
+
+.X {
+    color: var(--color-1);
+}
+.board:has(> .win-container > .X) {
+    background-color: var(--color-1b);
+}
+
+.O {
+    color: var(--color-2);
+}
+.board:has(> .win-container > .O) {
+    background-color: var(--color-2b);
+}
+
+.D {
+    color: var(--color-3);
+}
+.board:has(> .win-container > .D) {
+    background-color: var(--color-3b);
+}

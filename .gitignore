@@ -1,5 +1,10 @@
 *.o
 *.exe
 testing
-client
 server
+client/node_modules
+client/build
+client/dist
+
+.vscode
+.DS_Store

@@ -1,0 +1,243 @@
+.game {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+
+    justify-content: center;
+}
+
+.off {
+    display: none;
+    visibility: collapse;
+}
+
+.react-transform-wrapper {
+    width: 85vmin;
+    aspect-ratio: 1;
+    /* border: 2px solid red; */
+    box-shadow: 0px 0px 5px rgb(255, 0, 0);
+}
+.react-transform-component {
+    height: 100%;
+    aspect-ratio: 1;
+}
+
+.active-board:hover {
+    background-color: rgba(119, 136, 153, 0.165);
+}
+
+/* This horrendous CSS mishap has been fixed to the tune of Young Girl A */
+/* The issue was width fit-content as opposed to 100% */
+/* .game-wrapper {
+    width: 100%;
+    aspect-ratio: 1;
+} */
+
+.board {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+
+    flex-grow: 1;
+
+    box-sizing: border-box;
+
+    /* width: 100%;
+    height: 100%; */
+
+    padding: var(--padding);
+}
+.top-board {
+    aspect-ratio: 1;
+}
+
+.cell {
+    display: flex;
+    justify-content: center;
+    
+    box-sizing: border-box;
+
+    background-color: transparent;
+    border: 0;
+
+    font-family: monospace;
+    font-weight: bold;
+    text-align: center;
+    /* padding: var(--cell-padding); */
+    /* padding: 2px; */
+
+    /* justify-content: center; */
+    /* align-items: stretch; */
+
+    /* border: var(--border-size) solid transparent; */
+}
+
+.board:nth-child(2),
+.board:nth-child(3),
+.board:nth-child(4),
+.cell:nth-child(2),
+.cell:nth-child(3),
+.cell:nth-child(4) {
+  border-bottom: var(--border-size) solid black;
+  /* padding-bottom: 0px; */
+}
+
+.board:nth-child(8),
+.board:nth-child(9),
+.board:nth-child(10),
+.cell:nth-child(8),
+.cell:nth-child(9),
+.cell:nth-child(10) {
+  border-top: var(--border-size) solid black;
+  /* padding-top: 0px; */
+}
+
+.board:nth-child(2),
+.board:nth-child(5),
+.board:nth-child(8),
+.cell:nth-child(2),
+.cell:nth-child(5),
+.cell:nth-child(8) {
+  border-right: var(--border-size) solid black;
+  /* padding-right: 0px; */
+  /* margin-right: 2px; */
+}
+
+.board:nth-child(4),
+.board:nth-child(7),
+.board:nth-child(10),
+.cell:nth-child(4),
+.cell:nth-child(7),
+.cell:nth-child(10) {
+  border-left: var(--border-size) solid black;
+  /* padding-left: 0px; */
+}
+
+.cell:nth-child(3),
+.cell:nth-child(6),
+.cell:nth-child(9) {
+    padding: 0px 1px;
+}
+.board:nth-child(3),
+.board:nth-child(6),
+.board:nth-child(9) {
+    padding: var(--padding) calc(var(--padding) + 1px);
+}
+
+.move {
+    width: 90%;
+    /* aspect-ratio: 1; */
+    /* height: 100%; */
+}
+.dummy-move {
+    visibility: none;
+}
+
+
+/* Managed in code */
+.game-wrapper {
+    /* display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr; */
+}
+.game-wrapper > .board {
+    border: var(--border-size) solid rgb(0, 0, 0);
+    
+    padding: 8px;
+}
+.game-wrapper > #top-board {
+    border-bottom: none;
+}
+.game-wrapper > #bottom-board {
+    border-top: none;
+}
+.game-wrapper > #right-board {
+    border-left: none;
+}
+.game-wrapper > #left-board {
+    border-right: none;
+}
+
+.win-container-active {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    /* color: var(--color-1); */
+    /* z-index: 10; */
+    /* ^^^^ Handled by JS */
+    flex: 1;
+}
+
+
+ 
+.summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+}
+
+.summary-image {
+    width: 90%;
+    height: 90%;
+
+    justify-self: center;
+    align-self: center;
+
+    opacity: 60%;
+}
+.empty-image {
+    opacity: 20%;
+}
+.move-count {
+    z-index: 1;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: justify;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: large;
+}
+
+.summary-image:nth-child(2) { grid-area: 1 / 1 / 2 / 2; }
+.summary-image:nth-child(3) { grid-area: 1 / 2 / 2 / 3; }
+.move-count:nth-child(4) { grid-area: 1 / 1 / 2 / 2; }
+.move-count:nth-child(5) { grid-area: 1 / 2 / 2 / 3; }
+.summary-image:nth-child(6) { grid-area: 1 / 1 / 2 / 3; }
+
+.X, .O, .D {
+    position: absolute;
+    text-align: center;
+    height: calc(var(--padding)*2 + var(--board-size));
+    width: calc(var(--padding)*2 + var(--board-size));
+    top: calc(var(--padding) * -1);
+}
+
+.X {
+    color: var(--color-1);
+}
+.board:has(> .win-container > .X) {
+    background-color: var(--color-1b);
+}
+
+.O {
+    color: var(--color-2);
+}
+.board:has(> .win-container > .O) {
+    background-color: var(--color-2b);
+}
+
+.D {
+    color: var(--color-3);
+}
+.board:has(> .win-container > .D) {
+    background-color: var(--color-3b);
+}
