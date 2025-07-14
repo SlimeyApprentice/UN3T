@@ -7,3 +7,4 @@ client/dist
 
 *.o
 testing
+server
