@@ -4,3 +4,6 @@ client/dist
 
 .vscode
 .DS_Store
+
+*.o
+testing
