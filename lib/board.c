@@ -144,6 +144,11 @@ Verdict _judge_board(Board *board) {
  */
 cJSON *process_move(Game *world, char *move, Verdict player) {
     cJSON *root = cJSON_CreateObject();
+    if (!world || !move) {
+	cJSON_AddBoolToObject(root, "success?", 0);
+	cJSON_AddNumberToObject(root, "value", -5);
+	return root;
+    }
     Board *board = &world->board;
     // Check that the right player has made the move
     if (player != world->turn) {
@@ -275,16 +280,26 @@ cJSON *_parse_board(Board *world, unsigned int depth) {
  * @returns         A Board object containing the desired state.
  */
 cJSON *retrieve_state(Game *world, char *location, unsigned int depth) {
+    if (!world || !location) {
+	cJSON *root = cJSON_CreateObject();
+	cJSON_AddNumberToObject(root, "error", -2);
+	return root;
+    }
     Board *board = &world->board;
-    while (location[0]) {
+    while (location[0] && board) {
         board = board->cells[location[0]];
         location++;
     }
+    if (!board) return _empty_board(depth);
     return _parse_board(board, depth);
 }
 
 cJSON *retrieve_restriction(Game *world) {
 	cJSON *root = cJSON_CreateObject();
+	if (!world) {
+	    cJSON_AddNumberToObject(root, "error", -2);
+	    return root;
+	}
 	cJSON_AddStringToObject(root, "restriction", world->restriction);
 	cJSON_AddNumberToObject(root, "player", world->turn);
 	return root;

@@ -37,6 +37,7 @@ typedef struct ServerData {
 typedef enum Signature {
 	UN3T_SIG_NEW = 'N',
 	UN3T_SIG_JOIN = 'J',
+	UN3T_SIG_LEAV = 'L',
 	UN3T_SIG_TURN = 'T',
 	UN3T_SIG_MOVE = 'M',
 	UN3T_SIG_SCAN = 'S'
