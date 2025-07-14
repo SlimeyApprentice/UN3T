@@ -1,3 +1,7 @@
+*.o
+*.exe
+testing
+server
 client/node_modules
 client/build
 client/dist
