@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
+#include <stdbool.h>
 #include "server.h"
 #include "lib/board.h"
 
