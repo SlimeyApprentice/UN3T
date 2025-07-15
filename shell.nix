@@ -1,27 +1,19 @@
 with import <nixpkgs> {};
 
+# Can probably remove a bunch of these packages
 stdenv.mkDerivation {
     name = "node + C";
 
     nativeBuildInputs = [
         nodejs
 
-        getopt
-        flex
-        bison
+        netcat-gnu
+
         gcc
         gnumake
         stdenv
         glibc
-        bc
         pkg-config
-        binutils
-    ];
-    buildInputs = [
-        elfutils
-        ncurses
-        openssl
-        zlib
     ];
     shellHook = ''
         export PATH="$PWD/node_modules/.bin/:$PATH"
