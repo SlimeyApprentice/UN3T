@@ -6,32 +6,32 @@
 #define UN3T_LISTEN_BACKLOG 8
 #define READ_BUFFER_BYTES 256
 
+struct Buffer {
+	char *content;
+	size_t buffer_size;
+	size_t buffer_maxsize;
+};
+
 typedef struct Games {
+    struct Games *next;
     int game_id;
     Game game;
     int X_fd;
     int O_fd;
-    struct Games *next;
 } Games;
 
 typedef struct Connections {
-    int fd;
+    struct Connections *next;
+    struct lws *wsi;
     int game_id;
     Verdict role;
-    char *message_buffer;
-    int buffer_size;
-    int buffer_max_size;
-    struct Connections *next;
+    struct Buffer in;
+    struct Buffer out;
 } Connections;
 
 typedef struct ServerData {
-    int sock_fd;
     int game_counter;
-    int connection_counter;
     Games *games_head;
-    Connections *connections_head;
-    struct pollfd *pollfds;
-    int flush_needed;
 } ServerData;
 
 typedef enum Signature {

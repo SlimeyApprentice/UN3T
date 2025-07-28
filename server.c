@@ -9,22 +9,7 @@
 #include <stdbool.h>
 #include "server.h"
 #include "lib/board.h"
-
-void flush_fds(ServerData *server) {
-	free(server->pollfds);
-	server->pollfds = malloc(sizeof(struct pollfd) * (server->connection_counter + 1));
-	Connections *connections_ptr = server->connections_head;
-	for (int i = 0; i < server->connection_counter && connections_ptr; i++, connections_ptr = connections_ptr->next) {
-		server->pollfds[i].fd = connections_ptr->fd;
-		server->pollfds[i].events = POLLIN;
-	}
-	server->pollfds[server->connection_counter].fd = server->sock_fd;
-	server->pollfds[server->connection_counter].events = POLLIN;
-	server->flush_needed = 0;
-	return;
-}
-		
-
+#include <libwebsockets.h>
 
 ServerData *init_server() {
     ServerData *server = malloc(sizeof(ServerData));
@@ -34,49 +19,8 @@ ServerData *init_server() {
     }
 
     server->game_counter = 0;
-    server->connection_counter = 0;
     server->games_head = NULL;
-    server->connections_head = NULL;
-    server->pollfds = NULL;
-    server->flush_needed = 1;
 
-    char host[256];
-    if (gethostname(host, sizeof(host))) {
-	    printf("gethostname failed to resolve hostname :(\n");
-	    exit(EXIT_FAILURE);
-    }
-    printf("hostname to bind to: %s:%s\n", host, UN3T_SERVER_PORT);
-    struct addrinfo hints, *result;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    if (getaddrinfo(host, UN3T_SERVER_PORT, &hints, &result)) {
-	    printf("getaddrinfo failed to resolve host :(\n");
-	    exit(EXIT_FAILURE);
-    }
-    inet_ntop(AF_INET, result, host, sizeof(host));
-    
-    printf("address: %s\n", host);
-    server->sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server->sock_fd < 0) {
-	    perror("socket creation failed :(\n");
-	    exit(EXIT_FAILURE);
-    }
-    int enable = 1;
-    if (setsockopt(server->sock_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable))) {
-	    perror("setsockopt failed :(\n");
-	    exit(EXIT_FAILURE);
-    }
-    printf("Socket initialized. Binding...\n");
-    if (bind(server->sock_fd, result->ai_addr, result->ai_addrlen)) {
-	    perror("socket couldn't bind :(\n");
-	    exit(EXIT_FAILURE);
-    }
-    printf("Socket bound\n");
-    if (listen(server->sock_fd, UN3T_LISTEN_BACKLOG)) {
-	    perror("socket couldn't listen :(\n");
-	    exit(EXIT_FAILURE);
-    }
     printf("Socket listening on port %s\n", UN3T_SERVER_PORT);
     return server;
 }
@@ -241,6 +185,11 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 	return 0;
 }
 
+void clear_buffer(struct Buffer buf, size_t message_size) {
+	memmove(buf.contents, buf.contents + message_size, buf.buffer_size - message_size);
+	buf.buffer_size -= message_size;
+}
+
 /**
  * API:
  *
@@ -363,8 +312,6 @@ void process_request(ServerData *server, Connections *client) {
 		cJSON_Delete(data);
 	}
 	clear:
-	memmove(client->message_buffer, client->message_buffer + message_size, client->buffer_size - message_size);
-	client->buffer_size -= message_size;
 	return;
 }
 
