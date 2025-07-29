@@ -54,22 +54,22 @@ int terminated_length(char *buffer, int buffer_size, char terminator) {
 	return -1;
 }
 
-bool validate(char *buffer, int buffer_size, Signature sig) {
+bool validate(struct Buffer buf, Signature sig) {
 	int i = 1;
 	switch (sig) {
 		case UN3T_SIG_NEW:
-			while (buffer[i] != ';') {
-				if (buffer[i] - '0' > 9 || buffer[i] - '0' < 0) return false;
+			while (buf.contents[i] != ';') {
+				if (buf.contents[i] - '0' > 9 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buffer_size) return false;
+				if (i >= buf.buffer_size) return false;
 			}
 			i++;
 			return true;	
 		case UN3T_SIG_JOIN:
-			while (buffer[i] != ';') {
-				if (buffer[i] - '0' > 9 || buffer[i] - '0' < 0) return false;
+			while (buf.contents[i] != ';') {
+				if (buf.contents[i] - '0' > 9 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buffer_size) return false;
+				if (i >= buf.buffer_size) return false;
 			}
 			i++;
 			return true;
@@ -78,23 +78,23 @@ bool validate(char *buffer, int buffer_size, Signature sig) {
 		case UN3T_SIG_TURN:
 			return true;
 		case UN3T_SIG_MOVE:
-			while (buffer[i] != ';') {
-				if (buffer[i] - '0' > 8 || buffer[i] - '0' < 0) return false;
+			while (buf.contents[i] != ';') {
+				if (buf.contents[i] - '0' > 8 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buffer_size) return false;
+				if (i >= buf.buffer_size) return false;
 			}
 			return true;
 		case UN3T_SIG_SCAN:
-			while (buffer[i] != ';') {
-				if (buffer[i] - '0' > 8 || buffer[i] - '0' < 0) return false;
+			while (buf.contents[i] != ';') {
+				if (buf.contents[i] - '0' > 8 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buffer_size) return false;
+				if (i >= buf.buffer_size) return false;
 			}
 			i++;
-			while (buffer[i] != ';') {
-				if (buffer[i] - '0' > 9 || buffer[i] - '0' < 0) return false;
+			while (buf.contents[i] != ';') {
+				if (buf.contents[i] - '0' > 9 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buffer_size) return false;
+				if (i >= buf.buffer_size) return false;
 			}
 			return true;
 		default:

@@ -7,7 +7,7 @@
 #define READ_BUFFER_BYTES 256
 
 struct Buffer {
-	char *content; /* malloc - free */
+	char *contents; /* malloc - free */
 	size_t buffer_size;
 };
 
@@ -31,7 +31,7 @@ typedef struct Connections {
 
 typedef struct ServerData {
     int game_counter;
-    int connections_counter;
+    int connection_counter;
     Games *games_head;
     Connections *connections_head;
 } ServerData;
