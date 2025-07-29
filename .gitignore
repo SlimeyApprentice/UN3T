@@ -4,3 +4,15 @@ client/dist
 
 .vscode
 .DS_Store
+
+*.o
+
+*.out*
+
+testing
+server
+
+package-lock.json
+
+
+vgcore.*
