@@ -141,14 +141,18 @@ struct Buffer concat_buffer(struct Buffer buf1, struct Buffer buf2) {
 		}
 		buf.contents = malloc(buf.buffer_maxsize);
 		memmove(buf.contents, buf1.contents, buf1.buffer_size);
+		free(buf1.contents);
 		memmove(buf.contents + buf1.buffer_size, buf2.contents, buf2.buffer_size);
+		free(buf2.contents);
 		return buf;
 	}
 	memmove(buf1.contents + buf1.buffer_size, buf2.contents, buf2.buffer_size);
+	free(buf2.contents);
+	buf1.buffer_size += buf2.buffer_size;
 	return buf1;
 }
 
-void clear_buffer(struct Buffer buf, size_t message_length) {
+void pop_buffer(struct Buffer buf, size_t message_length) {
 	memmove(buf.contents, buf.contents + message_length, message_length);
 	buf.buffer_size -= message_length;
 }
