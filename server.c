@@ -131,6 +131,23 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 	return 0;
 }
 
+struct Buffer concat_buffer(struct Buffer buf1, struct Buffer buf2) {
+	if (buf1.buffer_maxsize < buf1.buffer_size + buf2.buffer_size) {
+		struct Buffer buf;
+		buf.buffer_size = buf1.buffer_size + buf2.buffer_size;
+		buf.buffer_maxsize = READ_BUFFER_BYTES;
+		while (buf.buffer_maxsize < buf.buffer_size) {
+			buf.buffer_maxsize *= 2;
+		}
+		buf.contents = malloc(buf.buffer_maxsize);
+		memmove(buf.contents, buf1.contents, buf1.buffer_size);
+		memmove(buf.contents + buf1.buffer_size, buf2.contents, buf2.buffer_size);
+		return buf;
+	}
+	memmove(buf1.contents + buf1.buffer_size, buf2.contents, buf2.buffer_size);
+	return buf1;
+}
+
 void clear_buffer(struct Buffer buf, size_t message_length) {
 	memmove(buf.contents, buf.contents + message_length, message_length);
 	buf.buffer_size -= message_length;
