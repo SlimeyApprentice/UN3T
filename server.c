@@ -14,8 +14,8 @@
 int leave_game(ServerData *server, Connections *client) {
 	Games *game = server->games_head;
 	while (game) {
-		if (game->X_fd == client->fd) game->X_fd = -1;
-		if (game->O_fd == client->fd) game->O_fd = -1;
+		if (game->X_wsi == client->wsi) game->X_wsi = NULL;
+		if (game->O_wsi == client->wsi) game->O_wsi = NULL;
 		game = game->next;
 	}
 	client->game_id = -1;
