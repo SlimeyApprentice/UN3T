@@ -47,9 +47,9 @@ int create_game(ServerData *server, Connections *creator, int depth) {
 	return game->game_id;
 }	
 
-int terminated_length(Buffer buf, char terminator) {
-	for (int i = 0; i <= buf.buffer_size; i++) {
-		if (buf.contents[i] == terminator) return i + 1;
+int terminated_length(char *buffer, int buffer_size, char terminator) {
+	for (int i = 0; i <= buffer_size; i++) {
+		if (buffer[i] == terminator) return i + 1;
 	}
 	return -1;
 }
@@ -132,7 +132,7 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 }
 
 Buffer concat_buffer(Buffer buf1, Buffer buf2) {
-	if (buf1.buffer_maxsize < buf1.buffer_size + buf2.buffer_size) {
+	if (buf1.buffer_max_size < buf1.buffer_size + buf2.buffer_size) {
 		Buffer buf;
 		buf.buffer_size = buf1.buffer_size + buf2.buffer_size;
 		buf.buffer_max_size = READ_BUFFER_BYTES;
@@ -292,18 +292,18 @@ void process_request(ServerData *server, Connections *client) {
 
 static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
 	Connections *client = user;
-	ServerData *server = lws_protol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
+	ServerData *server = lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
 	switch (reason) {
 		case LWS_CALLBACK_PROTOCOL_INIT:
-			lsw_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));
+			lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));
 			if (!server) return 1;
 			break;
 		case LWS_CALLBACK_ESTABLISHED:
 			break;
 		case LWS_CALLBACK_CLOSED:
 			break;
-		case LWS_CALLBACK_SERVER_WRITABLE:
+		case LWS_CALLBACK_SERVER_WRITEABLE:
 			break;
 		case LWS_CALLBACK_RECEIVE:
 			break;
