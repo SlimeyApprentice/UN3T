@@ -26,8 +26,8 @@ typedef struct Connections {
     int user_id;
     int game_id;
     Verdict role;
-    Buffer in;
-    Buffer out;
+    Buffer in; /* client-to-server */
+    Buffer out; /* server-to-client */
 } Connections;
 
 typedef struct ServerData {
