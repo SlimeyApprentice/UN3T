@@ -131,6 +131,11 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 	return 0;
 }
 
+void clear_buffer(struct Buffer buf, size_t message_length) {
+	memmove(buf.contents, buf.contents + message_length, message_length);
+	buf.buffer_size -= message_length;
+}
+
 /**
  * API:
  *
@@ -141,7 +146,7 @@ int join_game(ServerData *server, Connections *client, int game_id) {
  * M <string: location>                      makes a move in the current game, fails if the client hasn't created or joined a game yet
  * S <string: location> <int string: depth>  scans the board at the specified location and depth steps down, and returns the contents found as a JSON object
  *
- * All strings are composed of the digits 0 through 9, (0 through 8 in the case of non-int strings), terminated by a semicolon (;).
+ * All strings are composed of the digits 0 through 9, (0 through 8 in the case of non-int strings), terminated by a semicolon (;). Commands are terminated by a newline (\n).
 **/
 void process_request(ServerData *server, Connections *client) {
 	if (!server || !client) return;
