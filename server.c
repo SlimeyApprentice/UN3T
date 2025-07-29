@@ -114,12 +114,12 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 	if (client->game_id > -1) return -1;
 	Games *game = find_game_from_id(server->games_head, game_id);
 	if (!game) return -1;
-	if (game->X_fd < 0) {
+	if (game->X_wsi < 0) {
 		game->X_wsi = client->wsi;
 		client->game_id = game_id;
 		client->role = X;
 	}
-	else if (game->O_fd < 0) {
+	else if (game->O_wsi < 0) {
 		game->O_wsi = client->wsi;
 		client->game_id = game_id;
 		client->role = O;
@@ -135,11 +135,11 @@ Buffer concat_buffer(Buffer buf1, Buffer buf2) {
 	if (buf1.buffer_maxsize < buf1.buffer_size + buf2.buffer_size) {
 		Buffer buf;
 		buf.buffer_size = buf1.buffer_size + buf2.buffer_size;
-		buf.buffer_maxsize = READ_BUFFER_BYTES;
-		while (buf.buffer_maxsize < buf.buffer_size) {
-			buf.buffer_maxsize *= 2;
+		buf.buffer_max_size = READ_BUFFER_BYTES;
+		while (buf.buffer_max_size < buf.buffer_size) {
+			buf.buffer_max_size *= 2;
 		}
-		buf.contents = malloc(buf.buffer_maxsize);
+		buf.contents = malloc(buf.buffer_max_size);
 		memmove(buf.contents, buf1.contents, buf1.buffer_size);
 		free(buf1.contents);
 		memmove(buf.contents + buf1.buffer_size, buf2.contents, buf2.buffer_size);
@@ -171,13 +171,17 @@ void pop_buffer(Buffer buf, size_t message_length) {
 **/
 void process_request(ServerData *server, Connections *client) {
 	if (!server || !client) return;
-	char *read_head = client->in.content;
-	int read_length = client->in.buffer_size;
+
+	Buffer buf_in = client->in;
+	char signature = buf_in.contents[0];
+	char *read_head = buf_in.contents;
+	int read_length = buf_in.buffer_size;
+
 	int message_size = terminated_length(read_head, read_length, '\n');
 	if (message_size < 0) return;
-	if (!validate(read_head, read_length, read_head[0])) {
-		send(client->fd, "ERR:SYNTAX\n", 11, 0);
-		goto clear;
+	if (!validate(buf_in, signature)) {
+		// send(client->wsi, "ERR:SYNTAX\n", 11, 0);
+		pop_buffer(buf_in, message_size);
 	}
 	read_head[message_size - 1] = 0;
 	printf("%s\n", read_head);
@@ -190,14 +194,14 @@ void process_request(ServerData *server, Connections *client) {
 		printf("%s\n", read_head);
 		unsigned int depth = 0;
 		if (sscanf(read_head, "%u", &depth) != 1) {
-			send(client->fd, "ERR:NUM\n", 8, 0);
-			goto clear;
+			// send(client->wsi, "ERR:NUM\n", 8, 0);
+			pop_buffer(buf_in, term_size);
 		}
 		int game_id = create_game(server, client, depth);
 		int length = snprintf(NULL, 0, "%u;\n", game_id);
-		char *message = malloc(length+1);
+		char *message = (char*)malloc(length+1);
 		sprintf(message, "%d;\n", game_id);
-		send(client->fd, message, length+1, 0);
+		// send(client->wsi, message, length+1, 0);
 	}
 	else if (c == UN3T_SIG_JOIN) {
 		int term_size = terminated_length(read_head, read_length, ';');
@@ -205,37 +209,38 @@ void process_request(ServerData *server, Connections *client) {
 		printf("%s\n", read_head);
 		int game_id = -1;
 		if (sscanf(read_head, "%d", &game_id) != 1) {
-			send(client->fd, "ERR:NUM\n", 8, 0);
-			goto clear;
+			// send(client->wsi, "ERR:NUM\n", 8, 0);
+			pop_buffer(buf_in, term_size);
 		}
 		int error = join_game(server, client, game_id);
-		if (error) send(client->fd, "FAILURE\n", 8, 0);
-		else send(client->fd, "SUCCESS\n", 8, 0);	
+		// if (error) send(client->wsi, "FAILURE\n", 8, 0);
+		// else send(client->wsi, "SUCCESS\n", 8, 0);	
 	}
 	else if (c == UN3T_SIG_LEAV) {
 		int error = leave_game(server, client);
-		if (error) send(client->fd, "FAILURE\n", 8, 0);
-		else send(client->fd, "SUCCESS\n", 8, 0);
+		// if (error) send(client->wsi, "FAILURE\n", 8, 0);
+		// else send(client->wsi, "SUCCESS\n", 8, 0);
 	}
 	else if (c == UN3T_SIG_TURN) {
 		Games *game = find_game_from_id(server->games_head, client->game_id);
+		int term_size = terminated_length(read_head, read_length, ';');
 		if (!game) {
-			send(client->fd, "FAILURE\n", 8, 0);
-			goto clear;
+			// send(client->wsi, "FAILURE\n", 8, 0);
+			pop_buffer(buf_in, term_size);
 		}
 		cJSON *data = retrieve_restriction(&game->game);
 		char *message = cJSON_PrintUnformatted(data);
-		send(client->fd, message, strlen(message) + 1, 0);
+		// send(client->wsi, message, strlen(message) + 1, 0);
 		free(message);
 		cJSON_Delete(data);
 	}
 	else if (c == UN3T_SIG_MOVE) {
 		Games *game = find_game_from_id(server->games_head, client->game_id);
-		if (!game) {
-			send(client->fd, "FAILURE\n", 8, 0);
-			goto clear;
-		}
 		int term_size = terminated_length(read_head, read_length, ';');
+		if (!game) {
+			// send(client->wsi, "FAILURE\n", 8, 0);
+			pop_buffer(buf_in, term_size);
+		}
 		read_head[term_size - 1] = 0;
 		printf("%s\n", read_head);
 		char *move;
@@ -246,20 +251,20 @@ void process_request(ServerData *server, Connections *client) {
 		char *message = cJSON_PrintUnformatted(data);
 		if (cJSON_IsTrue(cJSON_GetObjectItem(data, "success?"))) {
 			// TODO free up the game if it's won
-			send(game->X_fd, message, strlen(message) + 1, 0);
-			send(game->O_fd, message, strlen(message) + 1, 0);
+			// send(game->X_wsi, message, strlen(message) + 1, 0);
+			// send(game->O_wsi, message, strlen(message) + 1, 0);
 		}
-		else send(client->fd, message, strlen(message) + 1, 0);
+		// else send(client->wsi, message, strlen(message) + 1, 0);
 		free(message);
 		cJSON_Delete(data);
 	}
 	else if (c == UN3T_SIG_SCAN) {
 		Games *game = find_game_from_id(server->games_head, client->game_id);
-		if (!game) {
-			send(client->fd, "FAILURE\n", 8, 0);
-			goto clear;
-		}
 		int term_size = terminated_length(read_head, read_length, ';');
+		if (!game) {
+			// send(client->wsi, "FAILURE\n", 8, 0);
+			pop_buffer(buf_in, term_size);
+		}
 		read_head[term_size - 1] = 0;
 		printf("%s\n", read_head);
 		char *location;
@@ -267,19 +272,21 @@ void process_request(ServerData *server, Connections *client) {
 		if (!location) location = calloc(1, 1);
 		read_head += term_size;
 		read_length -= term_size;
+
+		//Not sure if defining length again is necessary, but just in case
+		int new_term_size = terminated_length(read_head, read_length, ';');
 		int depth = 0;
 		if (sscanf(read_head, "%d", &depth) != 1) {
-			send(client->fd, "ERR:NUM", 8, 0);
-			goto clear;
+			// send(client->wsi, "ERR:NUM", 8, 0);
+			pop_buffer(buf_in, new_term_size);
 		}
 		cJSON *data = retrieve_state(&game->game, location, depth);
 		free(location);
 		char *message = cJSON_PrintUnformatted(data);
-		send(client->fd, message, strlen(message) + 1, 0);
+		// send(client->wsi, message, strlen(message) + 1, 0);
 		free(message);
 		cJSON_Delete(data);
 	}
-	clear:
 	return;
 }
 

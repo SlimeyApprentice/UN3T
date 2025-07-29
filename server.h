@@ -9,7 +9,7 @@
 typedef struct Buffer {
 	char *contents; /* malloc - free */
 	size_t buffer_size;
-	size_t buffer_maxsize;
+	size_t buffer_max_size;
 } Buffer;
 
 typedef struct Games {
