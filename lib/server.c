@@ -300,12 +300,35 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 			if (!server) return 1;
 			break;
 		case LWS_CALLBACK_ESTABLISHED:
+			lws_ll_fwd_insert(client, connections_head, server->connections_head);
+			client->wsi = wsi;
+			client->user_id = server->connection_counter++;
+			client->game_id = -1;
+			client->role = EMPTY;
+			Buffer in;
+			in.contents = malloc(READ_BUFFER_BYTES);
+			in.buffer_size = 0;
+			in.buffer_max_size = READ_BUFFER_BYTES;
+			client->in = in;
+			Buffer out;
+			out.contents = malloc(READ_BUFFER_BYTES);
+			out.buffer_size = 0;
+			out.buffer_max_size = READ_BUFFER_BYTES;
+			client->out = out;
 			break;
 		case LWS_CALLBACK_CLOSED:
+			lws_ll_fwd_remove(ServerData, connections_head, client, server->connections_head);
 			break;
 		case LWS_CALLBACK_SERVER_WRITEABLE:
+			m = lws_write(wsi, client->out.contents + LWS_PRE, client->out.buffer_size, LWS_WRITE_TEXT);
+			if (m < client->out.buffer_size) {
+				lwsl_err("ERROR %d writing to ws\n", m);
+				return -1;
+			}
+			client->out.buffer_size = 0;
 			break;
 		case LWS_CALLBACK_RECEIVE:
+
 			break;
 		default:
 			break;

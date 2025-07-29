@@ -4,7 +4,7 @@ server: server.o board.o cJSON.o
 	gcc -lwebsockets server.o board.o cJSON.o -o server
 
 server.o: server.c server.h
-	gcc -g3 -c server.c
+	gcc -g3 -c lib/server.c
 
 testing: testing.o board.o cJSON.o
 	gcc testing.o board.o cJSON.o -o testing
