@@ -11,37 +11,6 @@
 #include "lib/board.h"
 #include <libwebsockets.h>
 
-ServerData *init_server() {
-    ServerData *server = malloc(sizeof(ServerData));
-    if (!server) {
-	    perror("Malloc failed while init'ing server :(\n");
-	    exit(EXIT_FAILURE);
-    }
-
-    server->game_counter = 0;
-    server->games_head = NULL;
-
-    printf("Socket listening on port %s\n", UN3T_SERVER_PORT);
-    return server;
-}
-
-void connect_client(ServerData *server) {
-	Connections *client = malloc(sizeof(Connections));
-	client->fd = accept(server->sock_fd, NULL, NULL);
-	client->game_id = -1;
-	client->role = EMPTY;
-	client->buffer_size = 0;
-	client->buffer_max_size = READ_BUFFER_BYTES;
-	client->message_buffer = calloc(1, client->buffer_max_size);
-	memset(client->message_buffer, 0, client->buffer_max_size);
-	client->next = server->connections_head;
-	server->connections_head = client;
-	server->flush_needed = 1;
-	server->connection_counter++;
-	printf("%d\n", server->connection_counter);
-	return;
-}
-
 int leave_game(ServerData *server, Connections *client) {
 	Games *game = server->games_head;
 	while (game) {
@@ -50,36 +19,13 @@ int leave_game(ServerData *server, Connections *client) {
 		game = game->next;
 	}
 	client->game_id = -1;
-	client->role = 0;
+	client->role = EMPTY;
 	return 0;
 }
 
-void disconnect_client(ServerData *server, int fd) {
-	Connections *connection = server->connections_head;
-	Connections *pred = NULL;
-
-	while (connection && connection->fd != fd) {
-		pred = connection;
-		connection = connection->next;
-	}
-	if (!connection) return;
-	close(connection->fd);
-	
-	leave_game(server, connection);
-	if (pred) pred->next = connection->next;
-	else server->connections_head = connection->next;
-
-	free(connection->message_buffer);
-	free(connection);
-	server->connection_counter--;
-	printf("%d\n", server->connection_counter);
-	server->flush_needed = 1;
-	return;
-}
-
-Connections *find_client_from_fd(Connections *head, int fd) {
+Connections *find_client_from_fd(Connections *head, int id) {
 	for (;head; head = head->next) {
-		if (head->fd == fd) return head;
+		if (head->user_id == id) return head;
 	}
 	return NULL;
 }
@@ -87,8 +33,8 @@ Connections *find_client_from_fd(Connections *head, int fd) {
 int create_game(ServerData *server, Connections *creator, int depth) {
 	Games *game = malloc(sizeof(Games));
 	game->game_id = server->game_counter++;
-	game->X_fd = creator->fd;
-	game->O_fd = -1;
+	game->X_wsi = creator->wsi;
+	game->O_wsi = NULL;
 	game->next = server->games_head;
 	memset(&game->game, 0, sizeof(Game));
 	game->game.restriction = calloc(1,1);
@@ -97,7 +43,7 @@ int create_game(ServerData *server, Connections *creator, int depth) {
 	server->games_head = game;
 	creator->game_id = game->game_id;
 	creator->role = X;
-	printf("New game created by %d of depth %u with game id %d\n", creator->fd, depth, game->game_id);
+	printf("New game created by %d of depth %u with game id %d\n", creator->user_id, depth, game->game_id);
 	return game->game_id;
 }	
 
@@ -169,12 +115,12 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 	Games *game = find_game_from_id(server->games_head, game_id);
 	if (!game) return -1;
 	if (game->X_fd < 0) {
-		game->X_fd = client->fd;
+		game->X_wsi = client->wsi;
 		client->game_id = game_id;
 		client->role = X;
 	}
 	else if (game->O_fd < 0) {
-		game->O_fd = client->fd;
+		game->O_wsi = client->wsi;
 		client->game_id = game_id;
 		client->role = O;
 	}
@@ -183,11 +129,6 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 		client->role = EMPTY;
 	}
 	return 0;
-}
-
-void clear_buffer(struct Buffer buf, size_t message_size) {
-	memmove(buf.contents, buf.contents + message_size, buf.buffer_size - message_size);
-	buf.buffer_size -= message_size;
 }
 
 /**
@@ -200,11 +141,12 @@ void clear_buffer(struct Buffer buf, size_t message_size) {
  * M <string: location>                      makes a move in the current game, fails if the client hasn't created or joined a game yet
  * S <string: location> <int string: depth>  scans the board at the specified location and depth steps down, and returns the contents found as a JSON object
  *
- * All strings are composed of the digits 0 through 9, (0 through 8 in the case of non-int strings), terminated by a semicolon (;). Commands are terminated by a newline (\n)
+ * All strings are composed of the digits 0 through 9, (0 through 8 in the case of non-int strings), terminated by a semicolon (;).
 **/
 void process_request(ServerData *server, Connections *client) {
-	char *read_head = client->message_buffer;
-	int read_length = client->buffer_size;
+	if (!server || !client) return;
+	char *read_head = client->in.content;
+	int read_length = client->in.buffer_size;
 	int message_size = terminated_length(read_head, read_length, '\n');
 	if (message_size < 0) return;
 	if (!validate(read_head, read_length, read_head[0])) {
