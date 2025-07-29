@@ -284,11 +284,28 @@ void process_request(ServerData *server, Connections *client) {
 }
 
 static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
-	struct 
+	Connections *client = user;
+	ServerData *server = lws_protol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
+
+	switch (reason) {
+		case LWS_CALLBACK_PROTOCOL_INIT:
+			break;
+		case LWS_CALLBACK_ESTABLISHED:
+			break;
+		case LWS_CALLBACK_CLOSED:
+			break;
+		case LWS_CALLBACK_SERVER_WRITABLE:
+			break;
+		case LWS_CALLBACK_RECEIVE:
+			break;
+		default:
+			break;
+	}
+
+	return 0;
 }
 
 int main() {
-	ServerData *server = init_server();
 	printf("Server Started\n");
 	return 0;
 }
