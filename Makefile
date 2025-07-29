@@ -1,7 +1,7 @@
 all: testing server
 
 server: server.o board.o cJSON.o
-	gcc server.o board.o cJSON.o -o server
+	gcc -lwebsockets server.o board.o cJSON.o -o server
 
 server.o: server.c server.h
 	gcc -g3 -c server.c
