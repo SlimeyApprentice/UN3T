@@ -6,11 +6,11 @@
 #define UN3T_LISTEN_BACKLOG 8
 #define READ_BUFFER_BYTES 256
 
-struct Buffer {
+typedef struct Buffer {
 	char *contents; /* malloc - free */
 	size_t buffer_size;
 	size_t buffer_maxsize;
-};
+} Buffer;
 
 typedef struct Games {
     struct Games *next;
@@ -26,8 +26,8 @@ typedef struct Connections {
     int user_id;
     int game_id;
     Verdict role;
-    struct Buffer in;
-    struct Buffer out;
+    Buffer in;
+    Buffer out;
 } Connections;
 
 typedef struct ServerData {

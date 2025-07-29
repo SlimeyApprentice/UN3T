@@ -47,14 +47,14 @@ int create_game(ServerData *server, Connections *creator, int depth) {
 	return game->game_id;
 }	
 
-int terminated_length(char *buffer, int buffer_size, char terminator) {
-	for (int i = 0; i <= buffer_size; i++) {
-		if (buffer[i] == terminator) return i + 1;
+int terminated_length(Buffer buf, char terminator) {
+	for (int i = 0; i <= buf.buffer_size; i++) {
+		if (buf.contents[i] == terminator) return i + 1;
 	}
 	return -1;
 }
 
-bool validate(struct Buffer buf, Signature sig) {
+bool validate(Buffer buf, Signature sig) {
 	int i = 1;
 	switch (sig) {
 		case UN3T_SIG_NEW:
@@ -131,9 +131,9 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 	return 0;
 }
 
-struct Buffer concat_buffer(struct Buffer buf1, struct Buffer buf2) {
+Buffer concat_buffer(Buffer buf1, Buffer buf2) {
 	if (buf1.buffer_maxsize < buf1.buffer_size + buf2.buffer_size) {
-		struct Buffer buf;
+		Buffer buf;
 		buf.buffer_size = buf1.buffer_size + buf2.buffer_size;
 		buf.buffer_maxsize = READ_BUFFER_BYTES;
 		while (buf.buffer_maxsize < buf.buffer_size) {
@@ -152,7 +152,7 @@ struct Buffer concat_buffer(struct Buffer buf1, struct Buffer buf2) {
 	return buf1;
 }
 
-void pop_buffer(struct Buffer buf, size_t message_length) {
+void pop_buffer(Buffer buf, size_t message_length) {
 	memmove(buf.contents, buf.contents + message_length, message_length);
 	buf.buffer_size -= message_length;
 }
@@ -283,54 +283,12 @@ void process_request(ServerData *server, Connections *client) {
 	return;
 }
 
-void receive_client_data(ServerData *server, Connections *client) {
-	char buffer[READ_BUFFER_BYTES];
-	int bytes_read = recv(client->fd, buffer, READ_BUFFER_BYTES, 0);
-	if (bytes_read < 1) {
-		disconnect_client(server, client->fd);
-		return;
-	}
-	while (client->buffer_size + bytes_read > client->buffer_max_size) {
-		client->buffer_max_size	*= 2;
-		char *new_buffer = calloc(1, client->buffer_max_size);
-		memset(new_buffer, 0, client->buffer_max_size);
-		memmove(new_buffer, client->message_buffer, client->buffer_size);
-		client->message_buffer = new_buffer;
-	}
-	memmove(client->message_buffer + client->buffer_size, buffer, bytes_read);
-	client->buffer_size += bytes_read;
+static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
+	struct 
 }
 
 int main() {
 	ServerData *server = init_server();
 	printf("Server Started\n");
-	while (1) {
-		if (server->flush_needed) flush_fds(server);
-
-		if (poll(server->pollfds, server->connection_counter + 1, -1) < 0) {
-			perror("poll errored :(\n");
-			exit(EXIT_FAILURE);
-		}
-		
-		for (int i = 0; i < server->connection_counter; i++) {
-			struct pollfd connection = server->pollfds[i];
-
-			if (connection.revents & (POLLHUP | POLLERR)) {
-				disconnect_client(server, connection.fd);
-				printf("%d disconnected\n", connection.fd);
-			}
-
-			if (connection.revents & POLLIN) {
-				Connections *client = find_client_from_fd(server->connections_head, connection.fd);
-				receive_client_data(server, client);
-				process_request(server, client);
-			}
-		}
-
-		if (server->pollfds[server->connection_counter].revents & POLLIN) {
-			connect_client(server);
-			printf("Accepted a connection\n");
-		}
-	}
 	return 0;
 }
