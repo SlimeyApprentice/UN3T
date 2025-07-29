@@ -289,6 +289,8 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 
 	switch (reason) {
 		case LWS_CALLBACK_PROTOCOL_INIT:
+			lsw_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));
+			if (!server) return 1;
 			break;
 		case LWS_CALLBACK_ESTABLISHED:
 			break;
