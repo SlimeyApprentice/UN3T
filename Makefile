@@ -1,7 +1,10 @@
-all: testing server
+all: testing main
 
-main: server.o
-	gcc -lwebsockets server.o board.o cJSON.o -o main
+main: cJSON.o board.o server.o main.o 
+	gcc -lwebsockets cJSON.o board.o server.o main.o -o main 
+
+main.o: main.c lib/server.h
+	gcc -g3 -c main.c
 
 server.o: lib/server.c lib/server.h
 	gcc -g3 -c lib/server.c

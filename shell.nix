@@ -9,6 +9,7 @@ stdenv.mkDerivation {
         glib
         openssl
         cmake
+        netcat-gnu
     ];
     shellHook = ''
         export PATH="$PWD/node_modules/.bin/:$PATH"

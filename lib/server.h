@@ -1,6 +1,9 @@
+#ifndef SERVER_H
+#define SERVER_H
+
+#include <poll.h>
 #include "board.h"
 #include "cJSON.h"
-#include <poll.h>
 
 #define UN3T_SERVER_PORT 8332
 #define UN3T_LISTEN_BACKLOG 8
@@ -45,3 +48,5 @@ typedef enum Signature {
 	UN3T_SIG_MOVE = 'M',
 	UN3T_SIG_SCAN = 'S'
 } Signature;
+
+#endif // SERVER_H 
