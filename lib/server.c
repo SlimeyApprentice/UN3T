@@ -55,7 +55,7 @@ int terminated_length(char *buffer, int buffer_size, char terminator) {
 }
 
 bool validate(Buffer buf, Signature sig) {
-	int i = 1;
+	int i = 1 + LWS_PRE;
 	switch (sig) {
 		case UN3T_SIG_NEW:
 			while (buf.contents[i] != ';') {
@@ -132,11 +132,11 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 }
 
 Buffer concat_buffer(Buffer buf1, Buffer buf2) {
-	if (buf1.buffer_max_size < buf1.buffer_size + buf2.buffer_size) {
+	if (buf1.buffer_max_size < buf1.buffer_size + buf2.buffer_size + LWS_PRE) {
 		Buffer buf;
 		buf.buffer_size = buf1.buffer_size + buf2.buffer_size;
 		buf.buffer_max_size = READ_BUFFER_BYTES;
-		while (buf.buffer_max_size < buf.buffer_size) {
+		while (buf.buffer_max_size < buf.buffer_size + LWS_PRE) {
 			buf.buffer_max_size *= 2;
 		}
 		buf.contents = malloc(buf.buffer_max_size);
@@ -153,7 +153,7 @@ Buffer concat_buffer(Buffer buf1, Buffer buf2) {
 }
 
 void pop_buffer(Buffer buf, size_t message_length) {
-	memmove(buf.contents, buf.contents + message_length, message_length);
+	memmove(buf.contents + LWS_PRE, buf.contents + LWS_PRE + message_length, message_length);
 	buf.buffer_size -= message_length;
 }
 
@@ -173,8 +173,8 @@ void process_request(ServerData *server, Connections *client) {
 	if (!server || !client) return;
 
 	Buffer buf_in = client->in;
-	char signature = buf_in.contents[0];
-	char *read_head = buf_in.contents;
+	char signature = buf_in.contents[LWS_PRE];
+	char *read_head = buf_in.contents + LWS_PRE;
 	int read_length = buf_in.buffer_size;
 
 	int message_size = terminated_length(read_head, read_length, '\n');
