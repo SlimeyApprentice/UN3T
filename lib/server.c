@@ -7,8 +7,6 @@
 #include <netdb.h>
 #include <string.h>
 #include <stdbool.h>
-#include "server.h"
-#include "board.h"
 #include <libwebsockets.h>
 
 #include "server.h"
