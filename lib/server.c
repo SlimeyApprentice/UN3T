@@ -7,9 +7,9 @@
 #include <netdb.h>
 #include <string.h>
 #include <stdbool.h>
-#include "server.h"
-#include "lib/board.h"
 #include <libwebsockets.h>
+
+#include "server.h"
 
 int leave_game(ServerData *server, Connections *client) {
 	Games *game = server->games_head;
@@ -334,10 +334,5 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 			break;
 	}
 
-	return 0;
-}
-
-int main() {
-	printf("Server Started\n");
 	return 0;
 }

@@ -1,5 +1,5 @@
-#include "lib/board.h"
-#include "lib/cJSON.h"
+#include "board.h"
+#include "cJSON.h"
 #include <poll.h>
 
 #define UN3T_SERVER_PORT 8332
