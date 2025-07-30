@@ -332,7 +332,9 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 			incoming.contents = in;
 			incoming.buffer_size = len;
 			client->in = concat_buffer(client->in, incoming);
-
+			while (terminated_length(client->in.contents + LWS_PRE, client->in.buffer_size, "\n") > 0) {
+				process_request(server, client);
+			}
 			break;
 		default:
 			break;
@@ -340,3 +342,5 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 
 	return 0;
 }
+
+// TODO: LWS_PRE more safely
