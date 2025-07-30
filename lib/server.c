@@ -7,6 +7,8 @@
 #include <netdb.h>
 #include <string.h>
 #include <stdbool.h>
+#include "server.h"
+#include "board.h"
 #include <libwebsockets.h>
 
 #include "server.h"
@@ -300,16 +302,16 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 			if (!server) return 1;
 			break;
 		case LWS_CALLBACK_ESTABLISHED:
-			lws_ll_fwd_insert(client, connections_head, server->connections_head);
+			lws_ll_fwd_insert(client, next, server->connections_head);
 			client->wsi = wsi;
 			client->user_id = server->connection_counter++;
 			client->game_id = -1;
 			client->role = EMPTY;
-			Buffer in;
-			in.contents = malloc(READ_BUFFER_BYTES);
-			in.buffer_size = 0;
-			in.buffer_max_size = READ_BUFFER_BYTES;
-			client->in = in;
+			Buffer client_in;
+			client_in.contents = malloc(READ_BUFFER_BYTES);
+			client_in.buffer_size = 0;
+			client_in.buffer_max_size = READ_BUFFER_BYTES;
+			client->in = client_in;
 			Buffer out;
 			out.contents = malloc(READ_BUFFER_BYTES);
 			out.buffer_size = 0;
@@ -317,10 +319,10 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 			client->out = out;
 			break;
 		case LWS_CALLBACK_CLOSED:
-			lws_ll_fwd_remove(ServerData, connections_head, client, server->connections_head);
+			lws_ll_fwd_remove(Connections, next, client, server->connections_head);
 			break;
 		case LWS_CALLBACK_SERVER_WRITEABLE:
-			m = lws_write(wsi, client->out.contents + LWS_PRE, client->out.buffer_size, LWS_WRITE_TEXT);
+			int m = lws_write(wsi, client->out.contents + LWS_PRE, client->out.buffer_size, LWS_WRITE_TEXT);
 			if (m < client->out.buffer_size) {
 				lwsl_err("ERROR %d writing to ws\n", m);
 				return -1;
@@ -328,6 +330,10 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 			client->out.buffer_size = 0;
 			break;
 		case LWS_CALLBACK_RECEIVE:
+			Buffer incoming;
+			incoming.contents = in;
+			incoming.buffer_size = len;
+			client->in = concat_buffer(client->in, incoming);
 
 			break;
 		default:
