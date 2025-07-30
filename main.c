@@ -19,28 +19,20 @@ static int interrupted;
 
 static const struct lws_http_mount mount = {
 	.mountpoint		= "/",			/* mountpoint URL */
-	.origin			= "./mount-origin",	/* serve from dir */
-	.def			= "index.html",		/* default filename */
-	.origin_protocol	= LWSMPRO_FILE,		/* files in a dir */
 	.mountpoint_len		= 1,			/* char count */
 };
-
-#if defined(LWS_WITH_PLUGINS)
-/* if plugins enabled, only protocols explicitly named in pvo bind to vhost */
-static struct lws_protocol_vhost_options pvo = { NULL, NULL, "lws-minimal", "" };
-#endif
 
 void sigint_handler(int sig)
 {
 	interrupted = 1;
 }
 
-int main(int argc, const char **argv)
-{
+int main(int argc, const char **argv) {
 	struct lws_context_creation_info info;
 	struct lws_context *context;
 	const char *p;
-	int n = 0, logs = LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE
+	int n = 0;
+    int logs = LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE
 			/* for LLL_ verbosity above NOTICE to be built into lws,
 			 * lws must have been configured and built with
 			 * -DCMAKE_BUILD_TYPE=DEBUG instead of =RELEASE */
@@ -50,34 +42,16 @@ int main(int argc, const char **argv)
 
 	signal(SIGINT, sigint_handler);
 
-	if ((p = lws_cmdline_option(argc, argv, "-d")))
-		logs = atoi(p);
-
 	lws_set_log_level(logs, NULL);
-	lwsl_user("LWS minimal ws server | visit http://localhost:7681 (-s = use TLS / https)\n");
+	lwsl_user("LWS minimal ws server | visit http://localhost:8332\n");
 
 	memset(&info, 0, sizeof info); /* otherwise uninitialized garbage */
-	info.port = 7681;
+	info.port = UN3T_SERVER_PORT;
 	info.mounts = &mount;
 	info.protocols = protocols;
 	info.vhost_name = "localhost";
 	info.options =
 		LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
-
-#if defined(LWS_WITH_TLS)
-	if (lws_cmdline_option(argc, argv, "-s")) {
-		lwsl_user("Server using TLS\n");
-		info.options |= LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
-		info.ssl_cert_filepath = "localhost-100y.cert";
-		info.ssl_private_key_filepath = "localhost-100y.key";
-	}
-#endif
-
-	if (lws_cmdline_option(argc, argv, "-h"))
-		info.options |= LWS_SERVER_OPTION_VHOST_UPG_STRICT_HOST_CHECK;
-
-	if (lws_cmdline_option(argc, argv, "-v"))
-		info.retry_and_idle_policy = &retry;
 
 	context = lws_create_context(&info);
 	if (!context) {
