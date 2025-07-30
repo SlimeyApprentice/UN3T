@@ -12,14 +12,6 @@ typedef struct Buffer {
 	size_t buffer_max_size;
 } Buffer;
 
-typedef struct Games {
-    struct Games *next;
-    int game_id;
-    Game game;
-    struct lws *X_wsi;
-    struct lws *O_wsi;
-} Games;
-
 typedef struct Connections {
     struct Connections *next;
     struct lws *wsi;
@@ -29,6 +21,14 @@ typedef struct Connections {
     Buffer in; /* client-to-server */
     Buffer out; /* server-to-client */
 } Connections;
+
+typedef struct Games {
+    struct Games *next;
+    int game_id;
+    Game game;
+    Connections *player_X;
+    Connections *player_O;
+} Games;
 
 typedef struct ServerData {
     int game_counter;
