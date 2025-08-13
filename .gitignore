@@ -11,8 +11,8 @@ client/dist
 
 testing
 server
+main
 
 package-lock.json
-
 
 vgcore.*

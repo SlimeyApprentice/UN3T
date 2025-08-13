@@ -339,6 +339,5 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 	}
 
 	return 0;
-}
-
 // TODO: LWS_PRE more safely
+}

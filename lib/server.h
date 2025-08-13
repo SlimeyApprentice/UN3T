@@ -1,9 +1,9 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <libwebsockets.h>
 #include "board.h"
 #include "cJSON.h"
-#include <libwebsockets.h>
 
 #define UN3T_SERVER_PORT 8332
 #define UN3T_LISTEN_BACKLOG 8
@@ -60,4 +60,4 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 	0, NULL, 9 \
 }
 
-#endif // SERVER_H
+#endif // SERVER_H 
