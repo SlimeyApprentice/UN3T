@@ -9,7 +9,6 @@
 #include <stdbool.h>
 #include "server.h"
 #include "board.h"
-#include <libwebsockets.h>
 
 int leave_game(ServerData *server, Connections *client) {
 	Games *game = server->games_head;

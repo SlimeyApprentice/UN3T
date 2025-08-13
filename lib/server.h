@@ -1,6 +1,9 @@
+#ifndef SERVER_H
+#define SERVER_H
+
 #include "board.h"
 #include "cJSON.h"
-#include <poll.h>
+#include <libwebsockets.h>
 
 #define UN3T_SERVER_PORT 8332
 #define UN3T_LISTEN_BACKLOG 8
@@ -45,3 +48,16 @@ typedef enum Signature {
 	UN3T_SIG_MOVE = 'M',
 	UN3T_SIG_SCAN = 'S'
 } Signature;
+
+static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len);
+
+#define LWS_PLUGIN_PROTOCOL_MINIMAL \
+{ \
+	"lws-minimal", \
+	handle_callback, \
+	sizeof(ServerData), \
+	128, \
+	0, NULL, 9 \
+}
+
+#endif // SERVER_H
