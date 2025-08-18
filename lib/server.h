@@ -58,7 +58,7 @@ int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *use
 
 #define LWS_PLUGIN_PROTOCOL_MINIMAL \
 { \
-	"lws-minimal", \
+	"UN3T", \
 	handle_callback, \
 	sizeof(ServerData), \
 	128, \

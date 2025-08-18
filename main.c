@@ -19,7 +19,7 @@ static int interrupted;
 
 static const struct lws_http_mount mount = {
 	.mountpoint		= "/",			/* mountpoint URL */
-	.origin			= "./mount-origin",
+	.origin			= ".",
 	.def			= "index.html",
 	.origin_protocol	= LWSMPRO_FILE,
 	.mountpoint_len		= 1,			/* char count */
