@@ -6,7 +6,7 @@
 
 static struct lws_protocols protocols[] = {
 	{ "http", lws_callback_http_dummy, 0, 0, 0, NULL, 0},
-	// LWS_PLUGIN_PROTOCOL_MINIMAL,
+	LWS_PLUGIN_PROTOCOL_MINIMAL,
 	LWS_PROTOCOL_LIST_TERM
 };
 
@@ -19,6 +19,9 @@ static int interrupted;
 
 static const struct lws_http_mount mount = {
 	.mountpoint		= "/",			/* mountpoint URL */
+	.origin			= "./mount-origin",
+	.def			= "index.html",
+	.origin_protocol	= LWSMPRO_FILE,
 	.mountpoint_len		= 1,			/* char count */
 };
 

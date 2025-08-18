@@ -3,7 +3,7 @@ all: testing main
 main: cJSON.o board.o server.o main.o 
 	gcc -lwebsockets cJSON.o board.o server.o main.o -o main 
 
-main.o: main.c lib/server.h
+main.o: main.c
 	gcc -g3 -c main.c
 
 server.o: lib/server.c lib/server.h

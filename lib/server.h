@@ -34,9 +34,14 @@ typedef struct Games {
 } Games;
 
 typedef struct ServerData {
+    struct lws_context *context;
+    struct lws_vhost *vhost;
+    const struct lws_protocols *protocol;
+
     int game_counter;
-    int connection_counter;
     Games *games_head;
+    
+    int connection_counter;
     Connections *connections_head;
 } ServerData;
 
@@ -49,7 +54,7 @@ typedef enum Signature {
 	UN3T_SIG_SCAN = 'S'
 } Signature;
 
-static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len);
+int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len);
 
 #define LWS_PLUGIN_PROTOCOL_MINIMAL \
 { \
@@ -57,7 +62,7 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 	handle_callback, \
 	sizeof(ServerData), \
 	128, \
-	0, NULL, 9 \
+	0, NULL, 0 \
 }
 
 #endif // SERVER_H 

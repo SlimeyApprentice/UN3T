@@ -1,3 +1,6 @@
+#ifndef _BOARD_C_
+#define _BOARD_C_
+
 #include "board.h"
 #include <stddef.h>
 #include <stdlib.h>
@@ -304,3 +307,4 @@ cJSON *retrieve_restriction(Game *world) {
 	cJSON_AddNumberToObject(root, "player", world->turn);
 	return root;
 }
+#endif // _BOARD_C_

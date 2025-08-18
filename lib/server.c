@@ -1,3 +1,6 @@
+#ifndef _SERVER_C_
+#define _SERVER_C_
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -291,14 +294,21 @@ void process_request(ServerData *server, Connections *client) {
 	return;
 }
 
-static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
+int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
 	Connections *client = user;
 	ServerData *server = lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
 
 	switch (reason) {
 		case LWS_CALLBACK_PROTOCOL_INIT:
-			lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));
-			if (!server) return 1;
+			ServerData *init_server = lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));
+			init_server->context = lws_get_context(wsi);
+			init_server->protocol = lws_get_protocol(wsi);
+			init_server->vhost = lws_get_vhost(wsi);
+
+			if (!init_server) {
+				lwsl_err("ERROR allocating serverdata\n");	
+				return -1;
+			}
 			break;
 		case LWS_CALLBACK_ESTABLISHED:
 			lws_ll_fwd_insert(client, next, server->connections_head);
@@ -339,5 +349,6 @@ static int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, vo
 	}
 
 	return 0;
-// TODO: LWS_PRE more safely
 }
+// TODO: LWS_PRE more safely
+#endif // _SERVER_C_
