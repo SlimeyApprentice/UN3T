@@ -1,7 +1,7 @@
 all: testing main
 
 main: cJSON.o board.o server.o main.o 
-	gcc -lwebsockets cJSON.o board.o server.o main.o -o main 
+	gcc -lwebsockets -Werror=return-type cJSON.o board.o server.o main.o -o main 
 
 main.o: main.c
 	gcc -g3 -c main.c

@@ -14,6 +14,7 @@
 #include "board.h"
 
 int leave_game(ServerData *server, Connections *client) {
+	if (!server || !client) return -1;
 	Games *game = server->games_head;
 	while (game) {
 		if (game->player_X == client) game->player_X = NULL;
@@ -33,6 +34,7 @@ Connections *find_client_from_id(Connections *head, int id) {
 }
 
 int create_game(ServerData *server, Connections *creator, int depth) {
+	if (!server || !creator) return -1;
 	Games *game = malloc(sizeof(Games));
 	game->game_id = server->game_counter++;
 	game->player_X = creator;
@@ -50,7 +52,8 @@ int create_game(ServerData *server, Connections *creator, int depth) {
 }	
 
 int terminated_length(char *buffer, int buffer_size, char terminator) {
-	for (int i = 0; i <= buffer_size; i++) {
+	if (!buffer) return -1;
+	for (int i = 0; i < buffer_size; i++) {
 		if (buffer[i] == terminator) return i + 1;
 	}
 	return -1;
@@ -63,7 +66,7 @@ bool validate(Buffer buf, Signature sig) {
 			while (buf.contents[i] != ';') {
 				if (buf.contents[i] - '0' > 9 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buf.buffer_size) return false;
+				if (i >= buf.buffer_size + LWS_PRE) return false;
 			}
 			i++;
 			return true;	
@@ -71,7 +74,7 @@ bool validate(Buffer buf, Signature sig) {
 			while (buf.contents[i] != ';') {
 				if (buf.contents[i] - '0' > 9 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buf.buffer_size) return false;
+				if (i >= buf.buffer_size + LWS_PRE) return false;
 			}
 			i++;
 			return true;
@@ -83,20 +86,20 @@ bool validate(Buffer buf, Signature sig) {
 			while (buf.contents[i] != ';') {
 				if (buf.contents[i] - '0' > 8 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buf.buffer_size) return false;
+				if (i >= buf.buffer_size + LWS_PRE) return false;
 			}
 			return true;
 		case UN3T_SIG_SCAN:
 			while (buf.contents[i] != ';') {
 				if (buf.contents[i] - '0' > 8 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buf.buffer_size) return false;
+				if (i >= buf.buffer_size + LWS_PRE) return false;
 			}
 			i++;
 			while (buf.contents[i] != ';') {
 				if (buf.contents[i] - '0' > 9 || buf.contents[i] - '0' < 0) return false;
 				i++;
-				if (i >= buf.buffer_size) return false;
+				if (i >= buf.buffer_size + LWS_PRE) return false;
 			}
 			return true;
 		default:
@@ -112,6 +115,7 @@ Games *find_game_from_id(Games *head, int game_id) {
 }
 
 int join_game(ServerData *server, Connections *client, int game_id) {
+	if (!server || !client) return -1;
 	if (game_id < 0) return -1;
 	if (client->game_id > -1) return -1;
 	Games *game = find_game_from_id(server->games_head, game_id);
@@ -134,31 +138,39 @@ int join_game(ServerData *server, Connections *client, int game_id) {
 }
 
 Buffer concat_message(Buffer buf, char *new, size_t size) {
+	printf("beginning concatenation. Contents are '%.*s', length %d\n", buf.buffer_size, buf.contents + LWS_PRE, buf.buffer_size);
 	if (buf.buffer_max_size < buf.buffer_size + size + LWS_PRE) {
 		Buffer new_buf;
 		new_buf.buffer_size = buf.buffer_size + size;
 		new_buf.buffer_max_size = READ_BUFFER_BYTES;
 		while (new_buf.buffer_max_size < new_buf.buffer_size + LWS_PRE) {
-			buf.buffer_max_size *= 2;
+			new_buf.buffer_max_size *= 2;
 		}
-		new_buf.contents = malloc(buf.buffer_max_size);
-		memmove(new_buf.contents, buf.contents, buf.buffer_size);
+		printf("new buffer max_size is %d\n", new_buf.buffer_max_size);
+		new_buf.contents = malloc(new_buf.buffer_max_size + LWS_PRE);
+		memmove(new_buf.contents + LWS_PRE, buf.contents + LWS_PRE, buf.buffer_size);
 		free(buf.contents);
 		memmove(new_buf.contents + buf.buffer_size, new, size);
 		return new_buf;
 	}
-	memmove(buf.contents + buf.buffer_size, new, size);
+	memmove(buf.contents + buf.buffer_size + LWS_PRE, new, size);
+	buf.buffer_size += size;
+	printf("message concatenated. The contents are now '%.*s', of length %d\n", buf.buffer_size, buf.contents + LWS_PRE, buf.buffer_size);
 	return buf;
 }
 
 void queue_message(Connections *client, char *new, size_t size) {
+	if (!client) return;
 	client->out = concat_message(client->out, new, size);
+	printf("%.*s", size, new);
 	lws_callback_on_writable(client->wsi);
 }
 
-void pop_buffer(Buffer buf, size_t message_length) {
-	memmove(buf.contents + LWS_PRE, buf.contents + LWS_PRE + message_length, message_length);
-	buf.buffer_size -= message_length;
+void pop_buffer(Buffer *buf, size_t message_length) {
+	if (!buf) return;
+	memmove(buf->contents + LWS_PRE, buf->contents + LWS_PRE + message_length, message_length);
+	buf->buffer_size -= message_length;
+	printf("buffer popped. new contents: '%.*s', new size: %d\n", buf->buffer_size, buf->contents + LWS_PRE, buf->buffer_size);
 }
 
 /**
@@ -176,16 +188,17 @@ void pop_buffer(Buffer buf, size_t message_length) {
 void process_request(ServerData *server, Connections *client) {
 	if (!server || !client) return;
 
-	Buffer buf_in = client->in;
-	char signature = buf_in.contents[LWS_PRE];
-	char *read_head = buf_in.contents + LWS_PRE;
-	int read_length = buf_in.buffer_size;
+	Buffer *buf_in = &client->in;
+	char signature = buf_in->contents[LWS_PRE];
+	char *read_head = buf_in->contents + LWS_PRE;
+	int read_length = buf_in->buffer_size;
 
 	int message_size = terminated_length(read_head, read_length, '\n');
 	if (message_size < 0) return;
-	if (!validate(buf_in, signature)) {
+	if (!validate(*buf_in, signature)) {
 		queue_message(client, "ERR:SYNTAX\n", 11);
 		pop_buffer(buf_in, message_size);
+		return;
 	}
 	read_head[message_size - 1] = 0;
 	printf("%s\n", read_head);
@@ -199,7 +212,8 @@ void process_request(ServerData *server, Connections *client) {
 		unsigned int depth = 0;
 		if (sscanf(read_head, "%u", &depth) != 1) {
 			queue_message(client, "ERR:NUM\n", 8);
-			pop_buffer(buf_in, term_size);
+			pop_buffer(buf_in, message_size);
+			return;
 		}
 		int game_id = create_game(server, client, depth);
 		int length = snprintf(NULL, 0, "%u;\n", game_id);
@@ -214,7 +228,8 @@ void process_request(ServerData *server, Connections *client) {
 		int game_id = -1;
 		if (sscanf(read_head, "%d", &game_id) != 1) {
 			queue_message(client, "ERR:NUM\n", 8);
-			pop_buffer(buf_in, term_size);
+			pop_buffer(buf_in, message_size);
+			return;
 		}
 		int error = join_game(server, client, game_id);
 		if (error) queue_message(client, "FAILURE\n", 8);
@@ -230,7 +245,8 @@ void process_request(ServerData *server, Connections *client) {
 		int term_size = terminated_length(read_head, read_length, ';');
 		if (!game) {
 			queue_message(client, "FAILURE\n", 8);
-			pop_buffer(buf_in, term_size);
+			pop_buffer(buf_in, message_size);
+			return;
 		}
 		cJSON *data = retrieve_restriction(&game->game);
 		char *message = cJSON_PrintUnformatted(data);
@@ -243,7 +259,8 @@ void process_request(ServerData *server, Connections *client) {
 		int term_size = terminated_length(read_head, read_length, ';');
 		if (!game) {
 			queue_message(client, "FAILURE\n", 8);
-			pop_buffer(buf_in, term_size);
+			pop_buffer(buf_in, message_size);
+			return;
 		}
 		read_head[term_size - 1] = 0;
 		printf("%s\n", read_head);
@@ -258,7 +275,6 @@ void process_request(ServerData *server, Connections *client) {
 			queue_message(game->player_X, message, strlen(message) + 1);
 			queue_message(game->player_O, message, strlen(message) + 1);
 		}
-		queue_message(client, message, strlen(message) + 1);
 		free(message);
 		cJSON_Delete(data);
 	}
@@ -267,7 +283,8 @@ void process_request(ServerData *server, Connections *client) {
 		int term_size = terminated_length(read_head, read_length, ';');
 		if (!game) {
 			queue_message(client, "FAILURE\n", 8);
-			pop_buffer(buf_in, term_size);
+			pop_buffer(buf_in, message_size);
+			return;
 		}
 		read_head[term_size - 1] = 0;
 		printf("%s\n", read_head);
@@ -282,7 +299,8 @@ void process_request(ServerData *server, Connections *client) {
 		int depth = 0;
 		if (sscanf(read_head, "%d", &depth) != 1) {
 			queue_message(client, "ERR:NUM", 8);
-			pop_buffer(buf_in, new_term_size);
+			pop_buffer(buf_in, message_size);
+			return;
 		}
 		cJSON *data = retrieve_state(&game->game, location, depth);
 		free(location);
@@ -291,6 +309,7 @@ void process_request(ServerData *server, Connections *client) {
 		free(message);
 		cJSON_Delete(data);
 	}
+	pop_buffer(buf_in, message_size);
 	return;
 }
 
@@ -317,17 +336,19 @@ int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *use
 			client->game_id = -1;
 			client->role = EMPTY;
 			Buffer client_in;
-			client_in.contents = malloc(READ_BUFFER_BYTES);
-			client_in.buffer_size = LWS_PRE;
+			client_in.contents = malloc(READ_BUFFER_BYTES + LWS_PRE);
+			client_in.buffer_size = 0;
 			client_in.buffer_max_size = READ_BUFFER_BYTES;
 			client->in = client_in;
-			Buffer out;
-			out.contents = malloc(READ_BUFFER_BYTES);
-			out.buffer_size = LWS_PRE;
-			out.buffer_max_size = READ_BUFFER_BYTES;
-			client->out = out;
+			Buffer client_out;
+			client_out.contents = malloc(READ_BUFFER_BYTES + LWS_PRE);
+			client_out.buffer_size = 0;
+			client_out.buffer_max_size = READ_BUFFER_BYTES;
+			client->out = client_out;
 			break;
 		case LWS_CALLBACK_CLOSED:
+			free(client->in.contents);
+			free(client->out.contents);
 			lws_ll_fwd_remove(Connections, next, client, server->connections_head);
 			break;
 		case LWS_CALLBACK_SERVER_WRITEABLE:
@@ -340,8 +361,11 @@ int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *use
 			break;
 		case LWS_CALLBACK_RECEIVE:
 			client->in = concat_message(client->in, in, len);
+			printf("client message: '%.*s', length %d\n", client->in.buffer_size, client->in.contents + LWS_PRE, client->in.buffer_size);
 			while (terminated_length(client->in.contents + LWS_PRE, client->in.buffer_size, '\n') > 0) {
+				printf("processing request\n");
 				process_request(server, client);
+				printf("request processed\n");
 			}
 			break;
 		default:

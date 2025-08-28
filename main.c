@@ -61,6 +61,7 @@ int main(int argc, const char **argv) {
 		lwsl_err("lws init failed\n");
 		return 1;
 	}
+	printf("%d %d, %d\n", sizeof(Connections), sizeof(ServerData), LWS_PRE);
 
 	while (n >= 0 && !interrupted)
 		n = lws_service(context, 0);

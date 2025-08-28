@@ -233,7 +233,6 @@ cJSON *process_move(Game *world, char *move, Verdict player) {
     cJSON_AddStringToObject(root, "location", move);
     cJSON_AddNumberToObject(root, "value", verdict);
     cJSON_AddStringToObject(root, "restriction", world->restriction);
-    free(saved_move);
     return root;
 }
 
@@ -286,6 +285,11 @@ cJSON *retrieve_state(Game *world, char *location, unsigned int depth) {
     if (!world || !location) {
 	cJSON *root = cJSON_CreateObject();
 	cJSON_AddNumberToObject(root, "error", -2);
+	return root;
+    }
+    if (depth > world->depth) {
+	cJSON *root = cJSON_CreateObject();
+	cJSON_AddNumberToObject(root, "error", -1);
 	return root;
     }
     Board *board = &world->board;

@@ -60,7 +60,7 @@ int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *use
 { \
 	"UN3T", \
 	handle_callback, \
-	sizeof(ServerData), \
+	sizeof(Connections), \
 	128, \
 	0, NULL, 0 \
 }
