@@ -287,7 +287,7 @@ cJSON *retrieve_state(Game *world, char *location, unsigned int depth) {
 	cJSON_AddNumberToObject(root, "error", -2);
 	return root;
     }
-    if (depth > world->depth) {
+    if (depth > world->board.depth) {
 	cJSON *root = cJSON_CreateObject();
 	cJSON_AddNumberToObject(root, "error", -1);
 	return root;
