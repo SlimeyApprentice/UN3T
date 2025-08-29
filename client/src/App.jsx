@@ -6,6 +6,7 @@ import useWebSocket from 'react-use-websocket';
 import store from "./state/store.jsx";
 import Game from "./game/Game.jsx";
 import Home from "./Home.jsx"
+import { DEFAULT_OPTIONS } from "react-use-websocket/dist/lib/constants.js";
 
 function App() {
 
@@ -23,6 +24,8 @@ function App() {
     readyState,
     getWebSocket,
   } = useWebSocket(socketUrl, {
+    protocols: "UN3T",
+
     onOpen: () => {
       console.log("Opened");
       sendMessage('L');
