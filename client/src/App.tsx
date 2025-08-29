@@ -3,9 +3,9 @@ import { Provider } from "react-redux";
 import {HashRouter, Routes, Route} from "react-router-dom";
 import useWebSocket from 'react-use-websocket';
 
-import store from "./state/store.jsx";
-import Game from "./game/Game.jsx";
-import Home from "./Home.jsx"
+import store from "./state/store.js";
+import Game from "./game/Game.js";
+import Home from "./Home.js"
 import { DEFAULT_OPTIONS } from "react-use-websocket/dist/lib/constants.js";
 
 function App() {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import Cell from './Cell.jsx';
-import { makeMove } from '../state/gameSlice.jsx'
+import Cell from './Cell.js';
+import { makeMove } from '../state/gameSlice.js'
 
 import cross from '../assets/Cross.svg' ;
 import circle from '../assets/Circle.svg';

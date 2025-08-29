@@ -1,7 +1,7 @@
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { MAX_DEPTH, zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight } from '../state/controlSlice.jsx'
+import { MAX_DEPTH, zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight } from '../state/controlSlice.js'
 
 //All we do here is get input, check it's a valid state to receive input, then call state
 function process_input() {
