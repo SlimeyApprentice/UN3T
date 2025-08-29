@@ -10,7 +10,6 @@ client/dist
 *.out*
 
 testing
-server
 main
 
 package-lock.json
