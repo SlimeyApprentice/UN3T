@@ -82,7 +82,7 @@ module.exports = merge(base, {
     static: {
       directory: path.join(__dirname, "./")
     },
-    port: 8332,
+    port: 8333,
     hot: true,
     historyApiFallback: true,
   },

@@ -1,12 +1,35 @@
 import React from "react";
 import { Provider } from "react-redux";
+import {HashRouter, Routes, Route} from "react-router-dom";
+import useWebSocket from 'react-use-websocket';
+
 import store from "./state/store.jsx";
 import Game from "./game/Game.jsx";
 import Home from "./Home.jsx"
 
-import {HashRouter, Routes, Route} from "react-router-dom";
-
 function App() {
+
+
+  // In functional React component
+
+  // This can also be an async getter function. See notes below on Async Urls.
+  const socketUrl = 'ws://localhost:8332';
+
+  const {
+    sendMessage,
+    sendJsonMessage,
+    lastMessage,
+    lastJsonMessage,
+    readyState,
+    getWebSocket,
+  } = useWebSocket(socketUrl, {
+    onOpen: () => {
+      console.log("Opened");
+      sendMessage('L');
+    },
+    //Will attempt to reconnect on all close events, such as server shutting down
+    shouldReconnect: (closeEvent) => true,
+  });
   return <Provider store={store}>
     <HashRouter>
       <Routes>
