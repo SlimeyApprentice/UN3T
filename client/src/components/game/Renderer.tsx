@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, type CSSProperties, type JSX } from "react";
 import { TransformComponent , useControls } from "react-zoom-pan-pinch";
 import { useDispatch, useSelector } from "react-redux";
-import { transitionComplete } from "../state/controlSlice";
+
+import { transitionComplete } from "../../state/controlSlice.ts";
+import type { RootState } from "../../state/store.ts";
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
@@ -12,15 +14,20 @@ const animationTime = 300; //miliseconds
 const animationOffset = 17;
 const animationType = "easeOutQuart";
 
-function Renderer({ renderedBoards, cssVars }) {
+
+type RendererProps = {
+    renderedBoards: JSX.Element[],
+    cssVars: CSSProperties
+}
+function Renderer({ renderedBoards, cssVars }: RendererProps) {
     const dispatch = useDispatch()
 
-    const transitionStates = useSelector((state) => state.control.transitionStates);
+    const transitionStates = useSelector((state: RootState) => state.control.transitionStates);
     const { resetTransform, setTransform } = useControls();
 
     //Move the window to the correct place
     useEffect(() => {
-        const element = document.querySelector("#middle-board");
+        const element = document.querySelector("#middle-board") as HTMLDivElement;
 
         //Not incredibly strictly enforced but we expect only one of these to be on
         if (transitionStates["top"] !== null) {            
@@ -69,7 +76,7 @@ function Renderer({ renderedBoards, cssVars }) {
             }, animationTime + animationOffset);
         }
 
-        const check = (offset) => {setTimeout(() => {
+        const check = (offset: number) => {setTimeout(() => {
                 console.log("Reset");
 
                 setTimeout(() => {
@@ -85,9 +92,6 @@ function Renderer({ renderedBoards, cssVars }) {
         }
 
     }, [transitionStates])
-
-    addEventListener("animationend", (event) => {console.log("AAAAAAAAAAAAAAAAA") })
-    addEventListener("transitionend", (event) => {console.log("AAAAAAAAAAAAAAAAA") })
 
     return <TransformComponent>
         <div className="game-wrapper" style={cssVars}>

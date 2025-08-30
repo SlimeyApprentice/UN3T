@@ -1,10 +1,12 @@
-import cross from '../assets/Thick_Cross.svg' ;
-import circle from '../assets/Thick_Circle.svg';
+import { Player } from '../../state/types.ts';
 
-function get_image(value) {
-  if (value === "X") {
+import cross from '../../assets/Thick_Cross.svg' ;
+import circle from '../../assets/Thick_Circle.svg';
+
+function get_image(value: Player) {
+  if (value === Player.Cross) {
     return <img src={cross} className="move"/>;
-  } else if (value == "O") {
+  } else if (value == Player.Circle) {
     return <img src={circle} className="move"/>;
   } else {
     //Dummy
@@ -12,7 +14,11 @@ function get_image(value) {
   }
 }
 
-function Cell({value, onSquareClick}) {
+type CellProps = {
+  value: Player,
+  onSquareClick: () => void,
+}
+function Cell({value, onSquareClick}: CellProps) {
   const image = get_image(value);
 
   return <>

@@ -12,11 +12,7 @@ function App() {
 
   const {
     sendMessage,
-    sendJsonMessage,
     lastMessage,
-    lastJsonMessage,
-    readyState,
-    getWebSocket,
   } = useWebSocket(socketUrl, {
     protocols: "UN3T",
 

@@ -1,26 +1,5 @@
 import { createSlice, type Slice } from '@reduxjs/toolkit'
-
-export type RenderBoard = {
-  depth: number,
-  coordinates: number[],
-  id: string,
-  key: string,
-  className: string
-}
-export type TransitionStates = {
-  top: number[] | null,
-  left: number[] | null,
-  right: number[] | null,
-  bottom: number[] | null,
-}
-export type ControlState = {
-  current_depth: number,
-  focus_coordinates: number[],
-  renderBoards: RenderBoard[],
-  transitionStates: TransitionStates,
-  direction: string,
-  window_width: string,
-}
+import type { ControlState, RenderBoard, TransitionStates } from './types.ts';
 
 //Check if state is mid transition
 // function is_trans(nearbyBoards) {
@@ -93,10 +72,10 @@ export const controlSlice: Slice<ControlState> = createSlice({
         refresh_board(state);
     },
     moveUp: (state: ControlState) => {
-      let new_coords = state.focus_coordinates.slice();
+      const new_coords = state.focus_coordinates.slice();
       new_coords[new_coords.length-1] -= 3 
 
-      let newBoards: RenderBoard[] = [];
+      const newBoards: RenderBoard[] = [];
       newBoards.push({
         depth: state.current_depth,
         coordinates: new_coords,
@@ -122,10 +101,10 @@ export const controlSlice: Slice<ControlState> = createSlice({
       state.transitionStates["top"] = new_coords;
     },
     moveLeft: (state) => {
-      let new_coords = state.focus_coordinates.slice();
+      const new_coords = state.focus_coordinates.slice();
       new_coords[new_coords.length-1] -= 1; 
 
-      let newBoards = [];
+      const newBoards = [];
       newBoards.push({
         depth: state.current_depth,
         coordinates: new_coords,
@@ -151,10 +130,10 @@ export const controlSlice: Slice<ControlState> = createSlice({
       state.transitionStates["left"] = new_coords;
     },
     moveDown: (state) => {
-      let new_coords = state.focus_coordinates.slice();
+      const new_coords = state.focus_coordinates.slice();
       new_coords[new_coords.length-1] += 3; 
 
-      let newBoards = [];
+      const newBoards = [];
       newBoards.push({
         depth: state.current_depth,
         coordinates: state.focus_coordinates,
@@ -180,10 +159,10 @@ export const controlSlice: Slice<ControlState> = createSlice({
       state.transitionStates["bottom"] = new_coords;
     },
     moveRight: (state) => {
-      let new_coords = state.focus_coordinates.slice();
+      const new_coords = state.focus_coordinates.slice();
       new_coords[new_coords.length-1] += 1; 
 
-      let newBoards = [];
+      const newBoards = [];
       newBoards.push({
         depth: state.current_depth,
         coordinates: state.focus_coordinates,

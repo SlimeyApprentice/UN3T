@@ -1,26 +1,10 @@
-import { createSlice, type Slice } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 
 import { MAX_DEPTH } from './controlSlice.ts';
-import { GameWinState } from '../components/game/Board.tsx';
-
-export type Board = {
-  cells: Board[] | Player[]
-  game_state: GameWinState
-}
-export enum Player {
-  Cross = "X",
-  Circle = "O",
-  Empty = ""
-}
-export type GameState = {
-  xIsNext: boolean,
-  boardSize: number,
-  borderSize: number,
-  globalBoard: Board
-}
+import { GameWinState, Player, type BoardData, type GameState } from './types.ts';
 
 function initBoard(depth: number) {
-    let state: Board = {
+    const state: BoardData = {
       "cells": [],
       "game_state": GameWinState.Undecided
     };
@@ -35,7 +19,7 @@ function initBoard(depth: number) {
     return state
   }
 
-function recursiveEdit(state: Board, coordinates: number[], player: Player): boolean{
+function recursiveEdit(state: BoardData, coordinates: number[], player: Player): boolean{
     const next_coordinate = coordinates.pop()
     if (!next_coordinate) return false;
 
@@ -44,7 +28,7 @@ function recursiveEdit(state: Board, coordinates: number[], player: Player): boo
         state.cells[next_coordinate] = player;
     } else {
         // console.log("COORDINATE: " + next_coordinate);
-        recursiveEdit(<Board> state.cells[next_coordinate], coordinates, player)
+        recursiveEdit(<BoardData> state.cells[next_coordinate], coordinates, player)
     }
     return true;
 }

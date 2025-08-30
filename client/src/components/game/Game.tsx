@@ -1,25 +1,26 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
 import { useSelector } from "react-redux";
 
-import process_input from "./controls";
+import type { RootState } from "../../state/store";
+import useProcessInput from "./controls";
 import Board from "./Board";
 import Renderer from "./Renderer";
-import 'client/src/components/game/grid_board.css';
+import './grid_board.css';
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
 
 function Game() {
     //All controls handled here, all hotkey hooks called
-    process_input();
+    useProcessInput();
 
     //CSS variables and the CSS for the element we change dynamically
-    const boardSize = useSelector((state) => state.game.boardSize);
-    const borderSize = useSelector((state) => state.game.borderSize);
-    const direction = useSelector((state) => state.control.direction);
-    const window_width = useSelector((state) => state.control.window_width);
+    const boardSize = useSelector((state: RootState) => state.game.boardSize);
+    const borderSize = useSelector((state: RootState) => state.game.borderSize);
+    const direction = useSelector((state: RootState) => state.control.direction);
+    const window_width = useSelector((state: RootState) => state.control.window_width);
 
-    var cssVars = {
+    const cssVars = {
         "display": "flex",
         "--board-size": boardSize + "px",
         "--border-size": borderSize + "px",
@@ -28,8 +29,8 @@ function Game() {
     };
 
     //Convert props in state into components
-    const renderBoards = useSelector((state) => state.control.renderBoards);
-    let renderedBoards = [];
+    const renderBoards = useSelector((state: RootState) => state.control.renderBoards);
+    const renderedBoards = [];
     for (const props of renderBoards) {
         renderedBoards.push(<Board {...props} />)
     }

@@ -1,16 +1,17 @@
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { MAX_DEPTH, zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight } from '../../state/controlSlice.js'
+import { MAX_DEPTH, zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight } from '../../state/controlSlice.ts'
+import type { RootState } from '../../state/store.ts';
 
 //All we do here is get input, check it's a valid state to receive input, then call state
-function process_input() {
+function useProcessInput() {
   const dispatch = useDispatch()
   
-  const current_depth = useSelector((state) => state.control.current_depth);
-  const focus_coordinates = useSelector((state) => state.control.focus_coordinates);
-  const renderBoards = useSelector((state) => state.control.renderBoards);
-  const transitionStates = useSelector((state) => state.control.transitionStates);
+  const current_depth = useSelector((state: RootState) => state.control.current_depth);
+  const focus_coordinates = useSelector((state: RootState) => state.control.focus_coordinates);
+  const renderBoards = useSelector((state: RootState) => state.control.renderBoards);
+  const transitionStates = useSelector((state: RootState) => state.control.transitionStates);
 
   //All the hotkeys
   useHotkeys('w', () => {
@@ -61,7 +62,7 @@ function process_input() {
 
     const hoverElement = document.querySelector(".active-board:hover");
 
-    if (hoverElement === null) { return }
+    if (!hoverElement) { return }
 
     const coordinate = hoverElement.className[hoverElement.className.length - 1];
 
@@ -79,4 +80,4 @@ function process_input() {
   });
 };
 
-export default process_input;
+export default useProcessInput;
