@@ -1,5 +1,3 @@
-import React from 'react';
-
 import cross from '../assets/Thick_Cross.svg' ;
 import circle from '../assets/Thick_Circle.svg';
 

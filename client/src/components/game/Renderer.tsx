@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { TransformComponent , useControls } from "react-zoom-pan-pinch";
 import { useDispatch, useSelector } from "react-redux";
 import { transitionComplete } from "../state/controlSlice";

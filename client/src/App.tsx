@@ -1,18 +1,12 @@
-import React from "react";
 import { Provider } from "react-redux";
 import {HashRouter, Routes, Route} from "react-router-dom";
 import useWebSocket from 'react-use-websocket';
 
-import store from "./state/store.js";
-import Game from "./game/Game.js";
-import Home from "./Home.js"
-import { DEFAULT_OPTIONS } from "react-use-websocket/dist/lib/constants.js";
+import store from "./state/store.ts";
+import Game from "./components/game/Game.tsx";
+import Home from "./components/home/Home.tsx"
 
 function App() {
-
-
-  // In functional React component
-
   // This can also be an async getter function. See notes below on Async Urls.
   const socketUrl = 'ws://localhost:8332';
 

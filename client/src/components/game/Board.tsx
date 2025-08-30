@@ -1,15 +1,19 @@
-import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Cell from './Cell.js';
-import { makeMove } from '../state/gameSlice.js'
+import { makeMove } from '../../state/gameSlice.ts'
 
-import cross from '../assets/Cross.svg' ;
+import cross from '../../assets/Cross.svg' ;
 import circle from '../assets/Circle.svg';
 import draw from '../assets/Peace.svg' ;
-// import draw from './assets/CrossCircle.svg' ;
-// import draw from './assets/Square.svg' ;
 import empty from '../assets/Empty.svg' ;
+
+export enum GameWinState {
+  Cross = "X",
+  Circle = "O",
+  Draw = "D",
+  Undecided = 0
+}
 
 function add_counts(res1, res2) {
   let result = {
@@ -60,13 +64,6 @@ function recursiveCount(board) {
   }
 }
 
-const GameState = {
-  CROSS: "X",
-  CIRCLE: "O",
-  DRAW: "D",
-  UNDECIDED: null
-};
-
 //Should try to remove
 const gameStateStyle={
   "width": "100%",
@@ -93,16 +90,16 @@ function Board({depth, coordinates, className, id}) {
   //If board over, pick from the following images
   let winElement;
   let winElementClassName = "off";
-  if (isWon == GameState.CROSS) {
+  if (isWon == GameWinState.Cross) {
     winElement = <img src={cross} className="X" style={gameStateStyle}/>;
     winElementClassName += " win-container-active"
-  } else if (isWon == GameState.CIRCLE) {
+  } else if (isWon == GameWinState.Circle) {
     winElement = <img src={circle} className="O" style={gameStateStyle}/>;
     winElementClassName += " win-container-active"
-  } else if (isWon == GameState.DRAW) {
+  } else if (isWon == GameWinState.Draw) {
     winElement = <img src={draw} className="D" style={gameStateStyle}/>;
     winElementClassName += " win-container-active"
-  } else if (isWon == GameState.UNDECIDED) {
+  } else if (isWon == GameWinState.Undecided) {
     winElement = null;
   }
 

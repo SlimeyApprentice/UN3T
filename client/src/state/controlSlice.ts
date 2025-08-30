@@ -1,19 +1,41 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, type Slice } from '@reduxjs/toolkit'
 
-//Check if state is mid transition
-function is_trans(nearbyBoards) {
-  const num_active = Object.values(nearbyBoards).filter((active) => {
-    if (active == true) { return active }
-  }).length;
-
-  if (num_active != 1) {
-    return true;
-  } else {
-    return false;
-  }
+export type RenderBoard = {
+  depth: number,
+  coordinates: number[],
+  id: string,
+  key: string,
+  className: string
+}
+export type TransitionStates = {
+  top: number[] | null,
+  left: number[] | null,
+  right: number[] | null,
+  bottom: number[] | null,
+}
+export type ControlState = {
+  current_depth: number,
+  focus_coordinates: number[],
+  renderBoards: RenderBoard[],
+  transitionStates: TransitionStates,
+  direction: string,
+  window_width: string,
 }
 
-function refresh_board(state) {
+//Check if state is mid transition
+// function is_trans(nearbyBoards) {
+//   const num_active = Object.values(nearbyBoards).filter((active) => {
+//     if (active == true) { return active }
+//   }).length;
+
+//   if (num_active != 1) {
+//     return true;
+//   } else {
+//     return false;
+//   }
+// }
+
+function refresh_board(state: ControlState) {
   state.renderBoards = [
     {
       depth: state.current_depth,
@@ -32,14 +54,14 @@ const init_idx = 4;
 const default_coordinates = [init_idx];
 const default_direction = "column";
 const default_width = "100%"
-const default_transition_states = {
+const default_transition_states: TransitionStates = {
   "top": null,
   "left": null,
   "right": null,
   "bottom": null,
 }
 
-export const controlSlice = createSlice({
+export const controlSlice: Slice<ControlState> = createSlice({
   name: 'Control State',
   initialState: {
     current_depth: default_depth,
@@ -70,11 +92,11 @@ export const controlSlice = createSlice({
         state.current_depth--;
         refresh_board(state);
     },
-    moveUp: (state) => {
+    moveUp: (state: ControlState) => {
       let new_coords = state.focus_coordinates.slice();
       new_coords[new_coords.length-1] -= 3 
 
-      let newBoards = [];
+      let newBoards: RenderBoard[] = [];
       newBoards.push({
         depth: state.current_depth,
         coordinates: new_coords,
@@ -92,8 +114,9 @@ export const controlSlice = createSlice({
       state.renderBoards = newBoards;
 
       //Capture width of window now and do not let it expand.
-      const locked_width = document.querySelector(".react-transform-wrapper").offsetWidth; //Might need .getBoundingClientRect()
-      state.window_width = locked_width;
+      //Might need .getBoundingClientRect()
+      const locked_width = (document.querySelector(".react-transform-wrapper") as HTMLDivElement).offsetWidth; 
+      state.window_width = locked_width.toString();
 
       state.direction = "column";
       state.transitionStates["top"] = new_coords;
@@ -120,8 +143,9 @@ export const controlSlice = createSlice({
       state.renderBoards = newBoards;
 
       //Capture width of window now and do not let it expand.
-      const locked_width = document.querySelector(".react-transform-wrapper").offsetWidth; //Might need .getBoundingClientRect()
-      state.window_width = locked_width;
+      //Might need .getBoundingClientRect()
+      const locked_width = (document.querySelector(".react-transform-wrapper") as HTMLDivElement).offsetWidth; 
+      state.window_width = locked_width.toString();
 
       state.direction = "row";
       state.transitionStates["left"] = new_coords;
@@ -148,8 +172,9 @@ export const controlSlice = createSlice({
       state.renderBoards = newBoards;
 
       //Capture width of window now and do not let it expand.
-      const locked_width = document.querySelector(".react-transform-wrapper").offsetWidth; //Might need .getBoundingClientRect()
-      state.window_width = locked_width;
+      //Might need .getBoundingClientRect()
+      const locked_width = (document.querySelector(".react-transform-wrapper") as HTMLDivElement).offsetWidth; 
+      state.window_width = locked_width.toString();
 
       state.direction = "column";
       state.transitionStates["bottom"] = new_coords;
@@ -176,8 +201,9 @@ export const controlSlice = createSlice({
       state.renderBoards = newBoards;
 
       //Capture width of window now and do not let it expand.
-      const locked_width = document.querySelector(".react-transform-wrapper").offsetWidth; //Might need .getBoundingClientRect()
-      state.window_width = locked_width;
+      //Might need .getBoundingClientRect()
+      const locked_width = (document.querySelector(".react-transform-wrapper") as HTMLDivElement).offsetWidth; 
+      state.window_width = locked_width.toString();
 
       state.direction = "row";
       state.transitionStates["right"] = new_coords;
