@@ -1,4 +1,5 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
+import useWebSocket from "react-use-websocket";
 import { useSelector } from "react-redux";
 
 import type { RootState } from "../../state/store";
@@ -11,6 +12,13 @@ import './grid_board.css';
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
 
 function Game() {
+    // This can also be an async getter function. See notes below on Async Urls.
+    const { sendMessage } = useWebSocket("ws://localhost:8332", {
+        protocols: "UN3T",
+        //Will attempt to reconnect on all close events, such as server shutting down
+        shouldReconnect: (_closeEvent) => true,
+    });
+    
     //All controls handled here, all hotkey hooks called
     useProcessInput();
 
@@ -29,11 +37,11 @@ function Game() {
     };
 
     //Convert props in state into components
-    const renderBoards = useSelector((state: RootState) => state.control.renderBoards);
-    const renderedBoards = [];
-    for (const props of renderBoards) {
-        renderedBoards.push(<Board {...props} />)
-    }
+    const renderBoards = 
+        useSelector((state: RootState) => state.control.renderBoards)
+        .map((props, idx) =>  {
+            return <Board {...props} sendMessage={sendMessage} key={"renderBoard" + idx}/>;
+        });
 
     return <>
     <div className="game">
@@ -45,10 +53,8 @@ function Game() {
         centerOnInit={true}
         doubleClick={{disabled: true}}
         >
-            <Renderer renderedBoards={renderedBoards} cssVars={cssVars} />
+            <Renderer renderedBoards={renderBoards} cssVars={cssVars} />
         </TransformWrapper>
-
-        {/* <Minimap/> */}
     </div>
     </>;
 };

@@ -43,27 +43,16 @@ export const gameSlice = createSlice({
   name: 'Game State',
   initialState,
   reducers: {
-    makeMove: (state, action) => {
-        const coordinates = action.payload.slice();
-        let player: Player;
-        if (state.xIsNext) {
-          player = Player.Cross;
-        } else {
-          player = Player.Circle;
-        }
-        state.xIsNext = !state.xIsNext;
+    makeMove: (state) => {
+      let player: Player;
+      if (state.xIsNext) {
+        player = Player.Cross;
+      } else {
+        player = Player.Circle;
+      }
+      state.xIsNext = !state.xIsNext;
 
-        //Here would go the API call soon
-        recursiveEdit(state.globalBoard, coordinates.reverse(), player);
-
-        // axios.get('https://api.example.com/users')
-        // .then(response => {
-        //   // Handle the response data
-        //   console.log(response);
-        // })
-        // .catch(error => {
-        //   // Handle errors
-        // });
+      // We expect that whoever called us will later send the move to server
     }
   },
 })

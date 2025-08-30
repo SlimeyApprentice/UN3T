@@ -26,7 +26,6 @@ export type RenderBoard = {
     depth: number,
     coordinates: number[],
     id: string,
-    key: string,
     className: string
 }
 export type TransitionStates = {

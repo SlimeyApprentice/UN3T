@@ -20,7 +20,6 @@ function refresh_board(state: ControlState) {
       depth: state.current_depth,
       coordinates: state.focus_coordinates,
       id: "middle-board",
-      key: "middle-board",
       className: "top-board"
     }
   ]
@@ -50,7 +49,6 @@ export const controlSlice: Slice<ControlState> = createSlice({
         depth: default_depth,
         coordinates: default_coordinates,
         id: "middle-board",
-        key: "middle-board",
         className: "top-board"
       }
     ],
@@ -80,14 +78,12 @@ export const controlSlice: Slice<ControlState> = createSlice({
         depth: state.current_depth,
         coordinates: new_coords,
         id: "top-board",
-        key: "top-board",
         className: "top-board"
       })
       newBoards.push({
         depth: state.current_depth,
         coordinates: state.focus_coordinates,
         id: "middle-board",
-        key: "middle-board",
         className: "top-board"
       })
       state.renderBoards = newBoards;

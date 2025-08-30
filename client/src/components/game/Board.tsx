@@ -9,6 +9,7 @@ import circle from '../../assets/Circle.svg';
 import draw from '../../assets/Peace.svg' ;
 import empty from '../../assets/Empty.svg' ;
 import type { RootState } from '../../state/store.ts';
+import { leaveGame } from '../../serverInterface.ts';
 
 type PlayerCount = {
   cross: number,
@@ -66,6 +67,10 @@ function recursiveCount(board: BoardData) {
   }
 }
 
+function randomHex(size: number) {
+  return [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+}
+
 //Should try to remove
 const gameStateStyle={
   "width": "100%",
@@ -73,14 +78,14 @@ const gameStateStyle={
   // "top": (-8 + (16*depth)) + "px",
   "top": "0px",
 }
-
 type BoardProps = {
   depth: number,
   coordinates: number[],
   className: string,
+  sendMessage: (message: string, keep: boolean) => void
   id?: string,
 }
-function Board({depth, coordinates, className, id}: BoardProps) {
+function Board({depth, coordinates, className, sendMessage, id }: BoardProps) {
   const dispatch = useDispatch()
 
   const current_depth = useSelector((state: RootState) => state.control.current_depth );
@@ -92,6 +97,7 @@ function Board({depth, coordinates, className, id}: BoardProps) {
   }
 
   //Is this being updated?
+  // console.log(localBoard);
   const isWon = localBoard.game_state;
 
   //If board over, pick from the following images
@@ -128,21 +134,29 @@ function Board({depth, coordinates, className, id}: BoardProps) {
 
     //Base case, 0 recursion
     function handleClick(i: number) {
-      console.log("AAAAAAAAAAAa");
-
       if (isWon !== GameWinState.Undecided) { return; }
       if (squares[i] !== Player.Empty) { return; }
 
       console.log("BBBBBBBB");
 
-      dispatch(makeMove(coordinates.slice().concat([i])));
+      dispatch(makeMove());
+
+      const new_coordinates = coordinates.slice().concat([i]);
+      leaveGame(sendMessage);
     }
+
+    // const UICells = [];
+    // for (const idx of Array(9)) {
+    //   UICells.push(<Cell value={squares[idx]} onSquareClick={() => handleClick(idx)} key={"cell-" + randomHex(16)}/>)
+    // }
 
     //I like my code WET
     return <div className={"board " + depth_class + " " + className + " " + coordinateClass} id={id}>
-    <div className={winElementClassName} style={{"zIndex": 1}}>
-      {winElement}
-    </div>
+      <div className={winElementClassName} style={{"zIndex": 1}}>
+        {winElement}
+      </div>
+      {/* {UICells} */}
+
       <Cell value={squares[0]} onSquareClick={() => handleClick(0)}/>
       <Cell value={squares[1]} onSquareClick={() => handleClick(1)}/>
       <Cell value={squares[2]} onSquareClick={() => handleClick(2)}/>
@@ -195,20 +209,32 @@ function Board({depth, coordinates, className, id}: BoardProps) {
 
     </div>;
   } else {
+      // const UIBoards = [];
+      // for (const idx of Array(9)) {
+      //   UIBoards.push(<Board 
+      //     depth={depth-1} 
+      //     coordinates={coordinates.slice().concat([idx])} 
+      //     className={is_child_active}
+      //     sendMessage={sendMessage}
+      //     key={"board-" + randomHex(16)}
+      //   />)
+      // }
+
       //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
       return <div className={"board meta " + depth_class + " " + className + " " + coordinateClass} id={id}>
-      <div className={winElementClassName} style={{"zIndex": depth+1}}>
-        {winElement}
-      </div>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} className={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} className={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} className={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} className={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} className={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} className={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} className={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} className={is_child_active}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} className={is_child_active}/>
+        <div className={winElementClassName} style={{"zIndex": depth+1}}>
+          {winElement}
+        </div>
+        {/* {UIBoards} */}
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} className={is_child_active} sendMessage={sendMessage}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} className={is_child_active} sendMessage={sendMessage}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} className={is_child_active} sendMessage={sendMessage}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} className={is_child_active} sendMessage={sendMessage}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} className={is_child_active} sendMessage={sendMessage}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} className={is_child_active} sendMessage={sendMessage}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} className={is_child_active} sendMessage={sendMessage}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} className={is_child_active} sendMessage={sendMessage}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} className={is_child_active} sendMessage={sendMessage}/>
       </div>;
   }
 
