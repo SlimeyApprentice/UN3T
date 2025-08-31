@@ -143,12 +143,6 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
 
       const new_coordinates = coordinates.slice().concat([i]);
 
-      // const game_id = newGame(connection, 3);
-      // console.log("Our game id: " + game_id);
-
-      console.log(connection.lastMessage);
-      console.log(connection.lastJsonMessage);
-
       const test = getTurnRestriction(connection);
       console.log(test);
     }

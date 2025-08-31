@@ -321,7 +321,9 @@ void process_request(ServerData *server, Connections *client) {
 
 int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len) {
 	Connections *client = user;
-	ServerData *server = lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));
+	ServerData *server = lws_protocol_vh_priv_get(lws_get_vhost(wsi), lws_get_protocol(wsi));
+	
+	printf("reason: %d\n", reason);
 
 	switch (reason) {
 		case LWS_CALLBACK_PROTOCOL_INIT:

@@ -22,4 +22,4 @@ cJSON.o: lib/cJSON.c lib/cJSON.h
 	gcc -g3 -c lib/cJSON.c
 
 clean:
-	rm *.o testing
+	rm ./*.o testing

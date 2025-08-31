@@ -45,6 +45,17 @@ int main(int argc, const char **argv) {
 
 	signal(SIGINT, sigint_handler);
 
+	// // Make space for the global server object
+	// ServerData *init_server = lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));
+	// init_server->context = lws_get_context(wsi);
+	// init_server->protocol = lws_get_protocol(wsi);
+	// init_server->vhost = lws_get_vhost(wsi);
+
+	// if (!init_server) {
+	// 	lwsl_err("ERROR allocating serverdata\n");	
+	// 	return -1;
+	// }
+
 	lws_set_log_level(logs, NULL);
 	lwsl_user("LWS minimal ws server | visit http://localhost:8332\n");
 
