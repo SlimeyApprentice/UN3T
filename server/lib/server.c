@@ -206,6 +206,7 @@ void process_request(ServerData *server, Connections *client) {
 	read_head++;
 	read_length--;
 	if (c == UN3T_SIG_NEW) {
+		queue_message(client, "N", 1);
 		int term_size = terminated_length(read_head, read_length, ';');
 		read_head[term_size - 1] = 0;
 		printf("%s\n", read_head);
@@ -222,6 +223,7 @@ void process_request(ServerData *server, Connections *client) {
 		queue_message(client, message, length+1);
 	}
 	else if (c == UN3T_SIG_JOIN) {
+		queue_message(client, "J", 1);
 		int term_size = terminated_length(read_head, read_length, ';');
 		read_head[term_size - 1] = 0;
 		printf("%s\n", read_head);
@@ -236,11 +238,13 @@ void process_request(ServerData *server, Connections *client) {
 		else queue_message(client, "SUCCESS\n", 8);	
 	}
 	else if (c == UN3T_SIG_LEAV) {
+		queue_message(client, "L", 1);
 		int error = leave_game(server, client);
 		if (error) queue_message(client, "FAILURE\n", 8);
 		else queue_message(client, "SUCCESS\n", 8);
 	}
 	else if (c == UN3T_SIG_TURN) {
+		queue_message(client, "T", 1);
 		Games *game = find_game_from_id(server->games_head, client->game_id);
 		int term_size = terminated_length(read_head, read_length, ';');
 		if (!game) {
@@ -255,6 +259,7 @@ void process_request(ServerData *server, Connections *client) {
 		cJSON_Delete(data);
 	}
 	else if (c == UN3T_SIG_MOVE) {
+		queue_message(client, "M", 1);
 		Games *game = find_game_from_id(server->games_head, client->game_id);
 		int term_size = terminated_length(read_head, read_length, ';');
 		if (!game) {
@@ -279,6 +284,7 @@ void process_request(ServerData *server, Connections *client) {
 		cJSON_Delete(data);
 	}
 	else if (c == UN3T_SIG_SCAN) {
+		queue_message(client, "S", 1);
 		Games *game = find_game_from_id(server->games_head, client->game_id);
 		int term_size = terminated_length(read_head, read_length, ';');
 		if (!game) {
@@ -317,8 +323,6 @@ int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *use
 	Connections *client = user;
 	ServerData *server = lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));
 
-	printf("reason: %d\n", reason);
-	
 	switch (reason) {
 		case LWS_CALLBACK_PROTOCOL_INIT:
 			ServerData *init_server = lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));

@@ -2,6 +2,7 @@ import { TransformWrapper } from "react-zoom-pan-pinch";
 import useWebSocket from "react-use-websocket";
 import { useSelector } from "react-redux";
 
+import { useProcessServer, type Connection } from "../../serverInterface";
 import type { RootState } from "../../state/store";
 import useProcessInput from "./controls";
 import Board from "./Board";
@@ -11,22 +12,22 @@ import './grid_board.css';
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
 
-function Game() {
-    // This can also be an async getter function. See notes below on Async Urls.
-    const { sendMessage } = useWebSocket("ws://localhost:8332", {
-        protocols: "UN3T",
-        //Will attempt to reconnect on all close events, such as server shutting down
-        shouldReconnect: (_closeEvent) => true,
-    });
-    
+type GameProps = {
+    connection: Connection,
+}
+function Game({connection}: GameProps) {
     //All controls handled here, all hotkey hooks called
     useProcessInput();
+    // Handles changing global state according to server response
+    useProcessServer(connection);
 
     //CSS variables and the CSS for the element we change dynamically
     const boardSize = useSelector((state: RootState) => state.game.boardSize);
     const borderSize = useSelector((state: RootState) => state.game.borderSize);
     const direction = useSelector((state: RootState) => state.control.direction);
     const window_width = useSelector((state: RootState) => state.control.window_width);
+
+    const game_id = useSelector((state: RootState) => state.game.id);
 
     const cssVars = {
         "display": "flex",
@@ -40,7 +41,7 @@ function Game() {
     const renderBoards = 
         useSelector((state: RootState) => state.control.renderBoards)
         .map((props, idx) =>  {
-            return <Board {...props} sendMessage={sendMessage} key={"renderBoard" + idx}/>;
+            return <Board {...props} connection={connection} key={"renderBoard" + idx}/>;
         });
 
     return <>

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { MAX_DEPTH } from './controlSlice.ts';
 import { GameWinState, Player, type BoardData, type GameState } from './types.ts';
+import { MAX_DEPTH } from './controlSlice.ts';
 
 function initBoard(depth: number) {
     const state: BoardData = {
@@ -37,12 +37,16 @@ const initialState: GameState = {
     xIsNext: true,
     boardSize: 75,
     borderSize: 2,
-    globalBoard: initBoard(MAX_DEPTH)
+    globalBoard: initBoard(MAX_DEPTH),
 }
 export const gameSlice = createSlice({
   name: 'Game State',
   initialState,
   reducers: {
+    // TODO: Type the payload
+    setGameID: (state, action) => {
+      state.id = action.payload;
+    },
     makeMove: (state) => {
       let player: Player;
       if (state.xIsNext) {
@@ -58,6 +62,6 @@ export const gameSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { makeMove } = gameSlice.actions
+export const { setGameID, makeMove } = gameSlice.actions
 
 export default gameSlice.reducer

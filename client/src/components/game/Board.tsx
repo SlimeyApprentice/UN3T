@@ -9,7 +9,7 @@ import circle from '../../assets/Circle.svg';
 import draw from '../../assets/Peace.svg' ;
 import empty from '../../assets/Empty.svg' ;
 import type { RootState } from '../../state/store.ts';
-import { leaveGame } from '../../serverInterface.ts';
+import { getTurnRestriction, leaveGame, newGame, type Connection } from '../../serverInterface.ts';
 
 type PlayerCount = {
   cross: number,
@@ -82,10 +82,10 @@ type BoardProps = {
   depth: number,
   coordinates: number[],
   className: string,
-  sendMessage: (message: string, keep: boolean) => void
+  connection: Connection,
   id?: string,
 }
-function Board({depth, coordinates, className, sendMessage, id }: BoardProps) {
+function Board({depth, coordinates, className, connection, id }: BoardProps) {
   const dispatch = useDispatch()
 
   const current_depth = useSelector((state: RootState) => state.control.current_depth );
@@ -142,7 +142,15 @@ function Board({depth, coordinates, className, sendMessage, id }: BoardProps) {
       dispatch(makeMove());
 
       const new_coordinates = coordinates.slice().concat([i]);
-      leaveGame(sendMessage);
+
+      // const game_id = newGame(connection, 3);
+      // console.log("Our game id: " + game_id);
+
+      console.log(connection.lastMessage);
+      console.log(connection.lastJsonMessage);
+
+      const test = getTurnRestriction(connection);
+      console.log(test);
     }
 
     // const UICells = [];
@@ -215,7 +223,7 @@ function Board({depth, coordinates, className, sendMessage, id }: BoardProps) {
       //     depth={depth-1} 
       //     coordinates={coordinates.slice().concat([idx])} 
       //     className={is_child_active}
-      //     sendMessage={sendMessage}
+      //     connection={connection}
       //     key={"board-" + randomHex(16)}
       //   />)
       // }
@@ -226,15 +234,15 @@ function Board({depth, coordinates, className, sendMessage, id }: BoardProps) {
           {winElement}
         </div>
         {/* {UIBoards} */}
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} className={is_child_active} sendMessage={sendMessage}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} className={is_child_active} sendMessage={sendMessage}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} className={is_child_active} sendMessage={sendMessage}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} className={is_child_active} sendMessage={sendMessage}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} className={is_child_active} sendMessage={sendMessage}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} className={is_child_active} sendMessage={sendMessage}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} className={is_child_active} sendMessage={sendMessage}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} className={is_child_active} sendMessage={sendMessage}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} className={is_child_active} sendMessage={sendMessage}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} className={is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} className={is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} className={is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} className={is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} className={is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} className={is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} className={is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} className={is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} className={is_child_active} connection={connection}/>
       </div>;
   }
 

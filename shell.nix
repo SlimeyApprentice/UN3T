@@ -5,6 +5,7 @@ stdenv.mkDerivation {
     buildInputs = [
         nodejs
         gcc
+        gdb
         libwebsockets
         glib
         openssl

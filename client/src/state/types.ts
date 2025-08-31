@@ -18,7 +18,8 @@ export type GameState = {
     xIsNext: boolean,
     boardSize: number,
     borderSize: number,
-    globalBoard: BoardData
+    globalBoard: BoardData,
+    id?: string,
 }
 
 // Control Types
