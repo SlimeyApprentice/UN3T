@@ -25,6 +25,11 @@ static const struct lws_http_mount mount = {
 	.mountpoint_len		= 1,			/* char count */
 };
 
+#if defined(LWS_WITH_PLUGINS)
+/* if plugins enabled, only protocols explicitly named in pvo bind to vhost */
+static struct lws_protocol_vhost_options pvo = { NULL, NULL, "UN3T", "" };
+#endif
+
 void sigint_handler(int sig)
 {
 	interrupted = 1;
@@ -39,22 +44,11 @@ int main(int argc, const char **argv) {
 			/* for LLL_ verbosity above NOTICE to be built into lws,
 			 * lws must have been configured and built with
 			 * -DCMAKE_BUILD_TYPE=DEBUG instead of =RELEASE */
-			/* | LLL_INFO */ /* | LLL_PARSER */ /* | LLL_HEADER */
-			/* | LLL_EXT */ /* | LLL_CLIENT */ /* | LLL_LATENCY */
-			/* | LLL_DEBUG */;
+			| LLL_INFO | LLL_PARSER | LLL_HEADER
+			| LLL_EXT | LLL_CLIENT | LLL_LATENCY 
+			| LLL_DEBUG;
 
 	signal(SIGINT, sigint_handler);
-
-	// // Make space for the global server object
-	// ServerData *init_server = lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi), lws_get_protocol(wsi), sizeof(ServerData));
-	// init_server->context = lws_get_context(wsi);
-	// init_server->protocol = lws_get_protocol(wsi);
-	// init_server->vhost = lws_get_vhost(wsi);
-
-	// if (!init_server) {
-	// 	lwsl_err("ERROR allocating serverdata\n");	
-	// 	return -1;
-	// }
 
 	lws_set_log_level(logs, NULL);
 	lwsl_user("LWS minimal ws server | visit http://localhost:8332\n");
@@ -64,6 +58,9 @@ int main(int argc, const char **argv) {
 	info.mounts = &mount;
 	info.protocols = protocols;
 	info.vhost_name = "localhost";
+	#if defined(LWS_WITH_PLUGINS)
+		info.pvo = &pvo;
+	#endif
 	info.options =
 		LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
 
