@@ -9,7 +9,7 @@ import circle from '../../assets/Circle.svg';
 import draw from '../../assets/Peace.svg' ;
 import empty from '../../assets/Empty.svg' ;
 import type { RootState } from '../../state/store.ts';
-import { getTurnRestriction, leaveGame, newGame, type Connection } from '../../serverInterface.ts';
+import { getTurnRestriction, leaveGame, newGame, makeMoveServer, type Connection } from '../../serverInterface.ts';
 
 type PlayerCount = {
   cross: number,
@@ -65,10 +65,6 @@ function recursiveCount(board: BoardData) {
 
     return result;
   }
-}
-
-function randomHex(size: number) {
-  return [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
 }
 
 //Should try to remove
@@ -142,9 +138,7 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
       dispatch(makeMove());
 
       const new_coordinates = coordinates.slice().concat([i]);
-
-      const test = getTurnRestriction(connection);
-      console.log(test);
+      makeMoveServer(connection, new_coordinates);
     }
 
     // const UICells = [];

@@ -11,12 +11,12 @@
  * All strings are composed of the digits 0 through 9, (0 through 8 in the case of non-int strings), terminated by a semicolon (;). Commands are terminated by a newline (\n).
 **/
 
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import type { ReadyState, SendMessage } from "react-use-websocket";
 import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
+import type { ReadyState, SendMessage } from "react-use-websocket";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+
 import { setGameID } from "./state/gameSlice";
-import useWebSocket from "react-use-websocket";
 
 export type Connection = {
     sendMessage: SendMessage,
@@ -26,46 +26,21 @@ export type Connection = {
     readyState: ReadyState
 }
 
-// export async function newGame(
-//     connection: Connection,
-//     depth: number
-// ): Promise<string> {
-//     console.log(connection.lastMessage);
-//     return new Promise((resolve, reject) => {
-//         connection.sendMessage(`N${depth};\n`);
-//         while (!connection.lastMessage?.data) {
-//             // console.log(connection.lastMessage);
-//             // pass
-//         }
-
-//         const game_id = connection.lastMessage!.data.split(";")[0];
-//         resolve(game_id);
-//     })
-// }
-
 export function newGame(
     connection: Connection,
     depth: number
 ) {
-    // useEffect(() => {
-    //     const dispatch = useDispatch();
-    //     dispatch(setGameID(connection.lastMessage!.data.split(";")[0]));
-    // }, [connection.lastMessage]);
-
     connection.sendMessage(`N${depth};\n`);
 }
 
 export function joinGame(
     connection: Connection,
     game_id: string
-): string {
+) {
     connection.sendMessage(`J${game_id};\n`);
-    while (!connection.lastMessage) {
-        // pass
-    }
 
-    const success = connection.lastMessage!.data.split(";")[0];
-    return connection.lastMessage!.data;
+    const dispatch = useDispatch();
+    dispatch(setGameID(game_id));
 }
 
 export function leaveGame(
@@ -80,11 +55,12 @@ export function getTurnRestriction(
     connection.sendMessage(`T;\n`);
 }
 
-export function makeMove(
+export function makeMoveServer(
     connection: Connection,
     coordinates: number[],
 ) {
-    
+    const stringCoords = coordinates.join("");
+    connection.sendMessage(`M${stringCoords};\n`);
 }
 
 export function scanGame(
@@ -96,7 +72,7 @@ export function scanGame(
 }
 
 
-enum MessageType {
+enum MessageSignature {
     NewGame = "N",
     JoinGame = "J",
     LeaveGame = "L",
@@ -104,35 +80,62 @@ enum MessageType {
     Move = "M",
     Scan = "S"
 }
+enum MessageSuccess {
+    Success = "SUCCESS",
+    Failure = "FAILURE"
+}
+enum MessagePlayer {
+    Cross = 1,
+    Circle = 2
+}
 // Receieve server responses and modify global state
 export function useProcessServer(connection: Connection) {
     const dispatch = useDispatch();
     
     useEffect(() => {
         if (!connection.lastMessage) return;
-        const msgType: MessageType = connection.lastMessage!.data[0] as MessageType;
-        const msg = connection.lastMessage!.data.slice(1);
+        const signature: MessageSignature = connection.lastMessage!.data[0] as MessageSignature;
 
-        switch (msgType) {
-            case MessageType.NewGame:
+        const msgLen = connection.lastMessage!.data.length;
+        //Some wrong bit at the end of message
+        let msg = connection.lastMessage!.data.slice(1, msgLen-1);
+
+        console.log("Received signature: " + signature);
+        console.log("Received message: " + msg);
+
+        switch (signature) {
+            case MessageSignature.NewGame:
                 const game_id = msg.split(";")[0];
                 dispatch(setGameID(game_id));
                 break;            
+            case MessageSignature.JoinGame:
+                if (msg == MessageSuccess.Failure) dispatch(setGameID(undefined));
+                break;
+            case MessageSignature.Turn:
+                try {
+                    const jsonMsg = JSON.parse(msg);
+                    console.log(jsonMsg);
+                } catch (e) {
+                    console.log("Failed to parse Turn");
+                    console.log(e);
+                }
+                break;
+            case MessageSignature.Move:
+                if (msg == "") {
+                    console.log("Invalid Move");
+                    break;
+                }
+
+                try {
+                    const jsonMsg = JSON.parse(msg);
+                    console.log(jsonMsg);
+                } catch (e) {
+                    console.log("Failed to parse Move");
+                    console.log(e);
+                }
+                break;
         }
 
 
     }, [connection.lastMessage])
-
-    useEffect(() => {
-        if (!connection.lastMessage) return;
-        const msg = connection.lastJsonMessage!.data;
-        console.log(msg);
-
-        // switch (msgType) {
-        //     case MessageType.NewGame:
-        //         const game_id = msg.split(";")[0];
-        //         dispatch(setGameID(game_id));
-        //         break;            
-        // }
-    }, [connection.lastJsonMessage])
 }

@@ -25,7 +25,8 @@ function refresh_board(state: ControlState) {
   ]
 }
 
-export const MAX_DEPTH = 3;
+export const MAX_DEPTH = 1;
+// const default_depth = MAX_DEPTH-1;
 const default_depth = MAX_DEPTH-1;
 
 const init_idx = 4;

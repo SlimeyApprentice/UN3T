@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { joinGame, newGame, type Connection } from "../../serverInterface";
+import { MAX_DEPTH } from "../../state/controlSlice";
 
 import background from "../../assets/home_background.png";
 import './home.css';
@@ -10,7 +11,7 @@ type HomeProps = {
 }
 function Home({ connection }: HomeProps) {
   const handleNewGame = async () => {
-    newGame(connection, 3);
+    newGame(connection, MAX_DEPTH);
   }
   const handleJoinGame = () => {
     const game_id = "0";
