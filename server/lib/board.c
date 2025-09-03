@@ -262,8 +262,7 @@ cJSON *_parse_board(Board *world, unsigned int depth) {
             cJSON_AddNumberToObject(root, key, symbol);
         }
         else if (!world->cells[i]) {
-            cJSON *child = _empty_board(depth - 1);
-            cJSON_AddItemToObject(root, key, child);
+            cJSON_AddNumberToObject(root, key, EMPTY);
         }
         else {
             cJSON *child = _parse_board(world->cells[i], depth - 1);
@@ -297,7 +296,7 @@ cJSON *retrieve_state(Game *world, char *location, unsigned int depth) {
         board = board->cells[location[0]];
         location++;
     }
-    if (!board) return _empty_board(depth);
+    if (!board) return cJSON_CreateNumber(0);
     return _parse_board(board, depth);
 }
 

@@ -3,6 +3,7 @@ client/build
 client/dist
 
 server/gdb_enter.in
+logs/*
 
 .vscode
 .DS_Store

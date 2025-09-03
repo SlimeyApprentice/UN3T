@@ -16,11 +16,55 @@
 extern int GLOBAL_START_TIME;
 
 void log_move(char *move, int game_id) {
-	char *filename = malloc(64);
-	sprintf(filename, "logs/%d-%d.ulg", GLOBAL_START_TIME, game_id);
-	FILE *fd = fopen(filename, "a");
-	fprintf(fd, "%s;\n", move);
-	fclose(fd);
+	printf("logging\n");
+	FILE *fdr = fopen("logs/games", "r");
+	FILE *fdw = fopen("logs/games~", "w");
+	if (!fdw) printf("Error opening Alt file\n");
+	int i = 0;
+	char c;
+	if (fdr) {
+		while ((c = fgetc(fdr)) != EOF) {
+			if (c == '\n') {
+				if (i == game_id) fprintf(fdw, "%s;", move);
+				i++;
+			}
+			fputc(c, fdw);
+		}
+		fclose(fdr);
+	}
+	printf("index of last game: %d\n", i);
+	if (i <= game_id) {
+		for (int j = i; j < game_id; j++) {
+			fputc('\n', fdw);
+		}
+		fprintf(fdw, "%s;\n", move);
+	}
+	fclose(fdw);
+	rename("logs/games~", "logs/games");
+}
+
+void log_terminate(Verdict winner, int game_id) {
+	char winchar = winner & 0x1 ? (winner & 0x2 ? '#' : 'X') : (winner & 0x2 ? 'O' : '_');
+	FILE *fdr = fopen("logs/games", "r");
+	FILE *fdw = fopen("logs/games~", "w");
+	int i = 0;
+	char c;
+	if (game_id == 0) fputc(winchar, fdw);
+	while ((c = fgetc(fdr)) != EOF) {
+		fputc(c, fdw);
+		if (c == '\n') {
+			if (i == game_id - 1) fputc(winchar, fdw);
+			i++;
+		}
+	}
+	fclose(fdr);
+	fclose(fdw);
+	rename("logs/games~", "logs/games");
+}
+
+Games *recover_games() {
+	FILE *fdr = fopen("logs/games", "r");
+	
 }
 
 int leave_game(ServerData *server, Connections *client) {
