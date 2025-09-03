@@ -1,5 +1,4 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
-import useWebSocket from "react-use-websocket";
 import { useSelector } from "react-redux";
 
 import { useProcessServer, type Connection } from "../../serverInterface";

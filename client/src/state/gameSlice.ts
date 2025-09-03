@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 import { GameWinState, Player, type BoardData, type GameState } from './types.ts';
-import { MAX_DEPTH } from './controlSlice.ts';
 
 function initBoard(depth: number) {
     const state: BoardData = {
@@ -34,15 +33,22 @@ function recursiveEdit(state: BoardData, coordinates: number[], player: Player):
 }
 
 const initialState: GameState = {
+    maxDepth: 0,
     xIsNext: true,
     boardSize: 75,
     borderSize: 2,
-    globalBoard: initBoard(MAX_DEPTH),
+    globalBoard: initBoard(0),
 }
 export const gameSlice = createSlice({
   name: 'Game State',
   initialState,
   reducers: {
+    setGameDepth: (state, action) => {
+      state.maxDepth = action.payload;
+    },
+    initGlobalBoard: (state) => {
+      state.globalBoard = initBoard(state.maxDepth);
+    },
     // TODO: Type the payload
     setGameID: (state, action) => {
       state.id = action.payload;
@@ -62,6 +68,6 @@ export const gameSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setGameID, makeMove } = gameSlice.actions
+export const { setGameDepth, initGlobalBoard, setGameID, makeMove } = gameSlice.actions
 
 export default gameSlice.reducer
