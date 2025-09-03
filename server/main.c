@@ -1,8 +1,11 @@
 #include <libwebsockets.h>
 #include <string.h>
 #include <signal.h>
+#include <time.h>
 
 #include "lib/server.h"
+
+int GLOBAL_START_TIME;
 
 static struct lws_protocols protocols[] = {
 	{ "http", lws_callback_http_dummy, 0, 0, 0, NULL, 0},
@@ -36,6 +39,7 @@ void sigint_handler(int sig)
 }
 
 int main(int argc, const char **argv) {
+	GLOBAL_START_TIME = time(NULL);
 	struct lws_context_creation_info info;
 	struct lws_context *context;
 	const char *p;

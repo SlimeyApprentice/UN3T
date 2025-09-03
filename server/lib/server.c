@@ -13,6 +13,16 @@
 #include "server.h"
 #include "board.h"
 
+extern int GLOBAL_START_TIME;
+
+void log_move(char *move, int game_id) {
+	char *filename = malloc(64);
+	sprintf(filename, "logs/%d-%d.ulg", GLOBAL_START_TIME, game_id);
+	FILE *fd = fopen(filename, "a");
+	fprintf(fd, "%s;\n", move);
+	fclose(fd);
+}
+
 int leave_game(ServerData *server, Connections *client) {
 	if (!server || !client) return -1;
 	Games *game = server->games_head;
@@ -272,14 +282,27 @@ void process_request(ServerData *server, Connections *client) {
 		char *move;
 		sscanf(read_head, "%m[0-8]", &move);
 		if (!move) move = calloc(1, 1);
+		char *saved_move = malloc(strlen(move) + 1);
+		strcpy(saved_move, move);
 		cJSON *data = process_move(&game->game, move, client->role);
 		free(move);
 		char *message = cJSON_PrintUnformatted(data);
 		if (cJSON_IsTrue(cJSON_GetObjectItem(data, "success?"))) {
 			// TODO free up the game if it's won
-			queue_message(game->player_X, message, strlen(message) + 1);
-			queue_message(game->player_O, message, strlen(message) + 1);
+			for (Connections *head = server->connections_head;head;head = head->next) {
+				if (head->game_id == game->game_id) {
+					if (head != client) {
+						queue_message(head, "M", 1);
+					}
+					queue_message(head, message, strlen(message) + 1);
+				}
+			}
+			log_move(saved_move, game->game_id);	
 		}
+		else {
+			queue_message(client, message, strlen(message) + 1);	
+		}
+		free(saved_move);
 		free(message);
 		cJSON_Delete(data);
 	}
