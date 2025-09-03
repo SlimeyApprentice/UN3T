@@ -15,6 +15,7 @@ export enum Player {
     Empty = ""
 }
 export type GameState = {
+    maxDepth: number,
     xIsNext: boolean,
     boardSize: number,
     borderSize: number,

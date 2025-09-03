@@ -1,13 +1,14 @@
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { MAX_DEPTH, zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight } from '../../state/controlSlice.ts'
+import { zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight } from '../../state/controlSlice.ts'
 import type { RootState } from '../../state/store.ts';
 
 //All we do here is get input, check it's a valid state to receive input, then call state
 function useProcessInput() {
   const dispatch = useDispatch()
-  
+
+  const maxDepth = useSelector((state: RootState) => state.game.maxDepth);
   const current_depth = useSelector((state: RootState) => state.control.current_depth);
   const focus_coordinates = useSelector((state: RootState) => state.control.focus_coordinates);
   const renderBoards = useSelector((state: RootState) => state.control.renderBoards);
@@ -15,13 +16,13 @@ function useProcessInput() {
 
   //All the hotkeys
   useHotkeys('w', () => {
-    if (current_depth == MAX_DEPTH || renderBoards.length > 1 || focus_coordinates[focus_coordinates.length-1] < 3) { return }
+    if (current_depth == maxDepth || renderBoards.length > 1 || focus_coordinates[focus_coordinates.length-1] < 3) { return }
 
     dispatch(moveUp());
   });
   useHotkeys('a', () => {
     if (
-      current_depth == MAX_DEPTH 
+      current_depth == maxDepth 
       || renderBoards.length > 1 
       || [0, 3, 6].includes(focus_coordinates[focus_coordinates.length-1]))
     { return }
@@ -29,12 +30,12 @@ function useProcessInput() {
     dispatch(moveLeft());
   });
   useHotkeys('s', () => {
-    if (current_depth == MAX_DEPTH || renderBoards.length > 1 || focus_coordinates[focus_coordinates.length-1] > 5) { return }
+    if (current_depth == maxDepth || renderBoards.length > 1 || focus_coordinates[focus_coordinates.length-1] > 5) { return }
     dispatch(moveDown());
   });
   useHotkeys('d', () => {
     if (
-      current_depth == MAX_DEPTH 
+      current_depth == maxDepth 
       || renderBoards.length > 1 
       || [2, 5, 8].includes(focus_coordinates[focus_coordinates.length-1]))
     { return }
@@ -43,7 +44,7 @@ function useProcessInput() {
   });
 
   useHotkeys('q', () => {
-    if (current_depth == MAX_DEPTH) { return }
+    if (current_depth == maxDepth) { return }
 
     //If mid transition
     if (Object.values(transitionStates).filter((x) => { if (x !== null) { return x }}).length != 0) {
