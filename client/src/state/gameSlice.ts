@@ -47,6 +47,8 @@ export const gameSlice = createSlice({
       state.maxDepth = action.payload;
     },
     initGlobalBoard: (state) => {
+      if (!state.maxDepth) throw new Error("maxDepth undefined in initGlobalBoard");
+
       state.globalBoard = initBoard(state.maxDepth);
     },
     // TODO: Type the payload

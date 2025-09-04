@@ -19,6 +19,8 @@ function Home({ connection }: HomeProps) {
   const gameId = useSelector((state: RootState) => state.game.id)
 
   const handleNewGame = () => {
+    if (!maxDepth) throw new Error("maxDepth undefined when trying to make new game");
+
     dispatch(initGlobalBoard());
     newGame(connection, maxDepth);
   }
@@ -28,11 +30,11 @@ function Home({ connection }: HomeProps) {
   }
 
   const handleDepthInput = (event: ChangeEvent<HTMLInputElement>) => {
-    let maxDepth = parseInt(event.currentTarget.value);
-    if (isNaN(maxDepth)) maxDepth = 0;
+    let newMaxDepth: undefined | number = parseInt(event.currentTarget.value);
+    if (isNaN(newMaxDepth)) newMaxDepth = undefined;
 
-    dispatch(setGameDepth(maxDepth));
-    dispatch(setControlDepth(maxDepth));
+    dispatch(setGameDepth(newMaxDepth));
+    dispatch(setControlDepth(newMaxDepth));
   }
 
   const handleIdInput = (event: ChangeEvent<HTMLInputElement>) => {
