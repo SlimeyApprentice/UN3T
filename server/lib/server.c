@@ -216,7 +216,7 @@ Buffer concat_message(Buffer buf, char *new, size_t size) {
 void queue_message(Connections *client, char *new, size_t size) {
 	if (!client) return;
 	client->out = concat_message(client->out, new, size);
-	printf("%.*s", size, new);
+	printf("%.*s\n", size, new);
 	lws_callback_on_writable(client->wsi);
 }
 
@@ -341,7 +341,7 @@ void process_request(ServerData *server, Connections *client) {
 					queue_message(head, message, strlen(message) + 1);
 				}
 			}
-			log_move(saved_move, game->game_id);	
+			// log_move(saved_move, game->game_id);	
 		}
 		else {
 			queue_message(client, message, strlen(message) + 1);	

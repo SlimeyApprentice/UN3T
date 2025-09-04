@@ -19,7 +19,7 @@ function Home({ connection }: HomeProps) {
   const gameId = useSelector((state: RootState) => state.game.id)
 
   const handleNewGame = () => {
-    if (!maxDepth) throw new Error("maxDepth undefined when trying to make new game");
+    if (maxDepth === undefined) throw new Error("maxDepth undefined when trying to make new game");
 
     dispatch(initGlobalBoard());
     newGame(connection, maxDepth);

@@ -103,6 +103,8 @@ export function useProcessServer(connection: Connection) {
         console.log("Received signature: " + signature);
         console.log("Received message: " + msg);
 
+        if (msg == MessageSuccess.Failure) return;
+
         switch (signature) {
             case MessageSignature.NewGame:
                 const game_id = msg.split(";")[0];
@@ -121,11 +123,6 @@ export function useProcessServer(connection: Connection) {
                 }
                 break;
             case MessageSignature.Move:
-                if (msg == "") {
-                    console.log("Invalid Move");
-                    break;
-                }
-
                 try {
                     const jsonMsg = JSON.parse(msg);
                     console.log(jsonMsg);
