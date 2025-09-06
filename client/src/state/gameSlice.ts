@@ -1,7 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { GameWinState, Player, type BoardData, type GameState } from './types.ts';
+import { GameWinState, messageToGamePlayer, Player, type BoardData, type GameMove, type GameState } from './types.ts';
 
+// TODO: Type all payloads
+
+// TODO: Only create boards when there are moves on it
 function initBoard(depth: number) {
     const state: BoardData = {
       "cells": [],
@@ -23,21 +26,22 @@ function recursiveEdit(state: BoardData, coordinates: number[], player: Player):
     if (!next_coordinate) return false;
 
     if (coordinates.length == 0) {
-        // console.log("FINAL COORDINATE: " + next_coordinate);
+        console.log("FINAL COORDINATE: " + next_coordinate);
         state.cells[next_coordinate] = player;
     } else {
-        // console.log("COORDINATE: " + next_coordinate);
+        console.log("COORDINATE: " + next_coordinate);
         recursiveEdit(<BoardData> state.cells[next_coordinate], coordinates, player)
     }
     return true;
 }
 
 const initialState: GameState = {
-    maxDepth: 0,
+    maxDepth: "1",
     xIsNext: true,
     boardSize: 75,
     borderSize: 2,
-    globalBoard: initBoard(0),
+    globalBoard: initBoard(parseInt("1")),
+    id: "",
 }
 export const gameSlice = createSlice({
   name: 'Game State',
@@ -47,9 +51,9 @@ export const gameSlice = createSlice({
       state.maxDepth = action.payload;
     },
     initGlobalBoard: (state) => {
-      if (state.maxDepth === undefined) throw new Error("maxDepth undefined in initGlobalBoard");
+      if (!state.maxDepth) throw new Error("maxDepth empty in initGlobalBoard");
 
-      state.globalBoard = initBoard(state.maxDepth);
+      state.globalBoard = initBoard(parseInt(state.maxDepth));
     },
     // TODO: Type the payload
     setGameID: (state, action) => {
@@ -65,11 +69,22 @@ export const gameSlice = createSlice({
       state.xIsNext = !state.xIsNext;
 
       // We expect that whoever called us will later send the move to server
+    },
+    receiveMove: (state, action) => {
+      const move: GameMove = action.payload;
+      console.log(!move.success);
+      console.log(!move.location);
+      if (!move.success || !move.location) return;
+
+      const coordinates = move.location.split('').map((char) => parseInt(char));
+      const player = messageToGamePlayer(move.value)
+
+      recursiveEdit(state.globalBoard, coordinates, player);
     }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setGameDepth, initGlobalBoard, setGameID, makeMove } = gameSlice.actions
+export const { setGameDepth, initGlobalBoard, setGameID, makeMove, receiveMove } = gameSlice.actions
 
 export default gameSlice.reducer

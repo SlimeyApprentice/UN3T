@@ -16,7 +16,8 @@ import type { ReadyState, SendMessage } from "react-use-websocket";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 
-import { setGameID } from "./state/gameSlice";
+import { receiveMove, setGameID } from "./state/gameSlice";
+import type { GameMove } from "./state/types";
 
 export type Connection = {
     sendMessage: SendMessage,
@@ -38,9 +39,6 @@ export function joinGame(
     game_id: string
 ) {
     connection.sendMessage(`J${game_id};\n`);
-
-    const dispatch = useDispatch();
-    dispatch(setGameID(game_id));
 }
 
 export function leaveGame(
@@ -84,9 +82,13 @@ enum MessageSuccess {
     Success = "SUCCESS",
     Failure = "FAILURE"
 }
-enum MessagePlayer {
+export enum MessageValue {
     Cross = 1,
-    Circle = 2
+    Circle = 2,
+    NotYourTurn = -1,
+    WrongDepth = -2,
+    GameOver = -3,
+    WrongBoard = -4,
 }
 // Receieve server responses and modify global state
 export function useProcessServer(connection: Connection) {
@@ -124,8 +126,10 @@ export function useProcessServer(connection: Connection) {
                 break;
             case MessageSignature.Move:
                 try {
-                    const jsonMsg = JSON.parse(msg);
-                    console.log(jsonMsg);
+                    const move: GameMove = JSON.parse(msg);
+                    console.log(move);
+                    dispatch(receiveMove(move));
+
                 } catch (e) {
                     console.log("Failed to parse Move");
                     console.log(e);

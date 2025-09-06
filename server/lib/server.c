@@ -331,7 +331,7 @@ void process_request(ServerData *server, Connections *client) {
 		cJSON *data = process_move(&game->game, move, client->role);
 		free(move);
 		char *message = cJSON_PrintUnformatted(data);
-		if (cJSON_IsTrue(cJSON_GetObjectItem(data, "success?"))) {
+		if (cJSON_IsTrue(cJSON_GetObjectItem(data, "success"))) {
 			// TODO free up the game if it's won
 			for (Connections *head = server->connections_head;head;head = head->next) {
 				if (head->game_id == game->game_id) {
