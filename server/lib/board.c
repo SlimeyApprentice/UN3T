@@ -308,6 +308,7 @@ cJSON *retrieve_restriction(Game *world) {
 	}
 	cJSON_AddStringToObject(root, "restriction", world->restriction);
 	cJSON_AddNumberToObject(root, "player", world->turn);
+	cJSON_AddNumberToObject(root, "depth", world->board.depth);
 	return root;
 }
 #endif // _BOARD_C_

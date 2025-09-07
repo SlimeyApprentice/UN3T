@@ -307,6 +307,7 @@ void process_request(ServerData *server, Connections *client) {
 			return;
 		}
 		cJSON *data = retrieve_restriction(&game->game);
+		cJSON_AddNumberToObject(data, "you", (game->player_X == client) ? X : ((game->player_O == client) ? O : EMPTY));
 		char *message = cJSON_PrintUnformatted(data);
 		queue_message(client, message, strlen(message) + 1);
 		free(message);
