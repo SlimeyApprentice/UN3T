@@ -1,3 +1,5 @@
+import { MessageValue } from "../serverInterface"
+
 //Game Types
 export enum GameWinState {
     Cross = "X",
@@ -15,12 +17,25 @@ export enum Player {
     Empty = ""
 }
 export type GameState = {
-    maxDepth: number,
+    maxDepth: string,
     xIsNext: boolean,
     boardSize: number,
     borderSize: number,
     globalBoard: BoardData,
-    id?: string,
+    id: string,
+}
+export type GameMove = {
+    success: boolean,
+    value: MessageValue,
+    location?: string,
+    restriction?: string
+}
+export function messageToGamePlayer(player: MessageValue): Player {
+    switch(player) {
+        case MessageValue.Cross: return Player.Cross;
+        case MessageValue.Circle: return Player.Circle;
+        default: throw new Error("Tried to convert error message value");
+    }
 }
 
 // Control Types

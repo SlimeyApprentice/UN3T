@@ -148,39 +148,39 @@ Verdict _judge_board(Board *board) {
 cJSON *process_move(Game *world, char *move, Verdict player) {
     cJSON *root = cJSON_CreateObject();
     if (!world || !move) {
-	cJSON_AddBoolToObject(root, "success?", 0);
+	cJSON_AddBoolToObject(root, "success", 0);
 	cJSON_AddNumberToObject(root, "value", -5);
 	return root;
     }
     Board *board = &world->board;
     // Check that the right player has made the move
     if (player != world->turn) {
-        cJSON_AddBoolToObject(root, "success?", 0);
+        cJSON_AddBoolToObject(root, "success", 0);
         cJSON_AddNumberToObject(root, "value", -1);
         return root;
     }
     // Check the move is the correct depth
     if (strlen(move) - 1 != board->depth) {
-        cJSON_AddBoolToObject(root, "success?", 0);
+        cJSON_AddBoolToObject(root, "success", 0);
         cJSON_AddNumberToObject(root, "value", -2);
         return root;
     }
     for (int i = 0; move[i]; i++) {
         if (move[i] - '0' > 8 || move[i] - '0' < 0) {
-            cJSON_AddBoolToObject(root, "success?", 0);
+            cJSON_AddBoolToObject(root, "success", 0);
             cJSON_AddNumberToObject(root, "value", -2);
             return root;
         }
     }
     // Check that the move is not in an already won board
     if (!_move_lookahead(board, move)) {
-        cJSON_AddBoolToObject(root, "success?", 0);
+        cJSON_AddBoolToObject(root, "success", 0);
         cJSON_AddNumberToObject(root, "value", -3);
         return root;
     }
     // Check move is in the correct small board by comparing to restriction provided by the world
     if (!_check_move_compatibility(move, world->restriction)) {
-        cJSON_AddBoolToObject(root, "success?", 0);
+        cJSON_AddBoolToObject(root, "success", 0);
         cJSON_AddNumberToObject(root, "value", -4);
         return root;
     }
@@ -208,7 +208,7 @@ cJSON *process_move(Game *world, char *move, Verdict player) {
                 free(board->cells[location]);
                 continue;
             }
-            cJSON_AddBoolToObject(root, "success?", 1);
+            cJSON_AddBoolToObject(root, "success", 1);
             cJSON_AddStringToObject(root, "location", "");
             cJSON_AddNumberToObject(root, "value", judgement);
             cJSON_AddStringToObject(root, "restriction", "");
@@ -229,7 +229,7 @@ cJSON *process_move(Game *world, char *move, Verdict player) {
     world->turn = DRAW - world->turn;
     // finally, clip our saved move to the right size to indicate the update
     move[depth+1] = 0;
-    cJSON_AddBoolToObject(root, "success?", 1);
+    cJSON_AddBoolToObject(root, "success", 1);
     cJSON_AddStringToObject(root, "location", move);
     cJSON_AddNumberToObject(root, "value", verdict);
     cJSON_AddStringToObject(root, "restriction", world->restriction);

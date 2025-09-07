@@ -15,12 +15,12 @@ function useProcessInput() {
   const transitionStates = useSelector((state: RootState) => state.control.transitionStates);
 
   //All the hotkeys
-  useHotkeys('w', () => {
+  useHotkeys(['w', "up", "8"], () => {
     if (current_depth == maxDepth || renderBoards.length > 1 || focus_coordinates[focus_coordinates.length-1] < 3) { return }
 
     dispatch(moveUp());
   });
-  useHotkeys('a', () => {
+  useHotkeys(['a', "left", "4"], () => {
     if (
       current_depth == maxDepth 
       || renderBoards.length > 1 
@@ -29,11 +29,11 @@ function useProcessInput() {
 
     dispatch(moveLeft());
   });
-  useHotkeys('s', () => {
+  useHotkeys(['s', "down", "2"], () => {
     if (current_depth == maxDepth || renderBoards.length > 1 || focus_coordinates[focus_coordinates.length-1] > 5) { return }
     dispatch(moveDown());
   });
-  useHotkeys('d', () => {
+  useHotkeys(['d', "right", "6"], () => {
     if (
       current_depth == maxDepth 
       || renderBoards.length > 1 
@@ -43,7 +43,7 @@ function useProcessInput() {
     dispatch(moveRight());
   });
 
-  useHotkeys('q', () => {
+  useHotkeys(['q', '7'], () => {
     if (current_depth == maxDepth) { return }
 
     //If mid transition
@@ -53,7 +53,7 @@ function useProcessInput() {
 
     dispatch(zoomUp());
   });
-  useHotkeys('e', () => {
+  useHotkeys(['e', "9"], () => {
     if (current_depth == 0) { return }
 
     //If mid transition
