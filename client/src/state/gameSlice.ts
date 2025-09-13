@@ -72,14 +72,13 @@ export const gameSlice = createSlice({
     },
     receiveMove: (state, action) => {
       const move: GameMove = action.payload;
-      console.log(!move.success);
-      console.log(!move.location);
       if (!move.success || !move.location) return;
 
       const coordinates = move.location.split('').map((char) => parseInt(char));
+      console.log("Received coordinates: " + coordinates);
       const player = messageToGamePlayer(move.value)
 
-      recursiveEdit(state.globalBoard, coordinates, player);
+      recursiveEdit(state.globalBoard, coordinates.reverse(), player);
     }
   },
 })

@@ -47,7 +47,7 @@ export function leaveGame(
     connection.sendMessage("L;\n");
 }
 
-export function getTurnRestriction(
+export function getTurn(
     connection: Connection,
 ) {
     connection.sendMessage(`T;\n`);
@@ -58,6 +58,7 @@ export function makeMoveServer(
     coordinates: number[],
 ) {
     const stringCoords = coordinates.join("");
+    console.log("Making move: " + stringCoords);
     connection.sendMessage(`M${stringCoords};\n`);
 }
 
@@ -66,7 +67,9 @@ export function scanGame(
     coordinates: number[],
     depth: number,
 ) {
-    
+    const stringCoords = coordinates.join("");
+    console.log("Scanning at: " + stringCoords);
+    connection.sendMessage(`S${stringCoords};${depth};\n`);
 }
 
 
@@ -114,6 +117,8 @@ export function useProcessServer(connection: Connection) {
                 break;            
             case MessageSignature.JoinGame:
                 if (msg == MessageSuccess.Failure) dispatch(setGameID(undefined));
+                getTurn(connection);
+                // scanGame(connection, [0], 0);
                 break;
             case MessageSignature.Turn:
                 try {
