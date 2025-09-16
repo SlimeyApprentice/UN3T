@@ -17,12 +17,13 @@ function get_image(value: Player) {
 type CellProps = {
   value: Player,
   onSquareClick: () => void,
+  className?: string,
 }
-function Cell({value, onSquareClick}: CellProps) {
+function Cell({value, onSquareClick, className}: CellProps) {
   const image = get_image(value);
 
   return <>
-    <div className='cell' onClick={onSquareClick}>
+    <div className={'cell ' + className} onClick={onSquareClick}>
       {image}
     </div>
   </>;

@@ -1,6 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, current } from '@reduxjs/toolkit'
 
-import { GameWinState, messageToGamePlayer, Player, type BoardData, type GameMove, type GameState } from './types.ts';
+import { GameWinState, messageToGamePlayer, Player, playerToWinState, type BoardData, type GameMove, type GameState } from './types.ts';
 
 // TODO: Type all payloads
 
@@ -21,23 +21,28 @@ function initBoard(depth: number) {
     return state
   }
 
-function recursiveEdit(state: BoardData, coordinates: number[], player: Player): boolean{
+function recursiveEdit(state: BoardData, coordinates: number[], player: Player, winFlag: boolean): boolean{
     const next_coordinate = coordinates.pop()
     if (!next_coordinate) return false;
 
     if (coordinates.length == 0) {
         console.log("FINAL COORDINATE: " + next_coordinate);
-        state.cells[next_coordinate] = player;
+        if (winFlag) {
+          // @ts-expect-error we know for sure
+          state.cells[next_coordinate].game_state = playerToWinState(player);
+        } else {
+          state.cells[next_coordinate] = player;
+        }
     } else {
         console.log("COORDINATE: " + next_coordinate);
-        recursiveEdit(<BoardData> state.cells[next_coordinate], coordinates, player)
+        recursiveEdit(<BoardData> state.cells[next_coordinate], coordinates, player, winFlag)
     }
     return true;
 }
 
 const initialState: GameState = {
     maxDepth: "1",
-    xIsNext: true,
+    myPlayer: Player.Empty,
     boardSize: 75,
     borderSize: 2,
     globalBoard: initBoard(parseInt("1")),
@@ -59,16 +64,8 @@ export const gameSlice = createSlice({
     setGameID: (state, action) => {
       state.id = action.payload;
     },
-    makeMove: (state) => {
-      let player: Player;
-      if (state.xIsNext) {
-        player = Player.Cross;
-      } else {
-        player = Player.Circle;
-      }
-      state.xIsNext = !state.xIsNext;
-
-      // We expect that whoever called us will later send the move to server
+    setPlayer: (state, action) => {
+      state.myPlayer = action.payload;
     },
     receiveMove: (state, action) => {
       const move: GameMove = action.payload;
@@ -78,12 +75,20 @@ export const gameSlice = createSlice({
       console.log("Received coordinates: " + coordinates);
       const player = messageToGamePlayer(move.value)
 
-      recursiveEdit(state.globalBoard, coordinates.reverse(), player);
+      if (coordinates.length === 0) {
+        state.globalBoard.game_state = playerToWinState(player); 
+      } else if (coordinates.length-1 < parseInt(state.maxDepth)) {
+        recursiveEdit(state.globalBoard, coordinates.reverse(), player, true);
+      } else {
+        recursiveEdit(state.globalBoard, coordinates.reverse(), player, false);
+      }
+
+      console.log(current(state.globalBoard));
     }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setGameDepth, initGlobalBoard, setGameID, makeMove, receiveMove } = gameSlice.actions
+export const { setGameDepth, initGlobalBoard, setPlayer, setGameID, receiveMove } = gameSlice.actions
 
 export default gameSlice.reducer

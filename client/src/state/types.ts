@@ -18,7 +18,7 @@ export enum Player {
 }
 export type GameState = {
     maxDepth: string,
-    xIsNext: boolean,
+    myPlayer: Player,
     boardSize: number,
     borderSize: number,
     globalBoard: BoardData,
@@ -30,11 +30,19 @@ export type GameMove = {
     location?: string,
     restriction?: string
 }
+//Should really unify all of these player types
 export function messageToGamePlayer(player: MessageValue): Player {
     switch(player) {
         case MessageValue.Cross: return Player.Cross;
         case MessageValue.Circle: return Player.Circle;
         default: throw new Error("Tried to convert error message value");
+    }
+}
+export function playerToWinState(player: Player): GameWinState {
+    switch(player) {
+        case Player.Cross: return GameWinState.Cross;
+        case Player.Circle: return GameWinState.Circle;
+        default: throw new Error("Could not find GameWinState");
     }
 }
 

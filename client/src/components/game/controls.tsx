@@ -8,7 +8,7 @@ import type { RootState } from '../../state/store.ts';
 function useProcessInput() {
   const dispatch = useDispatch()
 
-  const maxDepth = useSelector((state: RootState) => state.game.maxDepth);
+  const maxDepth = parseInt(useSelector((state: RootState) => state.game.maxDepth));
   const current_depth = useSelector((state: RootState) => state.control.current_depth);
   const focus_coordinates = useSelector((state: RootState) => state.control.focus_coordinates);
   const renderBoards = useSelector((state: RootState) => state.control.renderBoards);
