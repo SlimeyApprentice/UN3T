@@ -170,9 +170,13 @@
     /* ^^^^ Handled by JS */
     grid-column-start: 1;
     grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 4;
 }
 
-
+.restricted {
+    background-color: rgb(243, 243, 140);
+}
  
 .summary {
     display: grid;

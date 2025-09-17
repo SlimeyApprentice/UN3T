@@ -23,9 +23,11 @@ function initBoard(depth: number) {
 
 function recursiveEdit(state: BoardData, coordinates: number[], player: Player, winFlag: boolean): boolean{
     const next_coordinate = coordinates.pop()
-    if (!next_coordinate) return false;
+    if (next_coordinate === undefined) return false;
 
-    if (coordinates.length == 0) {
+    console.log(coordinates.length);
+    console.log(coordinates.length === 0)
+    if (coordinates.length === 0) {
         console.log("FINAL COORDINATE: " + next_coordinate);
         if (winFlag) {
           // @ts-expect-error we know for sure
@@ -43,6 +45,7 @@ function recursiveEdit(state: BoardData, coordinates: number[], player: Player, 
 const initialState: GameState = {
     maxDepth: "1",
     myPlayer: Player.Empty,
+    restriction: [],
     boardSize: 75,
     borderSize: 2,
     globalBoard: initBoard(parseInt("1")),
@@ -69,10 +72,15 @@ export const gameSlice = createSlice({
     },
     receiveMove: (state, action) => {
       const move: GameMove = action.payload;
-      if (!move.success || !move.location) return;
+      if (!move.success || move.location === undefined) return;
+
+      const restriction = move.restriction!.split('').map((char) => parseInt(char));
+      state.restriction = restriction;
 
       const coordinates = move.location.split('').map((char) => parseInt(char));
       console.log("Received coordinates: " + coordinates);
+      console.log("Received restriction: " + restriction);
+      console.log("Length: " + coordinates.length);
       const player = messageToGamePlayer(move.value)
 
       if (coordinates.length === 0) {

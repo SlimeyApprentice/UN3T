@@ -66,6 +66,8 @@ function recursiveCount(board: BoardData) {
   }
 }
 
+
+
 //Should try to remove
 const gameStateStyle={
   "width": "100%",
@@ -118,11 +120,14 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   const depth_class = "depth-" + depth;
 
   let coordinateClass = "";
-  if (coordinates.length != 0) {
+  if (coordinates.length !== 0) {
     coordinateClass = coordinates[coordinates.length-1].toString();
   }
 
   const isWonClass = isWon ? "off " : "";
+
+  const restriction = useSelector((state: RootState) => state.game.restriction );
+  const isRestrictedClass = coordinates.toString().indexOf(restriction.toString()) === 0 ? "restricted " : "";
 
   if (depth == 0) {
     const squares = localBoard.cells as Player[];
@@ -142,7 +147,7 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     // }
 
     //I like my code WET
-    return <div className={"board " + depth_class + " " + className + " " + coordinateClass} id={id}>
+    return <div className={"board " + depth_class + " " + className + " " + isRestrictedClass + " " + coordinateClass} id={id}>
       <div className={winElementClassName} style={{"zIndex": 1}}>
         {winElement}
       </div>
@@ -186,7 +191,7 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     }
 
     //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
-    return <div className={"summary board meta " + depth_class + " " + className + " " + coordinateClass} id={id} style={summary_style}>
+    return <div className={"summary board meta " + depth_class + " " + className + " " + isRestrictedClass + " " + coordinateClass} id={id} style={summary_style}>
     <div className={winElementClassName} style={{"zIndex": depth+1}}>
       {winElement}
     </div>
@@ -212,7 +217,7 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
       // }
 
       //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
-      return <div className={"board meta " + depth_class + " " + className + " " + coordinateClass} id={id}>
+      return <div className={"board meta " + depth_class + " " + className + " " + isRestrictedClass + " " + coordinateClass} id={id}>
         <div className={winElementClassName} style={{"zIndex": depth+1}}>
           {winElement}
         </div>

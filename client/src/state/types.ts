@@ -19,6 +19,7 @@ export enum Player {
 export type GameState = {
     maxDepth: string,
     myPlayer: Player,
+    restriction: number[],
     boardSize: number,
     borderSize: number,
     globalBoard: BoardData,
