@@ -126,8 +126,19 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
 
   const isWonClass = isWon ? "off " : "";
 
-  const restriction = useSelector((state: RootState) => state.game.restriction );
-  const isRestrictedClass = coordinates.toString().indexOf(restriction.toString()) === 0 ? "restricted " : "";
+  const restriction = useSelector((state: RootState) => state.game.restriction);
+  let isRestrictedClass = "";
+  const strCoords = coordinates.toString().replaceAll(',', '');
+  const strRsctn = restriction.toString().replaceAll(',', '');
+
+  if (recursiveCount(localBoard).cross > 0) console.log(strCoords.indexOf(strRsctn), strCoords, strRsctn);
+
+  if (
+    strCoords.indexOf(strRsctn) === 0 ||
+    strCoords.indexOf(strRsctn) === strCoords.length - strRsctn.length
+  ) {
+    isRestrictedClass = "restricted ";
+  } 
 
   if (depth == 0) {
     const squares = localBoard.cells as Player[];
@@ -179,7 +190,11 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
       "background-color": "none"
     }
     if (count_result.cross != count_result.circle) {
-      if (count_result.cross > count_result.circle) {
+      if (isRestrictedClass !== "") {
+        console.log(coordinates, isRestrictedClass);
+        summary_style["background-color"] = "var(--restriction-color)";
+      }
+      else if (count_result.cross > count_result.circle) {
         const alpha = (count_result.cross - count_result.circle) / count_result.empty;
 
         summary_style["background-color"] = `rgba(255, 120, 98, ${alpha+0.1})`;

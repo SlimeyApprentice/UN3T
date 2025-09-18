@@ -4,6 +4,8 @@
     width: 100vw;
 
     justify-content: center;
+
+    --restriction-color: rgb(243, 243, 140);
 }
 
 .off {
@@ -175,7 +177,7 @@
 }
 
 .restricted {
-    background-color: rgb(243, 243, 140);
+    background-color: var(--restriction-color);
 }
  
 .summary {

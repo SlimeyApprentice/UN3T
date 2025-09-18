@@ -22,6 +22,7 @@ function Home({ connection }: HomeProps) {
     if (!maxDepth) throw new Error("maxDepth empty when trying to make new game");
 
     dispatch(initGlobalBoard());
+    dispatch(setControlDepth(maxDepth));
     newGame(connection, parseInt(maxDepth));
   }
   const handleJoinGame = () => {
