@@ -5,7 +5,8 @@ import { Provider } from "react-redux";
 import type { Connection } from "./serverInterface.ts";
 import Game from "./components/game/Game.tsx";
 import Home from "./components/home/Home.tsx"
-import store from "./state/store.ts";
+import configureStore from "./state/store.ts";
+import { PersistGate } from "redux-persist/integration/react";
 
 function App() {
   const { 
@@ -27,13 +28,17 @@ function App() {
       readyState
   }
 
+  const { persistor, store } = configureStore()
+
   return <Provider store={store}>
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<Home connection={connection}/>}></Route>
-        <Route path="/game" element={<Game connection={connection}/>}></Route>
-      </Routes>
-    </HashRouter>
+    <PersistGate loading={null} persistor={persistor}>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<Home connection={connection}/>}></Route>
+          <Route path="/game" element={<Game connection={connection}/>}></Route>
+        </Routes>
+      </HashRouter>
+    </PersistGate>
   </Provider>;
 };
 
