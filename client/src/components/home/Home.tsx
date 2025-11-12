@@ -21,6 +21,7 @@ function Home({ connection }: HomeProps) {
   const handleNewGame = () => {
     if (!maxDepth) throw new Error("maxDepth empty when trying to make new game");
 
+    console.log("handleNewGame maxDepth: " + maxDepth);
     dispatch(initGlobalBoard());
     dispatch(setControlDepth(maxDepth));
     newGame(connection, parseInt(maxDepth));

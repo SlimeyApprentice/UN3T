@@ -27,8 +27,6 @@ function recursiveEdit(state: BoardData, coordinates: number[], player: Player, 
     const next_coordinate = coordinates.pop()
     if (next_coordinate === undefined) return false;
 
-    console.log(coordinates.length);
-    console.log(coordinates.length === 0)
     if (coordinates.length === 0) {
         console.log("FINAL COORDINATE: " + next_coordinate);
         if (winFlag) {
@@ -57,12 +55,17 @@ export const gameSlice = createSlice({
   name: 'Game State',
   initialState,
   reducers: {
+    resetGame: (state) => {
+      state = initialState;
+    },
     setGameDepth: (state, action) => {
       state.maxDepth = action.payload;
+      console.log("setGameDepth: " + action.payload);
     },
     initGlobalBoard: (state) => {
       if (!state.maxDepth) throw new Error("maxDepth empty in initGlobalBoard");
 
+      console.log("initGlobalBoard maxDepth: " + state.maxDepth);
       state.globalBoard = initBoard(parseInt(state.maxDepth));
     },
     // TODO: Type the payload
@@ -99,6 +102,6 @@ export const gameSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setGameDepth, initGlobalBoard, setPlayer, setGameID, receiveMove } = gameSlice.actions
+export const { resetGame, setGameDepth, initGlobalBoard, setPlayer, setGameID, receiveMove } = gameSlice.actions
 
 export default gameSlice.reducer

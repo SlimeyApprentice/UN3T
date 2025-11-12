@@ -6,6 +6,7 @@ import type { Connection } from "./serverInterface.ts";
 import Game from "./components/game/Game.tsx";
 import Home from "./components/home/Home.tsx"
 import configureStore from "./state/store.ts";
+// import store from "./state/store.ts";
 import { PersistGate } from "redux-persist/integration/react";
 
 function App() {

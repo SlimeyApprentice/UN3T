@@ -7,6 +7,7 @@ import cross from '../../assets/Cross.svg' ;
 import circle from '../../assets/Circle.svg';
 import draw from '../../assets/Peace.svg' ;
 import empty from '../../assets/Empty.svg' ;
+// import type { RootState } from '../../state/store.ts';
 import type { RootState } from '../../state/store.ts';
 import { getTurn, leaveGame, newGame, makeMoveServer, type Connection } from '../../serverInterface.ts';
 
@@ -90,6 +91,7 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   for (const i of coordinates) {
     localBoard = localBoard.cells[i] as BoardData;
   }
+  console.log(globalBoard);
 
   //Is this being updated?
   // console.log(localBoard);

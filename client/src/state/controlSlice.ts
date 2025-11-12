@@ -35,28 +35,33 @@ const default_transition_states: TransitionStates = {
   "right": null,
   "bottom": null,
 }
+const initialState = {
+  current_depth: 0,
+  focus_coordinates: default_coordinates,
+  renderBoards: [
+    {
+      depth: 0,
+      coordinates: default_coordinates,
+      id: "middle-board",
+      className: "top-board"
+    }
+  ],
+  transitionStates: default_transition_states,
+  direction: default_direction,
+  window_width: default_width,
+};
 
 export const controlSlice: Slice<ControlState> = createSlice({
   name: 'Control State',
-  initialState: {
-    current_depth: 0,
-    focus_coordinates: default_coordinates,
-    renderBoards: [
-      {
-        depth: 0,
-        coordinates: default_coordinates,
-        id: "middle-board",
-        className: "top-board"
-      }
-    ],
-    transitionStates: default_transition_states,
-    direction: default_direction,
-    window_width: default_width,
-  },
+  initialState,
   reducers: {
+    resetControl: (state) => {
+      state = initialState;
+    },
     setControlDepth: (state, action) => {
       state.current_depth = action.payload;
       state.renderBoards[0].depth = action.payload;
+      console.log("setControlDepth: " + action.payload);
     },
     zoomUp: (state) => {
         state.current_depth++;
@@ -204,6 +209,6 @@ export const controlSlice: Slice<ControlState> = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setControlDepth, zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight, transitionComplete } = controlSlice.actions
+export const { resetControl, setControlDepth, zoomUp, zoomDown, moveUp, moveLeft, moveDown, moveRight, transitionComplete } = controlSlice.actions
 
 export default controlSlice.reducer

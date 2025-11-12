@@ -16,8 +16,9 @@ import type { ReadyState, SendMessage } from "react-use-websocket";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 
-import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer } from "./state/gameSlice";
+import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame } from "./state/gameSlice";
 import { messageToGamePlayer, type GameMove } from "./state/types";
+import { resetControl } from "./state/controlSlice";
 
 export type Connection = {
     sendMessage: SendMessage,
@@ -119,10 +120,19 @@ export function useProcessServer(connection: Connection) {
         switch (signature) {
             case MessageSignature.NewGame:
                 const game_id = msg.split(";")[0];
+                // We reset in order to get rid of no longer wanted persisted state
+                dispatch(resetGame());
+                dispatch(resetControl());
+
                 dispatch(setGameID(game_id));
                 break;            
             case MessageSignature.JoinGame:
                 if (msg == MessageSuccess.Failure) dispatch(setGameID(undefined));
+
+                // We reset in order to get rid of no longer wanted persisted state
+                dispatch(resetGame());
+                dispatch(resetControl());
+
                 getTurn(connection);
                 // scanGame(connection, [0], 0);
                 break;
