@@ -6,7 +6,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import type { Connection } from "./serverInterface.ts";
 import Game from "./components/game/Game.tsx";
 import Home from "./components/home/Home.tsx"
-import store from "./state/store.ts";
+import configureStore from "./state/store.ts";
 
 function App() {
   const { 
@@ -28,8 +28,10 @@ function App() {
       readyState
   }
 
+  const { store, persistor } = configureStore();
+
   return <Provider store={store}>
-      <PersistGate loading={null}>
+      <PersistGate loading={null} persistor={persistor}>
       <HashRouter>
         <Routes>
           <Route path="/" element={<Home connection={connection}/>}></Route>
