@@ -1,14 +1,8 @@
 import { createSlice, current } from '@reduxjs/toolkit'
 
-import { 
-  GameWinState, 
-  messageToGamePlayer, 
-  Player, 
-  playerToWinState, 
-  type BoardData, 
-  type GameMove, 
-  type GameState 
-} from './types.ts';
+import { GameWinState, messageToGamePlayer, Player, playerToWinState, type BoardData, type GameMove, type GameState } from './types.ts';
+import { useDispatch } from 'react-redux';
+import { setControlDepth } from './controlSlice.ts';
 
 // TODO: Type all payloads
 

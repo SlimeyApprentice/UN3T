@@ -91,7 +91,10 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   for (const i of coordinates) {
     localBoard = localBoard.cells[i] as BoardData;
   }
+  console.log(globalBoard);
 
+  //Is this being updated?
+  // console.log(localBoard);
   const isWon = localBoard.game_state;
 
   //If board over, pick from the following images
@@ -130,9 +133,11 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   const strCoords = coordinates.toString().replaceAll(',', '');
   const strRsctn = restriction.toString().replaceAll(',', '');
 
+  if (recursiveCount(localBoard).cross > 0) console.log(strCoords.indexOf(strRsctn), strCoords, strRsctn);
+
   if (
-    strCoords.indexOf(strRsctn) === 0 
-    // || strCoords.indexOf(strRsctn) === strCoords.length - strRsctn.length
+    strCoords.indexOf(strRsctn) === 0 ||
+    strCoords.indexOf(strRsctn) === strCoords.length - strRsctn.length
   ) {
     isRestrictedClass = "restricted ";
   } 
