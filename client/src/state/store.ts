@@ -1,4 +1,4 @@
-import { combineReducers, createStore } from '@reduxjs/toolkit'
+import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { persistStore, persistReducer, type PersistConfig } from 'redux-persist'
 import sessionStorage from 'redux-persist/lib/storage/session'
 import type { PersistPartial } from 'redux-persist/es/persistReducer';
@@ -6,7 +6,7 @@ import type { PersistPartial } from 'redux-persist/es/persistReducer';
 import type { ControlState, GameState } from './types.ts';
 import gameReducer from './gameSlice.ts'
 import controlReducer from './controlSlice.ts'
-import hardSet from 'redux-persist/es/stateReconciler/hardSet';
+import hardSet from 'redux-persist/lib/stateReconciler/hardSet'
 
 export type RootState = {
   game: GameState;
@@ -17,15 +17,16 @@ const rootPersistConfig = {
   key: 'root',
   storage: sessionStorage,
   whitelist: [],
-  // stateReconciler: hardSet
+  // stateReconciler: hardSet,
 };
 
 const gamePersistConfig = {
   key: 'game',
   storage: sessionStorage,
-  // whitelist: ['id'],
+  whitelist: ['id'],
   // blacklist: ['globalBoard'],
-  whitelist: [],
+  // whitelist: [],
+  stateReconciler: hardSet,
 }
 
 const controlPersistConfig = {
@@ -42,9 +43,9 @@ const rootReducer = combineReducers({
 
 const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
 
-export default function configureStore() {
-  let store = createStore(persistedReducer)
-  let persistor = persistStore(store)
+export default function getStore() {
+  let store = configureStore({ reducer: persistedReducer });
+  let persistor = persistStore(store);
   return { store, persistor }
 }
 
