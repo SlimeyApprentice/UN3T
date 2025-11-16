@@ -1,15 +1,15 @@
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import Cell from './Cell.tsx';
-import { makeMove } from '../../state/gameSlice.ts'
 import { GameWinState, Player, type BoardData } from '../../state/types.ts';
 
 import cross from '../../assets/Cross.svg' ;
 import circle from '../../assets/Circle.svg';
 import draw from '../../assets/Peace.svg' ;
 import empty from '../../assets/Empty.svg' ;
+// import type { RootState } from '../../state/store.ts';
 import type { RootState } from '../../state/store.ts';
-import { getTurnRestriction, leaveGame, newGame, makeMoveServer, type Connection } from '../../serverInterface.ts';
+import { getTurn, leaveGame, newGame, makeMoveServer, type Connection } from '../../serverInterface.ts';
 
 type PlayerCount = {
   cross: number,
@@ -67,6 +67,8 @@ function recursiveCount(board: BoardData) {
   }
 }
 
+
+
 //Should try to remove
 const gameStateStyle={
   "width": "100%",
@@ -82,8 +84,6 @@ type BoardProps = {
   id?: string,
 }
 function Board({depth, coordinates, className, connection, id }: BoardProps) {
-  const dispatch = useDispatch()
-
   const current_depth = useSelector((state: RootState) => state.control.current_depth );
   const globalBoard = useSelector((state: RootState) => state.game.globalBoard );
 
@@ -92,8 +92,6 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     localBoard = localBoard.cells[i] as BoardData;
   }
 
-  //Is this being updated?
-  // console.log(localBoard);
   const isWon = localBoard.game_state;
 
   //If board over, pick from the following images
@@ -101,13 +99,13 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   let winElementClassName = "off";
   if (isWon == GameWinState.Cross) {
     winElement = <img src={cross} className="X" style={gameStateStyle}/>;
-    winElementClassName += " win-container-active"
+    winElementClassName = " win-container-active"
   } else if (isWon == GameWinState.Circle) {
     winElement = <img src={circle} className="O" style={gameStateStyle}/>;
-    winElementClassName += " win-container-active"
+    winElementClassName = " win-container-active"
   } else if (isWon == GameWinState.Draw) {
     winElement = <img src={draw} className="D" style={gameStateStyle}/>;
-    winElementClassName += " win-container-active"
+    winElementClassName = " win-container-active"
   } else if (isWon == GameWinState.Undecided) {
     winElement = null;
   }
@@ -121,9 +119,23 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   const depth_class = "depth-" + depth;
 
   let coordinateClass = "";
-  if (coordinates.length != 0) {
+  if (coordinates.length !== 0) {
     coordinateClass = coordinates[coordinates.length-1].toString();
   }
+
+  const isWonClass = isWon ? "off " : "";
+
+  const restriction = useSelector((state: RootState) => state.game.restriction);
+  let isRestrictedClass = "";
+  const strCoords = coordinates.toString().replaceAll(',', '');
+  const strRsctn = restriction.toString().replaceAll(',', '');
+
+  if (
+    strCoords.indexOf(strRsctn) === 0 
+    // || strCoords.indexOf(strRsctn) === strCoords.length - strRsctn.length
+  ) {
+    isRestrictedClass = "restricted ";
+  } 
 
   if (depth == 0) {
     const squares = localBoard.cells as Player[];
@@ -132,10 +144,6 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     function handleClick(i: number) {
       if (isWon !== GameWinState.Undecided) { return; }
       if (squares[i] !== Player.Empty) { return; }
-
-      console.log("BBBBBBBB");
-
-      dispatch(makeMove());
 
       const new_coordinates = coordinates.slice().concat([i]);
       makeMoveServer(connection, new_coordinates);
@@ -147,21 +155,21 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     // }
 
     //I like my code WET
-    return <div className={"board " + depth_class + " " + className + " " + coordinateClass} id={id}>
+    return <div className={"board " + depth_class + " " + className + " " + isRestrictedClass + " " + coordinateClass} id={id}>
       <div className={winElementClassName} style={{"zIndex": 1}}>
         {winElement}
       </div>
       {/* {UICells} */}
 
-      <Cell value={squares[0]} onSquareClick={() => handleClick(0)}/>
-      <Cell value={squares[1]} onSquareClick={() => handleClick(1)}/>
-      <Cell value={squares[2]} onSquareClick={() => handleClick(2)}/>
-      <Cell value={squares[3]} onSquareClick={() => handleClick(3)}/>
-      <Cell value={squares[4]} onSquareClick={() => handleClick(4)}/>
-      <Cell value={squares[5]} onSquareClick={() => handleClick(5)}/>
-      <Cell value={squares[6]} onSquareClick={() => handleClick(6)}/>
-      <Cell value={squares[7]} onSquareClick={() => handleClick(7)}/>
-      <Cell value={squares[8]} onSquareClick={() => handleClick(8)}/>
+      <Cell value={squares[0]} onSquareClick={() => handleClick(0)} className={isWonClass}/>
+      <Cell value={squares[1]} onSquareClick={() => handleClick(1)} className={isWonClass}/>
+      <Cell value={squares[2]} onSquareClick={() => handleClick(2)} className={isWonClass}/>
+      <Cell value={squares[3]} onSquareClick={() => handleClick(3)} className={isWonClass}/>
+      <Cell value={squares[4]} onSquareClick={() => handleClick(4)} className={isWonClass}/>
+      <Cell value={squares[5]} onSquareClick={() => handleClick(5)} className={isWonClass}/>
+      <Cell value={squares[6]} onSquareClick={() => handleClick(6)} className={isWonClass}/>
+      <Cell value={squares[7]} onSquareClick={() => handleClick(7)} className={isWonClass}/>
+      <Cell value={squares[8]} onSquareClick={() => handleClick(8)} className={isWonClass}/>
     </div>;
   } else if (current_depth == depth + 2) {
     //If board too deep and won't render properly, put summary placeholder
@@ -179,7 +187,11 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
       "background-color": "none"
     }
     if (count_result.cross != count_result.circle) {
-      if (count_result.cross > count_result.circle) {
+      if (isRestrictedClass !== "") {
+        console.log(coordinates, isRestrictedClass);
+        summary_style["background-color"] = "var(--restriction-color)";
+      }
+      else if (count_result.cross > count_result.circle) {
         const alpha = (count_result.cross - count_result.circle) / count_result.empty;
 
         summary_style["background-color"] = `rgba(255, 120, 98, ${alpha+0.1})`;
@@ -191,7 +203,7 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     }
 
     //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
-    return <div className={"summary board meta " + depth_class + " " + className + " " + coordinateClass} id={id} style={summary_style}>
+    return <div className={"summary board meta " + depth_class + " " + className + " " + isRestrictedClass + " " + coordinateClass} id={id} style={summary_style}>
     <div className={winElementClassName} style={{"zIndex": depth+1}}>
       {winElement}
     </div>
@@ -210,27 +222,27 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
       //   UIBoards.push(<Board 
       //     depth={depth-1} 
       //     coordinates={coordinates.slice().concat([idx])} 
-      //     className={is_child_active}
+      //     className={isWonClass + is_child_active}
       //     connection={connection}
       //     key={"board-" + randomHex(16)}
       //   />)
       // }
 
       //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
-      return <div className={"board meta " + depth_class + " " + className + " " + coordinateClass} id={id}>
+      return <div className={"board meta " + depth_class + " " + className + " " + isRestrictedClass + " " + coordinateClass} id={id}>
         <div className={winElementClassName} style={{"zIndex": depth+1}}>
           {winElement}
         </div>
         {/* {UIBoards} */}
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} className={is_child_active} connection={connection}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} className={is_child_active} connection={connection}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} className={is_child_active} connection={connection}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} className={is_child_active} connection={connection}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} className={is_child_active} connection={connection}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} className={is_child_active} connection={connection}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} className={is_child_active} connection={connection}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} className={is_child_active} connection={connection}/>
-        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} className={is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([0])} className={isWonClass + is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([1])} className={isWonClass + is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([2])} className={isWonClass + is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([3])} className={isWonClass + is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([4])} className={isWonClass + is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([5])} className={isWonClass + is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([6])} className={isWonClass + is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([7])} className={isWonClass + is_child_active} connection={connection}/>
+        <Board depth={depth-1} coordinates={coordinates.slice().concat([8])} className={isWonClass + is_child_active} connection={connection}/>
       </div>;
   }
 

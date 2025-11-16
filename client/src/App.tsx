@@ -5,7 +5,11 @@ import { Provider } from "react-redux";
 import type { Connection } from "./serverInterface.ts";
 import Game from "./components/game/Game.tsx";
 import Home from "./components/home/Home.tsx"
+<<<<<<< HEAD
+import getStore from "./state/store.ts";
+=======
 import store from "./state/store.ts";
+>>>>>>> parent of 140ec71 (Basic persist)
 
 function App() {
   const { 
@@ -28,12 +32,12 @@ function App() {
   }
 
   return <Provider store={store}>
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<Home connection={connection}/>}></Route>
-        <Route path="/game" element={<Game connection={connection}/>}></Route>
-      </Routes>
-    </HashRouter>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<Home connection={connection}/>}></Route>
+          <Route path="/game" element={<Game connection={connection}/>}></Route>
+        </Routes>
+      </HashRouter>
   </Provider>;
 };
 

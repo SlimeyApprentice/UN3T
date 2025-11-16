@@ -16,8 +16,9 @@ import type { ReadyState, SendMessage } from "react-use-websocket";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 
-import { receiveMove, setGameID } from "./state/gameSlice";
-import type { GameMove } from "./state/types";
+import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame } from "./state/gameSlice";
+import { messageToGamePlayer, type GameMove } from "./state/types";
+import { resetControl } from "./state/controlSlice";
 
 export type Connection = {
     sendMessage: SendMessage,
@@ -47,7 +48,7 @@ export function leaveGame(
     connection.sendMessage("L;\n");
 }
 
-export function getTurnRestriction(
+export function getTurn(
     connection: Connection,
 ) {
     connection.sendMessage(`T;\n`);
@@ -58,6 +59,7 @@ export function makeMoveServer(
     coordinates: number[],
 ) {
     const stringCoords = coordinates.join("");
+    console.log("Making move: " + stringCoords);
     connection.sendMessage(`M${stringCoords};\n`);
 }
 
@@ -66,7 +68,9 @@ export function scanGame(
     coordinates: number[],
     depth: number,
 ) {
-    
+    const stringCoords = coordinates.join("");
+    console.log("Scanning at: " + stringCoords);
+    connection.sendMessage(`S${stringCoords};${depth};\n`);
 }
 
 
@@ -90,6 +94,12 @@ export enum MessageValue {
     GameOver = -3,
     WrongBoard = -4,
 }
+type MessageTurn = {
+    depth: number,
+    player: 1 | 2,
+    you: 1 | 2
+    restriction: string,
+}
 // Receieve server responses and modify global state
 export function useProcessServer(connection: Connection) {
     const dispatch = useDispatch();
@@ -110,15 +120,29 @@ export function useProcessServer(connection: Connection) {
         switch (signature) {
             case MessageSignature.NewGame:
                 const game_id = msg.split(";")[0];
+                // We reset in order to get rid of no longer wanted persisted state
+                dispatch(resetGame());
+                dispatch(resetControl());
+
                 dispatch(setGameID(game_id));
                 break;            
             case MessageSignature.JoinGame:
                 if (msg == MessageSuccess.Failure) dispatch(setGameID(undefined));
+
+                // We reset in order to get rid of no longer wanted persisted state
+                dispatch(resetGame());
+                dispatch(resetControl());
+
+                getTurn(connection);
+                // scanGame(connection, [0], 0);
                 break;
             case MessageSignature.Turn:
                 try {
-                    const jsonMsg = JSON.parse(msg);
+                    const jsonMsg: MessageTurn = JSON.parse(msg);
                     console.log(jsonMsg);
+                    dispatch(setGameDepth(jsonMsg.depth));
+                    dispatch(initGlobalBoard());
+                    dispatch(setPlayer(messageToGamePlayer(jsonMsg.you)));
                 } catch (e) {
                     console.log("Failed to parse Turn");
                     console.log(e);
