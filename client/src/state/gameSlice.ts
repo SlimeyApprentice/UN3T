@@ -12,6 +12,10 @@ import {
 
 // TODO: Type all payloads
 
+function storeGameState(state: any) {
+  sessionStorage.setItem("game", JSON.stringify(state));
+}
+
 // TODO: Only create boards when there are moves on it
 function initBoard(depth: number) {
     const state: BoardData = {
@@ -77,6 +81,7 @@ export const gameSlice = createSlice({
     // TODO: Type the payload
     setGameID: (state, action) => {
       state.id = action.payload;
+      storeGameState(state);
     },
     setPlayer: (state, action) => {
       state.myPlayer = action.payload;
