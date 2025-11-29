@@ -275,6 +275,7 @@ void process_request(ServerData *server, Connections *client) {
 		char *message = (char*)malloc(length+1);
 		sprintf(message, "%d;\n", game_id);
 		queue_message(client, message, length+1);
+		free(message);
 	}
 	else if (c == UN3T_SIG_JOIN) {
 		queue_message(client, "J", 1);

@@ -269,6 +269,7 @@ cJSON *_parse_board(Board *world, unsigned int depth) {
             cJSON_AddItemToObject(root, key, child);
         }
     }
+    free(key);
     return root;
 }
 
