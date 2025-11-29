@@ -5,11 +5,7 @@ import { Provider } from "react-redux";
 import type { Connection } from "./serverInterface.ts";
 import Game from "./components/game/Game.tsx";
 import Home from "./components/home/Home.tsx"
-<<<<<<< HEAD
-import getStore from "./state/store.ts";
-=======
 import store from "./state/store.ts";
->>>>>>> parent of 140ec71 (Basic persist)
 
 function App() {
   const { 
