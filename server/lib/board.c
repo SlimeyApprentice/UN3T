@@ -293,7 +293,7 @@ cJSON *retrieve_state(Game *world, char *location, unsigned int depth) {
     }
     Board *board = &world->board;
     while (location[0] && board) {
-        board = board->cells[location[0]];
+        board = board->cells[location[0] - '0'];
         location++;
     }
     if (!board) return cJSON_CreateNumber(0);

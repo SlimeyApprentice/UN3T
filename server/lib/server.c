@@ -324,7 +324,7 @@ void process_request(ServerData *server, Connections *client) {
 		}
 		read_head[term_size - 1] = 0;
 		printf("%s\n", read_head);
-		char *move;
+		char *move = NULL;
 		sscanf(read_head, "%m[0-8]", &move);
 		if (!move) move = calloc(1, 1);
 		char *saved_move = malloc(strlen(move) + 1);
@@ -372,7 +372,7 @@ void process_request(ServerData *server, Connections *client) {
 		int new_term_size = terminated_length(read_head, read_length, ';');
 		int depth = 0;
 		if (sscanf(read_head, "%d", &depth) != 1) {
-			queue_message(client, "ERR:NUM", 8);
+			queue_message(client, "ERR:NUM\n", 8);
 			pop_buffer(buf_in, message_size);
 			return;
 		}
