@@ -12,8 +12,15 @@ import {
 
 // TODO: Type all payloads
 
-function storeGameState(state: any) {
-  sessionStorage.setItem("game", JSON.stringify(state));
+function storeGameState(state: GameState) {
+  let stored_state = JSON.parse(JSON.stringify(state));
+
+  stored_state.globalBoard = {
+    cells: [],
+    game_state: GameWinState.Undecided
+  };
+
+  sessionStorage.setItem("game", JSON.stringify(stored_state));
 }
 
 // TODO: Only create boards when there are moves on it
