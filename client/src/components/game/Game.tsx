@@ -1,7 +1,7 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
 import { useSelector, useDispatch } from "react-redux";
 
-import { getTurn, useProcessServer, type Connection } from "../../serverInterface";
+import { getTurn, joinGame, scanGame, useProcessServer, type Connection } from "../../serverInterface";
 import type { RootState } from "../../state/store";
 import useProcessInput from "./controls";
 import Board from "./Board";
@@ -55,12 +55,10 @@ function Game({connection}: GameProps) {
         console.log("REFRESH");
         
         const stored_state: GameState = JSON.parse(sessionStorage.getItem("game")!);
-        // dispatch(setGameDepth(stored_state.maxDepth));
-        // dispatch(initGlobalBoard());
-        // dispatch(setGameID(stored_state.id));
-        // dispatch(setPlayer(stored_state.myPlayer));
 
+        joinGame(connection, stored_state.id);
         getTurn(connection);
+        scanGame(connection, [0], 0);
     }, []);
 
     return <>
