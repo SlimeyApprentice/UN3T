@@ -131,6 +131,7 @@ bool validate(Buffer buf, Signature sig) {
 				if (i >= buf.buffer_size + LWS_PRE) return false;
 			}
 			i++;
+			if (buf.contents[i] != 'X' && buf.contents[i] != 'O' && buf.contents[i] != '#' && buf.contents[i] != '_') return false;
 			return true;
 		case UN3T_SIG_LEAV:
 			return true;
@@ -168,18 +169,18 @@ Games *find_game_from_id(Games *head, int game_id) {
 	return NULL;
 }
 
-int join_game(ServerData *server, Connections *client, int game_id) {
+int join_game(ServerData *server, Connections *client, int game_id, Verdict role) {
 	if (!server || !client) return -1;
 	if (game_id < 0) return -1;
 	if (client->game_id > -1) return -1;
 	Games *game = find_game_from_id(server->games_head, game_id);
 	if (!game) return -1;
-	if (!game->player_X) {
+	if (!game->player_X && (role & X)) {
 		game->player_X = client;
 		client->game_id = game_id;
 		client->role = X;
 	}
-	else if (!game->player_O) {
+	else if (!game->player_O && (role & O)) {
 		game->player_O = client;
 		client->game_id = game_id;
 		client->role = O;
@@ -288,7 +289,8 @@ void process_request(ServerData *server, Connections *client) {
 			pop_buffer(buf_in, message_size);
 			return;
 		}
-		int error = join_game(server, client, game_id);
+		read_head += term_size;
+		int error = join_game(server, client, game_id, (read_head[0] == '#' || read_head[0] == 'X') | ((read_head[0] == '#' || read_head[0] == 'O') << 1));
 		if (error) queue_message(client, "FAILURE\n", 8);
 		else queue_message(client, "SUCCESS\n", 8);	
 	}
@@ -311,6 +313,7 @@ void process_request(ServerData *server, Connections *client) {
 		cJSON_AddNumberToObject(data, "you", (game->player_X == client) ? X : ((game->player_O == client) ? O : EMPTY));
 		char *message = cJSON_PrintUnformatted(data);
 		queue_message(client, message, strlen(message) + 1);
+		queue_message(client, "\n", 1);
 		free(message);
 		cJSON_Delete(data);
 	}
@@ -341,12 +344,14 @@ void process_request(ServerData *server, Connections *client) {
 						queue_message(head, "M", 1);
 					}
 					queue_message(head, message, strlen(message) + 1);
+					queue_message(head, "\n", 1);
 				}
 			}
 			// log_move(saved_move, game->game_id);	
 		}
 		else {
 			queue_message(client, message, strlen(message) + 1);	
+			queue_message(client, "\n", 1);
 		}
 		free(saved_move);
 		free(message);
@@ -381,6 +386,7 @@ void process_request(ServerData *server, Connections *client) {
 		free(location);
 		char *message = cJSON_PrintUnformatted(data);
 		queue_message(client, message, strlen(message) + 1);
+		queue_message(client, "\n", 1);
 		free(message);
 		cJSON_Delete(data);
 	}
