@@ -25,18 +25,12 @@ export type GameState = {
     globalBoard: BoardData,
     id: string,
 }
-export type GameMove = {
-    success: boolean,
-    value: MessageValue,
-    location?: string,
-    restriction?: string
-}
 //Should really unify all of these player types
 export function messageToGamePlayer(player: MessageValue): Player {
     switch(player) {
         case MessageValue.Empty: return Player.Empty;
         case MessageValue.Cross: return Player.Cross;
-        case MessageValue.Circle: return Player.Circle;
+        case MessageValue.Circle: return Player.Circle; 
         default: throw new Error("Tried to convert error message value");
     }
 }

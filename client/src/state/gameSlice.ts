@@ -6,7 +6,6 @@ import {
   Player, 
   playerToWinState, 
   type BoardData, 
-  type GameMove, 
   type GameState 
 } from './types.ts';
 import { MessageValue, type MessageScan, type MessageTurn } from '../serverInterface.ts';
@@ -81,6 +80,26 @@ function recursiveEdit(state: BoardData, coordinates: number[], player: Player, 
     return true;
 }
 
+//TODO: UPDATE WIN STATE
+function updateFromScan(state: BoardData, scan: MessageScan) {
+  console.log(scan);
+
+  for (const [key, element] of Object.entries(scan)) {
+    const idx = parseInt(key);
+
+    if (typeof element === 'number') {
+      if (element == MessageValue.Empty) continue; //Board already blank
+
+      state.cells[idx] = messageToGamePlayer(element as MessageValue);
+    } else {
+      // Recursive Step
+      updateFromScan(state.cells[idx] as BoardData, element); 
+    }
+  }
+
+  //Exit 
+}
+
 const initialState: GameState = {
     maxDepth: "1",
     myPlayer: Player.Empty,
@@ -116,7 +135,7 @@ export const gameSlice = createSlice({
       state.myPlayer = action.payload;
     },
     receiveMove: (state, action) => {
-      const move: GameMove = action.payload;
+      const move: MessageMove = action.payload;
       if (!move.success || move.location === undefined) return;
 
       const restriction = move.restriction!.split('').map((char) => parseInt(char));

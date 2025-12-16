@@ -150,7 +150,7 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
             break;
         case MessageSignature.Move:
             try {
-                const move: GameMove = JSON.parse(msg);
+                const move: MessageMove = JSON.parse(msg);
                 console.log(move);
                 dispatch(receiveMove(move));
 
