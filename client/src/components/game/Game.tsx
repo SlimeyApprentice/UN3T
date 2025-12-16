@@ -1,12 +1,15 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
-import { useProcessServer, type Connection } from "../../serverInterface";
+import { getTurn, joinGame, scanGame, useProcessServer, type Connection } from "../../serverInterface";
 import type { RootState } from "../../state/store";
 import useProcessInput from "./controls";
 import Board from "./Board";
 import Renderer from "./Renderer";
 import './grid_board.css';
+import { useEffect } from "react";
+import type { GameState } from "../../state/types";
+import { initGlobalBoard, setGameDepth, setGameID, setPlayer } from "../../state/gameSlice";
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
@@ -15,12 +18,15 @@ type GameProps = {
     connection: Connection,
 }
 function Game({connection}: GameProps) {
-    //All controls handled here, all hotkey hooks called
+    // All controls handled here, all hotkey hooks called
     useProcessInput();
     // Handles changing global state according to server response
     useProcessServer(connection);
 
-    //CSS variables and the CSS for the element we change dynamically
+    // In case we need it in useEffect
+    const dispatch = useDispatch();
+
+    // CSS variables and the CSS for the element we change dynamically
     const boardSize = useSelector((state: RootState) => state.game.boardSize);
     const borderSize = useSelector((state: RootState) => state.game.borderSize);
     const direction = useSelector((state: RootState) => state.control.direction);
@@ -42,6 +48,18 @@ function Game({connection}: GameProps) {
         .map((props, idx) =>  {
             return <Board {...props} connection={connection} key={"renderBoard" + idx}/>;
         });
+
+    //Check whether we refreshed mid game. Copy state
+    useEffect(() => {
+        if (game_id !== "") return;
+        console.log("REFRESH");
+        
+        const stored_state: GameState = JSON.parse(sessionStorage.getItem("game")!);
+
+        joinGame(connection, stored_state.id);
+        getTurn(connection);
+        scanGame(connection, [0], 0);
+    }, []);
 
     return <>
     <div className="game">

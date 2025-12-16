@@ -7,8 +7,9 @@ import './home.css';
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../state/store";
 import { useState, type ChangeEvent } from "react";
-import { initGlobalBoard, setGameDepth, setGameID } from "../../state/gameSlice";
+import { initGlobalBoard, setGameDepth, setGameID, setPlayer } from "../../state/gameSlice";
 import { setControlDepth } from "../../state/controlSlice";
+import { Player } from "../../state/types";
 
 type HomeProps = {
     connection: Connection,
@@ -24,11 +25,13 @@ function Home({ connection }: HomeProps) {
     console.log("handleNewGame maxDepth: " + maxDepth);
     dispatch(initGlobalBoard());
     dispatch(setControlDepth(maxDepth));
+    dispatch(setPlayer(Player.Cross));
     newGame(connection, parseInt(maxDepth));
   }
   const handleJoinGame = () => {
     joinGame(connection, gameId);
     dispatch(setGameID(gameId));
+    dispatch(setPlayer(Player.Circle));
   }
 
   const handleDepthInput = (event: ChangeEvent<HTMLInputElement>) => {

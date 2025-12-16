@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame } from "./state/gameSlice";
 import { messageToGamePlayer, type GameMove } from "./state/types";
 import { resetControl } from "./state/controlSlice";
+import type { Dispatch } from "@reduxjs/toolkit";
 
 export type Connection = {
     sendMessage: SendMessage,
@@ -100,67 +101,89 @@ type MessageTurn = {
     you: 1 | 2
     restriction: string,
 }
+
+// Ideally should not need connection anymore. 
+// Calling message as response to message is a bad idea 
+function handleResponse(dispatch: Dispatch<any>, connection: Connection, responses: string[]) {
+    if (responses.length === 0) return; // Base Step
+
+    const activeResponse = responses[0];
+
+    const signature: MessageSignature = activeResponse[0] as MessageSignature;
+
+    let msg = activeResponse.slice(1, activeResponse.length);
+
+    console.log("Received signature: " + signature);
+    console.log("Received message: " + msg);
+
+    if (msg == MessageSuccess.Failure) return;
+
+    switch (signature) {
+        case MessageSignature.NewGame:
+            const game_id = msg.split(";")[0];
+            // We reset in order to get rid of no longer wanted persisted state
+            dispatch(resetGame());
+            dispatch(resetControl());
+
+            dispatch(setGameID(game_id));
+            break;            
+        case MessageSignature.JoinGame:
+            if (msg == MessageSuccess.Failure) dispatch(setGameID(undefined));
+
+            // We reset in order to get rid of no longer wanted persisted state
+            dispatch(resetGame());
+            dispatch(resetControl());
+            break;
+        case MessageSignature.Turn:
+            try {
+                const jsonMsg: MessageTurn = JSON.parse(msg);
+                console.log(jsonMsg);
+                dispatch(setGameDepth(jsonMsg.depth));
+                dispatch(initGlobalBoard());
+                dispatch(setPlayer(messageToGamePlayer(jsonMsg.you)));
+
+                // scanGame(connection, [0], 0);
+            } catch (e) {
+                console.log("Failed to parse Turn");
+                console.log(e);
+            }
+            break;
+        case MessageSignature.Move:
+            try {
+                const move: GameMove = JSON.parse(msg);
+                console.log(move);
+                dispatch(receiveMove(move));
+
+            } catch (e) {
+                console.log("Failed to parse Move");
+                console.log(e);
+            }
+            break;
+        case MessageSignature.Scan:
+            console.log("Scan response: " + activeResponse);
+
+            break;
+    }
+
+    // Recursive step
+    if (responses.length > 0) {
+        responses.splice(0,1);
+        handleResponse(dispatch, connection, responses);
+    }
+}
+
 // Receieve server responses and modify global state
 export function useProcessServer(connection: Connection) {
     const dispatch = useDispatch();
     
     useEffect(() => {
         if (!connection.lastMessage) return;
-        const signature: MessageSignature = connection.lastMessage!.data[0] as MessageSignature;
+        // We get empty message on refresh, ignore
+        if (connection.lastMessage.data === "") return;
+    
+        const responses: string[] = connection.lastMessage.data.split('\u0000'); 
 
-        const msgLen = connection.lastMessage!.data.length;
-        //Some wrong bit at the end of message
-        let msg = connection.lastMessage!.data.slice(1, msgLen-1);
-
-        console.log("Received signature: " + signature);
-        console.log("Received message: " + msg);
-
-        if (msg == MessageSuccess.Failure) return;
-
-        switch (signature) {
-            case MessageSignature.NewGame:
-                const game_id = msg.split(";")[0];
-                // We reset in order to get rid of no longer wanted persisted state
-                dispatch(resetGame());
-                dispatch(resetControl());
-
-                dispatch(setGameID(game_id));
-                break;            
-            case MessageSignature.JoinGame:
-                if (msg == MessageSuccess.Failure) dispatch(setGameID(undefined));
-
-                // We reset in order to get rid of no longer wanted persisted state
-                dispatch(resetGame());
-                dispatch(resetControl());
-
-                getTurn(connection);
-                // scanGame(connection, [0], 0);
-                break;
-            case MessageSignature.Turn:
-                try {
-                    const jsonMsg: MessageTurn = JSON.parse(msg);
-                    console.log(jsonMsg);
-                    dispatch(setGameDepth(jsonMsg.depth));
-                    dispatch(initGlobalBoard());
-                    dispatch(setPlayer(messageToGamePlayer(jsonMsg.you)));
-                } catch (e) {
-                    console.log("Failed to parse Turn");
-                    console.log(e);
-                }
-                break;
-            case MessageSignature.Move:
-                try {
-                    const move: GameMove = JSON.parse(msg);
-                    console.log(move);
-                    dispatch(receiveMove(move));
-
-                } catch (e) {
-                    console.log("Failed to parse Move");
-                    console.log(e);
-                }
-                break;
-        }
-
+        handleResponse(dispatch, connection, responses);
 
     }, [connection.lastMessage])
 }
