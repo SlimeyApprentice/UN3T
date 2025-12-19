@@ -136,6 +136,12 @@ Verdict _judge_board(Board *board) {
     return winner;
 }
 
+void destroy_board(Board *board) {
+	if (!board) return;
+	for (int i = 0; i < 9; i++) {
+		if (board->cells[i]) destroy_board(board->cells[i]);
+	}
+}
 
 /**
  * Process a move from a client, update the gamestate, and return information about the updated gamestate
@@ -236,6 +242,7 @@ cJSON *process_move(Game *world, char *move, Verdict player) {
     return root;
 }
 
+/*
 cJSON *_empty_board(unsigned int depth) {
     cJSON *root = cJSON_CreateObject();
     char *key = strcpy(malloc(2), "0");
@@ -251,6 +258,7 @@ cJSON *_empty_board(unsigned int depth) {
     }
     return root;
 }
+*/
 
 cJSON *_parse_board(Board *world, unsigned int depth) {
     cJSON *root = cJSON_CreateObject();

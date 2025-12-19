@@ -105,6 +105,25 @@ int create_game(ServerData *server, Connections *creator, int depth) {
 	return game->game_id;
 }	
 
+int end_game(ServerData *server, Games* game) {
+	if (!server || !game) return -1;
+	if (server->games_head == game) server->games_head = game->next;
+	else {
+		Games *pred = server->games_head;
+		while (pred->next != game && pred->next != NULL) {
+			pred = pred->next;
+		}
+		if (pred->next == NULL) return -1;
+		pred->next = game->next;
+	}
+	free(game->game.restriction);
+	for (int i = 0; i < 9; i++) {
+		destroy_board(game->game.board.cells[i]);
+	}
+	printf("Game over. The user wins\n");
+	free(game);
+}
+
 int terminated_length(char *buffer, int buffer_size, char terminator) {
 	if (!buffer) return -1;
 	for (int i = 0; i < buffer_size; i++) {
@@ -334,6 +353,7 @@ void process_request(ServerData *server, Connections *client) {
 		char *saved_move = malloc(strlen(move) + 1);
 		strcpy(saved_move, move);
 		cJSON *data = process_move(&game->game, move, client->role);
+		printf("%s", move);
 		free(move);
 		char *message = cJSON_PrintUnformatted(data);
 		if (cJSON_IsTrue(cJSON_GetObjectItem(data, "success"))) {
@@ -347,7 +367,11 @@ void process_request(ServerData *server, Connections *client) {
 					queue_message(head, "\n", 1);
 				}
 			}
-			// log_move(saved_move, game->game_id);	
+			log_move(saved_move, game->game_id);
+			const cJSON *location = cJSON_GetObjectItemCaseSensitive(data, "location");
+			if (cJSON_IsString(location) && (location->valuestring != NULL) && strlen(location->valuestring) == 0) {
+				end_game(server, game);
+			}
 		}
 		else {
 			queue_message(client, message, strlen(message) + 1);	
