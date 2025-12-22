@@ -17,7 +17,7 @@ import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 
 import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame } from "./state/gameSlice";
-import { messageToGamePlayer, type GameMove } from "./state/types";
+import { messageToGamePlayer, Player, type GameMove } from "./state/types";
 import { resetControl } from "./state/controlSlice";
 import type { Dispatch } from "@reduxjs/toolkit";
 
@@ -38,9 +38,10 @@ export function newGame(
 
 export function joinGame(
     connection: Connection,
-    game_id: string
+    game_id: string,
+    player: Player | string,
 ) {
-    connection.sendMessage(`J${game_id};\n`);
+    connection.sendMessage(`J${game_id};${player};\n`);
 }
 
 export function leaveGame(
@@ -111,7 +112,7 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
 
     const signature: MessageSignature = activeResponse[0] as MessageSignature;
 
-    let msg = activeResponse.slice(1, activeResponse.length);
+    const msg = activeResponse.slice(1, activeResponse.length);
 
     console.log("Received signature: " + signature);
     console.log("Received message: " + msg);
@@ -181,8 +182,13 @@ export function useProcessServer(connection: Connection) {
         // We get empty message on refresh, ignore
         if (connection.lastMessage.data === "") return;
     
-        const responses: string[] = connection.lastMessage.data.split('\u0000'); 
-
+        const responses: string[] = connection.lastMessage.data
+            .split('\n')
+            .join('\u0000')
+            .split('\u0000')
+            .filter(x => x !== ""); 
+        console.log(responses);
+        
         handleResponse(dispatch, connection, responses);
 
     }, [connection.lastMessage])

@@ -14,7 +14,7 @@ export type BoardData = {
 export enum Player {
     Cross = "X",
     Circle = "O",
-    Empty = ""
+    Empty = "#"
 }
 export type GameState = {
     maxDepth: string,

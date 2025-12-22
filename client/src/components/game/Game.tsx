@@ -1,5 +1,5 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { getTurn, joinGame, scanGame, useProcessServer, type Connection } from "../../serverInterface";
 import type { RootState } from "../../state/store";
@@ -9,7 +9,6 @@ import Renderer from "./Renderer";
 import './grid_board.css';
 import { useEffect } from "react";
 import type { GameState } from "../../state/types";
-import { initGlobalBoard, setGameDepth, setGameID, setPlayer } from "../../state/gameSlice";
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
@@ -22,9 +21,6 @@ function Game({connection}: GameProps) {
     useProcessInput();
     // Handles changing global state according to server response
     useProcessServer(connection);
-
-    // In case we need it in useEffect
-    const dispatch = useDispatch();
 
     // CSS variables and the CSS for the element we change dynamically
     const boardSize = useSelector((state: RootState) => state.game.boardSize);
@@ -56,7 +52,7 @@ function Game({connection}: GameProps) {
         
         const stored_state: GameState = JSON.parse(sessionStorage.getItem("game")!);
 
-        joinGame(connection, stored_state.id);
+        joinGame(connection, stored_state.id, stored_state.myPlayer);
         getTurn(connection);
         scanGame(connection, [0], 0);
     }, []);
