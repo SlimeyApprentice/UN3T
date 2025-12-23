@@ -113,14 +113,6 @@ Verdict _judge_board(Board *board);
 void destroy_board(Board *board);
 
 /**
- * Safely deallocate a game
- *
- * @param game	A pointer to the game to be deallocated
- * @returns	Nothing
- */
-void destroy_game(Game *game);
-
-/**
  * Process a move from a client, update the gamestate, and return information about the updated gamestate
  * 
  * @param world   A pointer to the top-level board
