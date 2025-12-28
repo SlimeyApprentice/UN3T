@@ -432,6 +432,7 @@ int handle_callback(struct lws *wsi, enum lws_callback_reasons reason, void *use
 		case LWS_CALLBACK_CLOSED:
 			free(client->in.contents);
 			free(client->out.contents);
+			leave_game(server, client);
 			lws_ll_fwd_remove(Connections, next, client, server->connections_head);
 			break;
 		case LWS_CALLBACK_SERVER_WRITEABLE:
