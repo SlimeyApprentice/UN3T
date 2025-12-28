@@ -183,12 +183,10 @@ export function useProcessServer(connection: Connection) {
         if (connection.lastMessage.data === "") return;
     
         const responses: string[] = connection.lastMessage.data
-            .split('\n')
-            .join('\u0000')
-            .split('\u0000')
-            .filter(x => x !== ""); 
+                .split('\n')
+                .join('\u0000')
+                .split('\u0000');
         console.log(responses);
-        
         handleResponse(dispatch, connection, responses);
 
     }, [connection.lastMessage])

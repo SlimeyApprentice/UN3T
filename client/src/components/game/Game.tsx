@@ -26,15 +26,16 @@ function Game({connection}: GameProps) {
     const boardSize = useSelector((state: RootState) => state.game.boardSize);
     const borderSize = useSelector((state: RootState) => state.game.borderSize);
     const direction = useSelector((state: RootState) => state.control.direction);
-    const window_width = useSelector((state: RootState) => state.control.window_width);
+    const windowWidth = useSelector((state: RootState) => state.control.window_width);
 
-    const game_id = useSelector((state: RootState) => state.game.id);
+    const gameId = useSelector((state: RootState) => state.game.id);
+    const maxDepth = parseInt(useSelector((state: RootState) => state.game.maxDepth));
 
     const cssVars = {
         "display": "flex",
         "--board-size": boardSize + "px",
         "--border-size": borderSize + "px",
-        "width": window_width,
+        "width": windowWidth,
         "flex-direction": direction,
     };
 
@@ -47,14 +48,14 @@ function Game({connection}: GameProps) {
 
     //Check whether we refreshed mid game. Copy state
     useEffect(() => {
-        if (game_id !== "") return;
+        if (gameId !== "") return;
         console.log("REFRESH");
         
         const stored_state: GameState = JSON.parse(sessionStorage.getItem("game")!);
 
         joinGame(connection, stored_state.id, stored_state.myPlayer);
         getTurn(connection);
-        scanGame(connection, [0], 0);
+        scanGame(connection, [], maxDepth);
     }, []);
 
     return <>
