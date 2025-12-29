@@ -89,6 +89,7 @@ enum MessageSuccess {
     Failure = "FAILURE"
 }
 export enum MessageValue {
+    Empty = 0,
     Cross = 1,
     Circle = 2,
     NotYourTurn = -1,

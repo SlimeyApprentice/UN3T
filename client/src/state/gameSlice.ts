@@ -9,7 +9,7 @@ import {
   type GameMove, 
   type GameState 
 } from './types.ts';
-import type { MessageScan } from '../serverInterface.ts';
+import { MessageValue, type MessageScan } from '../serverInterface.ts';
 
 // TODO: Type all payloads
 
@@ -40,6 +40,27 @@ function initBoard(depth: number) {
   
     return state
 }
+function initFromScan(scan: MessageScan, depth: number) {
+    const state: BoardData = {
+      "cells": [],
+      "game_state": GameWinState.Undecided
+    };
+    for (let i = 0; i < 9; i++) {
+      if (typeof scan[i] === "number") {
+        if (scan[i] === MessageValue.Empty) {
+          state.cells[i] = initBoard(depth-1);
+        } else {
+          //@ts-expect-error above condition guarantees it's a number
+          state.cells[i] = messageToGamePlayer(scan[i])
+        }
+      } else {
+        //@ts-expect-error above condition guarantees it's an obj
+        state.cells[i] = initFromScan(scan[i], depth-1)
+      }
+    }
+  
+    return state
+}
 
 function recursiveEdit(state: BoardData, coordinates: number[], player: Player, winFlag: boolean): boolean{
     const next_coordinate = coordinates.pop()
@@ -58,27 +79,6 @@ function recursiveEdit(state: BoardData, coordinates: number[], player: Player, 
         recursiveEdit(<BoardData> state.cells[next_coordinate], coordinates, player, winFlag)
     }
     return true;
-}
-
-function recursiveProcessScan(scan: MessageScan, depth: number) {
-    const state: BoardData = {
-      "cells": [],
-      "game_state": GameWinState.Undecided
-    };
-    for (let i = 0; i < 9; i++) {
-      if (typeof scan[i] === "number") {
-        //@ts-expect-error above condition guarantees it's a number
-        state.cells[i] = messageToGamePlayer(scan[i])
-      }
-
-      if (depth > 0 && typeof scan !== "number") {
-        state.cells[i] = initBoard(depth-1)
-      } else {
-        state.cells[i] = Player.Empty;
-      }
-    }
-  
-    return state
 }
 
 const initialState: GameState = {
@@ -142,8 +142,7 @@ export const gameSlice = createSlice({
       const scan: MessageScan = action.payload;
       console.log(scan);
 
-
-      
+      state.globalBoard = initFromScan(scan, parseInt(state.maxDepth));
     }
   },
 })
