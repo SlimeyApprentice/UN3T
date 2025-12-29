@@ -105,6 +105,14 @@ void _place_symbol(Board *board, Position position, Verdict symbol);
 Verdict _judge_board(Board *board);
 
 /**
+ * Safely deallocate a board
+ *
+ * @param board	A pointer to the board to be deallocated
+ * @returns 	Nothing
+ */
+void destroy_board(Board *board);
+
+/**
  * Process a move from a client, update the gamestate, and return information about the updated gamestate
  * 
  * @param world   A pointer to the top-level board
