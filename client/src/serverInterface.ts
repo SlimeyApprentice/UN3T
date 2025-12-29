@@ -16,7 +16,7 @@ import type { ReadyState, SendMessage } from "react-use-websocket";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 
-import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame } from "./state/gameSlice";
+import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame, receiveScan } from "./state/gameSlice";
 import { messageToGamePlayer, Player, type GameMove } from "./state/types";
 import { resetControl } from "./state/controlSlice";
 import type { Dispatch } from "@reduxjs/toolkit";
@@ -102,6 +102,7 @@ type MessageTurn = {
     you: 1 | 2
     restriction: string,
 }
+export type MessageScan = [MessageScan | number]
 
 // Ideally should not need connection anymore. 
 // Calling message as response to message is a bad idea 
@@ -162,7 +163,14 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
             break;
         case MessageSignature.Scan:
             console.log("Scan response: " + activeResponse);
+            try {
+                const scan: MessageScan = JSON.parse(msg);
+                dispatch(receiveScan(scan));
 
+            } catch (e) {
+                console.log("Failed to parse Scan");
+                console.log(e);
+            }
             break;
     }
 
