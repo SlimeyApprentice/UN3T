@@ -16,7 +16,7 @@ import type { ReadyState, SendMessage } from "react-use-websocket";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 
-import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame, receiveScan } from "./state/gameSlice";
+import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame, receiveScan, receiveTurn } from "./state/gameSlice";
 import { messageToGamePlayer, Player, type GameMove } from "./state/types";
 import { resetControl } from "./state/controlSlice";
 import type { Dispatch } from "@reduxjs/toolkit";
@@ -97,7 +97,7 @@ export enum MessageValue {
     GameOver = -3,
     WrongBoard = -4,
 }
-type MessageTurn = {
+export type MessageTurn = {
     depth: number,
     player: 1 | 2,
     you: 1 | 2
@@ -141,11 +141,8 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
             try {
                 const jsonMsg: MessageTurn = JSON.parse(msg);
                 console.log(jsonMsg);
-                dispatch(setGameDepth(jsonMsg.depth));
-                dispatch(initGlobalBoard());
-                dispatch(setPlayer(messageToGamePlayer(jsonMsg.you)));
 
-                // scanGame(connection, [0], 0);
+                dispatch(receiveTurn(jsonMsg));
             } catch (e) {
                 console.log("Failed to parse Turn");
                 console.log(e);

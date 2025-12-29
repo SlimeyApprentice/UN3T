@@ -9,7 +9,7 @@ import {
   type GameMove, 
   type GameState 
 } from './types.ts';
-import { MessageValue, type MessageScan } from '../serverInterface.ts';
+import { MessageValue, type MessageScan, type MessageTurn } from '../serverInterface.ts';
 
 // TODO: Type all payloads
 
@@ -138,6 +138,15 @@ export const gameSlice = createSlice({
 
       console.log(current(state.globalBoard));
     },
+    receiveTurn: (state, action) => {
+      const turn: MessageTurn = action.payload;
+
+      state.maxDepth = turn.depth.toString();
+      state.globalBoard = initBoard(parseInt(state.maxDepth));
+      state.myPlayer = messageToGamePlayer(turn.you);
+
+      state.restriction = turn.restriction.split('').map((char) => parseInt(char));
+    },
     receiveScan: (state, action) => {
       const scan: MessageScan = action.payload;
       console.log(scan);
@@ -148,6 +157,6 @@ export const gameSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { resetGame, setGameDepth, initGlobalBoard, setPlayer, setGameID, receiveMove, receiveScan } = gameSlice.actions
+export const { resetGame, setGameDepth, initGlobalBoard, setPlayer, setGameID, receiveMove, receiveTurn, receiveScan } = gameSlice.actions
 
 export default gameSlice.reducer
