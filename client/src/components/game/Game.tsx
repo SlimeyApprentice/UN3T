@@ -1,5 +1,5 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { getTurn, joinGame, scanGame, useProcessServer, type Connection } from "../../serverInterface";
 import type { RootState } from "../../state/store";
@@ -9,7 +9,6 @@ import Renderer from "./Renderer";
 import './grid_board.css';
 import { useEffect } from "react";
 import type { GameState } from "../../state/types";
-import { initGlobalBoard, setGameDepth, setGameID, setPlayer } from "../../state/gameSlice";
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
@@ -23,22 +22,20 @@ function Game({connection}: GameProps) {
     // Handles changing global state according to server response
     useProcessServer(connection);
 
-    // In case we need it in useEffect
-    const dispatch = useDispatch();
-
     // CSS variables and the CSS for the element we change dynamically
     const boardSize = useSelector((state: RootState) => state.game.boardSize);
     const borderSize = useSelector((state: RootState) => state.game.borderSize);
     const direction = useSelector((state: RootState) => state.control.direction);
-    const window_width = useSelector((state: RootState) => state.control.window_width);
+    const windowWidth = useSelector((state: RootState) => state.control.window_width);
 
-    const game_id = useSelector((state: RootState) => state.game.id);
+    const gameId = useSelector((state: RootState) => state.game.id);
+    const maxDepth = parseInt(useSelector((state: RootState) => state.game.maxDepth));
 
     const cssVars = {
         "display": "flex",
         "--board-size": boardSize + "px",
         "--border-size": borderSize + "px",
-        "width": window_width,
+        "width": windowWidth,
         "flex-direction": direction,
     };
 
@@ -51,14 +48,14 @@ function Game({connection}: GameProps) {
 
     //Check whether we refreshed mid game. Copy state
     useEffect(() => {
-        if (game_id !== "") return;
+        if (gameId !== "") return;
         console.log("REFRESH");
         
         const stored_state: GameState = JSON.parse(sessionStorage.getItem("game")!);
 
-        joinGame(connection, stored_state.id);
+        joinGame(connection, stored_state.id, stored_state.myPlayer);
         getTurn(connection);
-        scanGame(connection, [0], 0);
+        scanGame(connection, [], maxDepth);
     }, []);
 
     return <>

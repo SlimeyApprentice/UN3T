@@ -16,8 +16,8 @@ import type { ReadyState, SendMessage } from "react-use-websocket";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 
-import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame } from "./state/gameSlice";
-import { messageToGamePlayer, type GameMove } from "./state/types";
+import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame, receiveScan, receiveTurn } from "./state/gameSlice";
+import { messageToGamePlayer, Player, type GameMove } from "./state/types";
 import { resetControl } from "./state/controlSlice";
 import type { Dispatch } from "@reduxjs/toolkit";
 
@@ -38,9 +38,10 @@ export function newGame(
 
 export function joinGame(
     connection: Connection,
-    game_id: string
+    game_id: string,
+    player: Player | string,
 ) {
-    connection.sendMessage(`J${game_id};\n`);
+    connection.sendMessage(`J${game_id};${player};\n`);
 }
 
 export function leaveGame(
@@ -88,6 +89,7 @@ enum MessageSuccess {
     Failure = "FAILURE"
 }
 export enum MessageValue {
+    Empty = 0,
     Cross = 1,
     Circle = 2,
     NotYourTurn = -1,
@@ -95,12 +97,13 @@ export enum MessageValue {
     GameOver = -3,
     WrongBoard = -4,
 }
-type MessageTurn = {
+export type MessageTurn = {
     depth: number,
     player: 1 | 2,
     you: 1 | 2
     restriction: string,
 }
+export type MessageScan = [MessageScan | number]
 
 // Ideally should not need connection anymore. 
 // Calling message as response to message is a bad idea 
@@ -111,7 +114,7 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
 
     const signature: MessageSignature = activeResponse[0] as MessageSignature;
 
-    let msg = activeResponse.slice(1, activeResponse.length);
+    const msg = activeResponse.slice(1, activeResponse.length);
 
     console.log("Received signature: " + signature);
     console.log("Received message: " + msg);
@@ -138,11 +141,8 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
             try {
                 const jsonMsg: MessageTurn = JSON.parse(msg);
                 console.log(jsonMsg);
-                dispatch(setGameDepth(jsonMsg.depth));
-                dispatch(initGlobalBoard());
-                dispatch(setPlayer(messageToGamePlayer(jsonMsg.you)));
 
-                // scanGame(connection, [0], 0);
+                dispatch(receiveTurn(jsonMsg));
             } catch (e) {
                 console.log("Failed to parse Turn");
                 console.log(e);
@@ -161,7 +161,14 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
             break;
         case MessageSignature.Scan:
             console.log("Scan response: " + activeResponse);
+            try {
+                const scan: MessageScan = JSON.parse(msg);
+                dispatch(receiveScan(scan));
 
+            } catch (e) {
+                console.log("Failed to parse Scan");
+                console.log(e);
+            }
             break;
     }
 
@@ -181,8 +188,11 @@ export function useProcessServer(connection: Connection) {
         // We get empty message on refresh, ignore
         if (connection.lastMessage.data === "") return;
     
-        const responses: string[] = connection.lastMessage.data.split('\u0000'); 
-
+        const responses: string[] = connection.lastMessage.data
+                .split('\n')
+                .join('\u0000')
+                .split('\u0000');
+        console.log(responses);
         handleResponse(dispatch, connection, responses);
 
     }, [connection.lastMessage])

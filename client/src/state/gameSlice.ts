@@ -9,6 +9,7 @@ import {
   type GameMove, 
   type GameState 
 } from './types.ts';
+import { MessageValue, type MessageScan, type MessageTurn } from '../serverInterface.ts';
 
 // TODO: Type all payloads
 
@@ -38,7 +39,28 @@ function initBoard(depth: number) {
     }
   
     return state
-  }
+}
+function initFromScan(scan: MessageScan, depth: number) {
+    const state: BoardData = {
+      "cells": [],
+      "game_state": GameWinState.Undecided
+    };
+    for (let i = 0; i < 9; i++) {
+      if (typeof scan[i] === "number") {
+        if (scan[i] === MessageValue.Empty) {
+          state.cells[i] = initBoard(depth-1);
+        } else {
+          //@ts-expect-error above condition guarantees it's a number
+          state.cells[i] = messageToGamePlayer(scan[i])
+        }
+      } else {
+        //@ts-expect-error above condition guarantees it's an obj
+        state.cells[i] = initFromScan(scan[i], depth-1)
+      }
+    }
+  
+    return state
+}
 
 function recursiveEdit(state: BoardData, coordinates: number[], player: Player, winFlag: boolean): boolean{
     const next_coordinate = coordinates.pop()
@@ -115,11 +137,26 @@ export const gameSlice = createSlice({
       }
 
       console.log(current(state.globalBoard));
+    },
+    receiveTurn: (state, action) => {
+      const turn: MessageTurn = action.payload;
+
+      state.maxDepth = turn.depth.toString();
+      state.globalBoard = initBoard(parseInt(state.maxDepth));
+      state.myPlayer = messageToGamePlayer(turn.you);
+
+      state.restriction = turn.restriction.split('').map((char) => parseInt(char));
+    },
+    receiveScan: (state, action) => {
+      const scan: MessageScan = action.payload;
+      console.log(scan);
+
+      state.globalBoard = initFromScan(scan, parseInt(state.maxDepth));
     }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { resetGame, setGameDepth, initGlobalBoard, setPlayer, setGameID, receiveMove } = gameSlice.actions
+export const { resetGame, setGameDepth, initGlobalBoard, setPlayer, setGameID, receiveMove, receiveTurn, receiveScan } = gameSlice.actions
 
 export default gameSlice.reducer
