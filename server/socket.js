@@ -1,6 +1,6 @@
 // Create a WebSocket instance
         // and connect to the server
-        const socket = new WebSocket('ws://localhost:8332', "UN3T");
+        const socket = new WebSocket('ws://treebeard.ddns.net:8332', "UN3T");
 
         // Event listener for when 
         //the WebSocket connection is opened
