@@ -2,9 +2,6 @@ client/node_modules
 client/build
 client/dist
 
-server/gdb_enter.in
-logs/*
-
 .vscode
 .DS_Store
 
@@ -14,6 +11,8 @@ logs/*
 
 testing
 main
+server/gdb_enter.in
+server/logs/*
 
 package-lock.json
 
