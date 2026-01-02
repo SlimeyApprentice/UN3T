@@ -248,7 +248,7 @@ void pop_plain_buffer(Buffer *buf, size_t message_length) {
 	if (buf->buffer_size < message_length) message_length = buf->buffer_size;
 	memmove(buf->contents, buf->contents + message_length, buf->buffer_size - message_length);
 	buf->buffer_size -= message_length;
-	printf("buffer popped. new contents: '%.*s', new size: %d\n", buf->buffer_size, buf->contents, buf->buffer_size);
+	printf("plain buffer popped. new contents: '%.*s', new size: %d\n", buf->buffer_size, buf->contents, buf->buffer_size);
 }
 
 void read_line_from_file_into_buffer(Buffer *buf, FILE *fdr) {
@@ -268,15 +268,17 @@ void rewind_games(ServerData *server) {
 	Games *current_game = NULL;
 	Buffer game_string;
 	game_string.contents = calloc(1, 256);
-	game_string.buffer_size = 0;
+	game_string.buffer_size = 1;
 	game_string.buffer_max_size = 256;
 	FILE *fdr = fopen("logs/games", "r");
 	read_line_from_file_into_buffer(&game_string, fdr);
 	printf("%s\n", game_string.contents);
-	while (game_string.buffer_size != 0) {
+	while (game_string.buffer_size != 1) {
 		if (game_string.contents[0] == '_' || game_string.contents[0] == 'X' || game_string.contents[0] == 'O' || game_string.contents[0] == '#') {
 			game_id++;
 			pop_plain_buffer(&game_string, game_string.buffer_size);
+			game_string.buffer_size = 1;
+			game_string.contents[0] = 0;
 			read_line_from_file_into_buffer(&game_string, fdr);
 			continue;
 		}
@@ -285,6 +287,8 @@ void rewind_games(ServerData *server) {
 		if (depth < 0) {
 			game_id++;
 			pop_plain_buffer(&game_string, game_string.buffer_size);
+			game_string.buffer_size = 1;
+			game_string.contents[0] = 0;
 			read_line_from_file_into_buffer(&game_string, fdr);
 			continue;
 		}
@@ -306,6 +310,8 @@ void rewind_games(ServerData *server) {
 		printf("Recovered game with ID %d\n", game_id);
 		game_id++;
 		pop_plain_buffer(&game_string, game_string.buffer_size);
+		game_string.buffer_size = 1;
+		game_string.contents[0] = 0;
 		read_line_from_file_into_buffer(&game_string, fdr);
 	}
 	server->games_head = current_game;

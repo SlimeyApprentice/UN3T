@@ -141,6 +141,7 @@ void destroy_board(Board *board) {
 	for (int i = 0; i < 9; i++) {
 		if (board->cells[i]) destroy_board(board->cells[i]);
 	}
+	free(board);
 }
 
 /**
@@ -211,6 +212,7 @@ cJSON *process_move(Game *world, char *move, Verdict player) {
             if (board->parent) {
                 board = board->parent;
                 _place_symbol(board, location, judgement);
+		board->cells[location] = NULL;
                 free(board->cells[location]);
                 continue;
             }
