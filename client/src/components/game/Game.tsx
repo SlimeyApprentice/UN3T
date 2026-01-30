@@ -8,7 +8,8 @@ import Board from "./Board";
 import Renderer from "./Renderer";
 import './grid_board.css';
 import { useEffect } from "react";
-import type { GameState } from "../../state/types";
+import type { GameState, QueryParameters } from "../../state/types";
+import { useSearchParams } from "react-router-dom";
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
@@ -23,12 +24,14 @@ function Game({connection}: GameProps) {
     useProcessServer(connection);
 
     // CSS variables and the CSS for the element we change dynamically
+    // TODO: No longer change board size or border size?
     const boardSize = useSelector((state: RootState) => state.game.boardSize);
     const borderSize = useSelector((state: RootState) => state.game.borderSize);
     const direction = useSelector((state: RootState) => state.control.direction);
     const windowWidth = useSelector((state: RootState) => state.control.window_width);
 
     const gameId = useSelector((state: RootState) => state.game.id);
+    const myPlayer = useSelector((state: RootState) => state.game.myPlayer);
     const maxDepth = parseInt(useSelector((state: RootState) => state.game.maxDepth));
 
     const cssVars = {
@@ -39,24 +42,34 @@ function Game({connection}: GameProps) {
         "flex-direction": direction,
     };
 
+    const [searchParams, setSearchParams] = useSearchParams();
+    const storedId = searchParams.get("id");
+    const storedPlayer = searchParams.get("player");
+
+
+
+
+    // Store the bare minimum in url such that we can fetch state from server
+    useEffect(() => {
+        if (storedId && storedPlayer) {
+            joinGame(connection, storedId, storedPlayer);
+            getTurn(connection);
+            scanGame(connection, [], maxDepth);
+        } else {
+            const params: QueryParameters = {
+                id: gameId,
+                player: myPlayer,
+            };
+            setSearchParams(params);
+        }
+    }, []);
+
     //Convert props in state into components
     const renderBoards = 
         useSelector((state: RootState) => state.control.renderBoards)
         .map((props, idx) =>  {
             return <Board {...props} connection={connection} key={"renderBoard" + idx}/>;
         });
-
-    //Check whether we refreshed mid game. Copy state
-    useEffect(() => {
-        if (gameId !== "") return;
-        console.log("REFRESH");
-        
-        const stored_state: GameState = JSON.parse(sessionStorage.getItem("game")!);
-
-        joinGame(connection, stored_state.id, stored_state.myPlayer);
-        getTurn(connection);
-        scanGame(connection, [], maxDepth);
-    }, []);
 
     return <>
     <div className="game">

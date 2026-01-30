@@ -63,3 +63,9 @@ export type ControlState = {
     direction: string,
     window_width: string,
 }
+
+// query parameters for storing some state
+export type QueryParameters ={
+    id: string,
+    player: Player
+}
