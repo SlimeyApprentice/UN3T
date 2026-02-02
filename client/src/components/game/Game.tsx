@@ -46,9 +46,6 @@ function Game({connection}: GameProps) {
     const storedId = searchParams.get("id");
     const storedPlayer = searchParams.get("player");
 
-
-
-
     // Store the bare minimum in url such that we can fetch state from server
     useEffect(() => {
         if (storedId && storedPlayer) {

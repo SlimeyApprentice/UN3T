@@ -11,18 +11,6 @@ import {
 import { MessageValue, type MessageScan, type MessageTurn } from '../serverInterface.ts';
 
 // TODO: Type all payloads
-
-function storeGameState(state: GameState) {
-  let stored_state = JSON.parse(JSON.stringify(state));
-
-  stored_state.globalBoard = {
-    cells: [],
-    game_state: GameWinState.Undecided
-  };
-
-  sessionStorage.setItem("game", JSON.stringify(stored_state));
-}
-
 // TODO: Only create boards when there are moves on it
 function initBoard(depth: number) {
     const state: BoardData = {
@@ -80,26 +68,6 @@ function recursiveEdit(state: BoardData, coordinates: number[], player: Player, 
     return true;
 }
 
-//TODO: UPDATE WIN STATE
-function updateFromScan(state: BoardData, scan: MessageScan) {
-  console.log(scan);
-
-  for (const [key, element] of Object.entries(scan)) {
-    const idx = parseInt(key);
-
-    if (typeof element === 'number') {
-      if (element == MessageValue.Empty) continue; //Board already blank
-
-      state.cells[idx] = messageToGamePlayer(element as MessageValue);
-    } else {
-      // Recursive Step
-      updateFromScan(state.cells[idx] as BoardData, element); 
-    }
-  }
-
-  //Exit 
-}
-
 const initialState: GameState = {
     maxDepth: "1",
     myPlayer: Player.Empty,
@@ -126,10 +94,8 @@ export const gameSlice = createSlice({
       console.log("initGlobalBoard maxDepth: " + state.maxDepth);
       state.globalBoard = initBoard(parseInt(state.maxDepth));
     },
-    // TODO: Type the payload
     setGameID: (state, action) => {
       state.id = action.payload;
-      storeGameState(state);
     },
     setPlayer: (state, action) => {
       state.myPlayer = action.payload;
