@@ -59,7 +59,7 @@ function Game({connection}: GameProps) {
             };
             setSearchParams(params);
         }
-    }, []);
+    }, [gameId, myPlayer]);
 
     //Convert props in state into components
     const renderBoards = 
