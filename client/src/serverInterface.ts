@@ -117,6 +117,7 @@ function handleResponse(
     if (responses.length === 0) return; // Base Step
 
     const activeResponse = responses[0];
+    if (activeResponse === "ERR:SYNTAX") dispatch(setGameID(MessageSuccess.Failure));
 
     const signature: MessageSignature = activeResponse[0] as MessageSignature;
     const msg = activeResponse.slice(1, activeResponse.length);

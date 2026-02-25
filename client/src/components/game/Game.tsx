@@ -60,7 +60,6 @@ function Game({connection}: GameProps) {
                 player: myPlayer,
             };
             setSearchParams(params);
-            console.log("AHGSFDYAGSFDHAGSFDHAGSFDHGDSF")
         }
     }, [gameId, myPlayer]);
 
@@ -72,7 +71,7 @@ function Game({connection}: GameProps) {
         });
 
     //No board
-    if (gameId === MessageSuccess.Failure) return <p>Could not join game, sorry ;(</p>
+    if (gameId === MessageSuccess.Failure || gameId === "") return <p>Could not join game, sorry ;(</p>
     if (connection.readyState !== ReadyState.OPEN) return <p>Not connected to server</p>
 
     return <>
