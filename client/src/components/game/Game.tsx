@@ -1,5 +1,5 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { getTurn, joinGame, MessageSuccess, scanGame, useProcessServer, type Connection } from "../../serverInterface";
 import type { RootState } from "../../state/store";
@@ -12,6 +12,7 @@ import type { GameState, QueryParameters } from "../../state/types";
 import { useSearchParams } from "react-router-dom";
 import { ReadyState } from "react-use-websocket";
 import { setControlDepth } from "../../state/controlSlice";
+import { setGameID } from "../../state/gameSlice";
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
@@ -24,6 +25,8 @@ function Game({connection}: GameProps) {
     useProcessInput();
     // Handles changing global state according to server response
     useProcessServer(connection);
+
+    const dispatch = useDispatch();
 
     // CSS variables and the CSS for the element we change dynamically
     // TODO: No longer change board size or border size?
@@ -51,9 +54,12 @@ function Game({connection}: GameProps) {
     // Store the bare minimum in url such that we can fetch state from server
     useEffect(() => {
         if (storedId && storedPlayer) {
-            joinGame(connection, storedId, storedPlayer);
-            getTurn(connection);
-            scanGame(connection, [], maxDepth);
+            if (gameId === "") {
+                joinGame(connection, storedId, storedPlayer);
+                getTurn(connection);
+                scanGame(connection, [], maxDepth);
+                dispatch(setGameID(storedId));
+            }
         } else {
             const params: QueryParameters = {
                 id: gameId,

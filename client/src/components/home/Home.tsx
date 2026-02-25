@@ -6,9 +6,9 @@ import background from "../../assets/home_background.png";
 import './home.css';
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../state/store";
-import { type ChangeEvent } from "react";
-import { initGlobalBoard, setGameDepth, setGameID, setPlayer } from "../../state/gameSlice";
-import { setControlDepth } from "../../state/controlSlice";
+import { useEffect, type ChangeEvent } from "react";
+import { initGlobalBoard, resetGame, setGameDepth, setGameID, setPlayer } from "../../state/gameSlice";
+import { resetControl, setControlDepth } from "../../state/controlSlice";
 import { Player } from "../../state/types";
 
 type HomeProps = {
@@ -45,6 +45,11 @@ function Home({ connection }: HomeProps) {
     const id = event.currentTarget.value;
     dispatch(setGameID(id));
   }
+
+  useEffect(() => {
+    dispatch(resetGame())
+    dispatch(resetControl())
+  }, [])
 
   return <>
   <div className="home" style={{backgroundImage: `url(${background})`}}>
