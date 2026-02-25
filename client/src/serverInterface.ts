@@ -18,7 +18,7 @@ import { useEffect } from "react";
 
 import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame, receiveScan, receiveTurn } from "./state/gameSlice";
 import { messageToGamePlayer, Player, type GameMove } from "./state/types";
-import { resetControl } from "./state/controlSlice";
+import { resetControl, setControlDepth } from "./state/controlSlice";
 import type { Dispatch } from "@reduxjs/toolkit";
 import type { RootState } from "./state/store";
 
@@ -153,6 +153,7 @@ function handleResponse(
                 console.log(jsonMsg);
 
                 dispatch(receiveTurn(jsonMsg));
+                dispatch(setControlDepth(jsonMsg.depth.toString()))
             } catch (e) {
                 console.log("Failed to parse Turn");
                 console.log(e);

@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import type { GameState, QueryParameters } from "../../state/types";
 import { useSearchParams } from "react-router-dom";
 import { ReadyState } from "react-use-websocket";
+import { setControlDepth } from "../../state/controlSlice";
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
@@ -59,6 +60,7 @@ function Game({connection}: GameProps) {
                 player: myPlayer,
             };
             setSearchParams(params);
+            console.log("AHGSFDYAGSFDHAGSFDHAGSFDHGDSF")
         }
     }, [gameId, myPlayer]);
 
