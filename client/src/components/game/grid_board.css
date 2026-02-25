@@ -5,7 +5,10 @@
 
     justify-content: center;
 
-    --restriction-color: rgb(243, 243, 140);
+
+    --opacity: 25%;
+    --restriction-red: rgba(236, 0, 71, var(--opacity));
+    --restriction-blue: rgb(26, 187, 225, var(--opacity));
 }
 
 .off {
@@ -176,8 +179,11 @@
     grid-row-end: 4;
 }
 
-.restricted {
-    background-color: var(--restriction-color);
+.restricted-red {
+    background-color: var(--restriction-red);
+}
+.restricted-blue {
+    background-color: var(--restriction-blue);
 }
  
 .summary {

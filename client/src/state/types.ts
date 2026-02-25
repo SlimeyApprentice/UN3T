@@ -19,6 +19,7 @@ export enum Player {
 export type GameState = {
     maxDepth: string,
     myPlayer: Player,
+    currentPlayer: Player,
     restriction: number[],
     boardSize: number,
     borderSize: number,
@@ -39,6 +40,14 @@ export function playerToWinState(player: Player): GameWinState {
         case Player.Cross: return GameWinState.Cross;
         case Player.Circle: return GameWinState.Circle;
         default: throw new Error("Could not find GameWinState");
+    }
+}
+
+export function flipPlayer(player: Player): Player {
+    switch(player) {
+        case Player.Cross: return Player.Circle;
+        case Player.Circle: return Player.Cross;
+        case Player.Empty: return Player.Empty;
     }
 }
 

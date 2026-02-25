@@ -1,6 +1,7 @@
 import { createSlice, current } from '@reduxjs/toolkit'
 
 import { 
+  flipPlayer,
   GameWinState, 
   messageToGamePlayer, 
   Player, 
@@ -71,6 +72,7 @@ function recursiveEdit(state: BoardData, coordinates: number[], player: Player, 
 const initialState: GameState = {
     maxDepth: "1",
     myPlayer: Player.Empty,
+    currentPlayer: Player.Cross,
     restriction: [],
     boardSize: 75,
     borderSize: 2,
@@ -122,6 +124,9 @@ export const gameSlice = createSlice({
         recursiveEdit(state.globalBoard, coordinates.reverse(), player, false);
       }
 
+      //Flip player turn (not confirmed in message)
+      state.currentPlayer = flipPlayer(state.currentPlayer);
+
       console.log(current(state.globalBoard));
     },
     receiveTurn: (state, action) => {
@@ -130,6 +135,7 @@ export const gameSlice = createSlice({
       state.maxDepth = turn.depth.toString();
       state.globalBoard = initBoard(parseInt(state.maxDepth));
       state.myPlayer = messageToGamePlayer(turn.you);
+      state.currentPlayer = messageToGamePlayer(turn.player);
 
       state.restriction = turn.restriction.split('').map((char) => parseInt(char));
     },

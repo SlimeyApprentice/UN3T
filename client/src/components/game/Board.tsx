@@ -86,6 +86,8 @@ type BoardProps = {
 function Board({depth, coordinates, className, connection, id }: BoardProps) {
   const current_depth = useSelector((state: RootState) => state.control.current_depth );
   const globalBoard = useSelector((state: RootState) => state.game.globalBoard );
+  
+  const currentPlayer = useSelector((state: RootState) => state.game.currentPlayer );
 
   let localBoard = globalBoard;
   for (const i of coordinates) {
@@ -134,7 +136,12 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     strCoords.indexOf(strRsctn) === 0 
     // || strCoords.indexOf(strRsctn) === strCoords.length - strRsctn.length
   ) {
-    isRestrictedClass = "restricted ";
+    console.log("CURRENT PLAYER: " + currentPlayer)
+    if (currentPlayer === Player.Cross) {
+      isRestrictedClass = "restricted-red ";
+    } else if (currentPlayer === Player.Circle){ //Else would mean currentPlayer = empty. Not good
+      isRestrictedClass = "restricted-blue ";
+    }
   } 
 
   if (depth == 0) {
