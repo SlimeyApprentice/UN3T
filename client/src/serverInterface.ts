@@ -84,7 +84,7 @@ enum MessageSignature {
     Move = "M",
     Scan = "S"
 }
-enum MessageSuccess {
+export enum MessageSuccess {
     Success = "SUCCESS",
     Failure = "FAILURE"
 }
@@ -119,10 +119,12 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
     console.log("Received signature: " + signature);
     console.log("Received message: " + msg);
 
-    if (msg == MessageSuccess.Failure) return;
+    // if (msg == MessageSuccess.Failure) return;
 
     switch (signature) {
         case MessageSignature.NewGame:
+            if (msg == MessageSuccess.Failure) dispatch(setGameID(MessageSuccess.Failure));
+
             const game_id = msg.split(";")[0];
             // We reset in order to get rid of no longer wanted persisted state
             dispatch(resetGame());
@@ -131,13 +133,15 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
             dispatch(setGameID(game_id));
             break;            
         case MessageSignature.JoinGame:
-            if (msg == MessageSuccess.Failure) dispatch(setGameID(undefined));
+            if (msg == MessageSuccess.Failure) dispatch(setGameID(MessageSuccess.Failure));
 
             // We reset in order to get rid of no longer wanted persisted state
             dispatch(resetGame());
             dispatch(resetControl());
             break;
         case MessageSignature.Turn:
+            if (msg == MessageSuccess.Failure) return;
+
             try {
                 const jsonMsg: MessageTurn = JSON.parse(msg);
                 console.log(jsonMsg);
@@ -149,6 +153,8 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
             }
             break;
         case MessageSignature.Move:
+            if (msg == MessageSuccess.Failure) return;
+
             try {
                 const move: MessageMove = JSON.parse(msg);
                 console.log(move);
@@ -160,6 +166,8 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
             }
             break;
         case MessageSignature.Scan:
+            if (msg == MessageSuccess.Failure) return;
+
             console.log("Scan response: " + activeResponse);
             try {
                 const scan: MessageScan = JSON.parse(msg);

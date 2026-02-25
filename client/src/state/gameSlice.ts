@@ -95,6 +95,7 @@ export const gameSlice = createSlice({
       state.globalBoard = initBoard(parseInt(state.maxDepth));
     },
     setGameID: (state, action) => {
+      console.log("Seeting game id: " + action.payload);
       state.id = action.payload;
     },
     setPlayer: (state, action) => {

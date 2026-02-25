@@ -26,7 +26,7 @@ function App() {
       lastJsonMessage,
       readyState
   }
-
+  
   return <Provider store={store}>
       <HashRouter>
         <Routes>

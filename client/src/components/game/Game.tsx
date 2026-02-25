@@ -1,7 +1,7 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
 import { useSelector } from "react-redux";
 
-import { getTurn, joinGame, scanGame, useProcessServer, type Connection } from "../../serverInterface";
+import { getTurn, joinGame, MessageSuccess, scanGame, useProcessServer, type Connection } from "../../serverInterface";
 import type { RootState } from "../../state/store";
 import useProcessInput from "./controls";
 import Board from "./Board";
@@ -10,6 +10,7 @@ import './grid_board.css';
 import { useEffect } from "react";
 import type { GameState, QueryParameters } from "../../state/types";
 import { useSearchParams } from "react-router-dom";
+import { ReadyState } from "react-use-websocket";
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
@@ -67,6 +68,10 @@ function Game({connection}: GameProps) {
         .map((props, idx) =>  {
             return <Board {...props} connection={connection} key={"renderBoard" + idx}/>;
         });
+
+    if (gameId === MessageSuccess.Failure) return <p>Could not join game, sorry ;(</p>
+
+    if (connection.readyState !== ReadyState.OPEN) return <p>Not connected to server</p>
 
     return <>
     <div className="game">
