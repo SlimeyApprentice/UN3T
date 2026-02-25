@@ -69,8 +69,8 @@ function Game({connection}: GameProps) {
             return <Board {...props} connection={connection} key={"renderBoard" + idx}/>;
         });
 
+    //No board
     if (gameId === MessageSuccess.Failure) return <p>Could not join game, sorry ;(</p>
-
     if (connection.readyState !== ReadyState.OPEN) return <p>Not connected to server</p>
 
     return <>

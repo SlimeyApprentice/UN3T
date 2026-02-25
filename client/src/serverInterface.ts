@@ -13,13 +13,14 @@
 
 import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type { ReadyState, SendMessage } from "react-use-websocket";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 
 import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame, receiveScan, receiveTurn } from "./state/gameSlice";
 import { messageToGamePlayer, Player, type GameMove } from "./state/types";
 import { resetControl } from "./state/controlSlice";
 import type { Dispatch } from "@reduxjs/toolkit";
+import type { RootState } from "./state/store";
 
 export type Connection = {
     sendMessage: SendMessage,
@@ -107,19 +108,22 @@ export type MessageScan = [MessageScan | number]
 
 // Ideally should not need connection anymore. 
 // Calling message as response to message is a bad idea 
-function handleResponse(dispatch: Dispatch<any>, connection: Connection, responses: string[]) {
+function handleResponse(
+    dispatch: Dispatch<any>, 
+    gameId: string, 
+    connection: Connection, 
+    responses: string[]
+) {
     if (responses.length === 0) return; // Base Step
 
     const activeResponse = responses[0];
 
     const signature: MessageSignature = activeResponse[0] as MessageSignature;
-
     const msg = activeResponse.slice(1, activeResponse.length);
+
 
     console.log("Received signature: " + signature);
     console.log("Received message: " + msg);
-
-    // if (msg == MessageSuccess.Failure) return;
 
     switch (signature) {
         case MessageSignature.NewGame:
@@ -133,7 +137,9 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
             dispatch(setGameID(game_id));
             break;            
         case MessageSignature.JoinGame:
-            if (msg == MessageSuccess.Failure) dispatch(setGameID(MessageSuccess.Failure));
+            if (msg == MessageSuccess.Failure && gameId !== "") {
+                dispatch(setGameID(MessageSuccess.Failure));
+            }
 
             // We reset in order to get rid of no longer wanted persisted state
             dispatch(resetGame());
@@ -183,13 +189,14 @@ function handleResponse(dispatch: Dispatch<any>, connection: Connection, respons
     // Recursive step
     if (responses.length > 0) {
         responses.splice(0,1);
-        handleResponse(dispatch, connection, responses);
+        handleResponse(dispatch, gameId, connection, responses);
     }
 }
 
 // Receieve server responses and modify global state
 export function useProcessServer(connection: Connection) {
     const dispatch = useDispatch();
+    const gameId = useSelector((state: RootState) => state.game.id);
     
     useEffect(() => {
         if (!connection.lastMessage) return;
@@ -201,7 +208,7 @@ export function useProcessServer(connection: Connection) {
                 .join('\u0000')
                 .split('\u0000');
         console.log(responses);
-        handleResponse(dispatch, connection, responses);
+        handleResponse(dispatch, gameId, connection, responses);
 
     }, [connection.lastMessage])
 }
