@@ -1,4 +1,4 @@
-import { MessageValue } from "../serverInterface"
+import { MessageValue, type MessageScan } from "../serverInterface"
 
 //Game Types
 export enum GameWinState {
@@ -7,16 +7,80 @@ export enum GameWinState {
     Draw = "D",
     Undecided = 0
 }  
-export type BoardData = [
-    BoardData | Player,
-    BoardData | Player,
-    BoardData | Player,
-    BoardData | Player,
-    BoardData | Player,
-    BoardData | Player,
-    BoardData | Player,
-    BoardData | Player,
-    BoardData | Player,
+
+type BoardData = [
+        BoardData | Player,
+        BoardData | Player,
+        BoardData | Player,
+        BoardData | Player,
+        BoardData | Player,
+        BoardData | Player,
+        BoardData | Player,
+        BoardData | Player,
+        BoardData | Player,
+]
+export class BoardClass {
+    cells: BoardData;
+
+    recursiveGet(state: BoardData, coordinates: number[]) {
+        const next_coordinate = coordinates.pop()
+        if (next_coordinate === undefined) return false;
+
+        // Base Case
+        if (typeof state[next_coordinate] !== "object") {
+            if (coordinates.length > 0) console.error("Too many coordinates passed");
+
+            return state[next_coordinate];
+        }
+
+        if (coordinates.length == 0) {
+            console.error("SOMEHOW ENDED AT UNFINISHED BOARD")
+            return false;
+        } else {
+            // Recursive step
+            return this.recursiveGet(state[next_coordinate], coordinates);
+        }
+    }
+
+    // Possible options of where the coordinates lead
+    // Won cell
+    // Cell in won board
+    // 
+    get cell(coordinates: number[]) {
+        return this.recursiveGet(this.cells, coordinates);
+    }
+
+    constructor() {
+        this.cells = [
+            Player.Empty, Player.Empty, Player.Empty,
+            Player.Empty, Player.Empty, Player.Empty,
+            Player.Empty, Player.Empty, Player.Empty,
+        ];
+    }
+    constructor(scan: MessageScan, depth: number) {
+        this.cells = initFromScan(scan, depth);
+    }
+
+    initFromScan(scan: MessageScan, depth: number) {
+        const state = new BoardClass();
+        for (let i = 0; i < 9; i++) {
+            if (typeof scan[i] === "number") {
+                if (scan[i] === MessageValue.Empty) {
+                    state.cells[i] = new BoardClass();
+                } else {
+                    //@ts-expect-error above condition guarantees it's a number
+                    state.cells[i] = messageToGamePlayer(scan[i])
+                }
+            } else {
+                //@ts-expect-error above condition guarantees it's an obj
+                state.cells[i] = initFromScan(scan[i], depth-1)
+            }
+        }
+    
+        return state
+    }
+}
+
 ]
 export enum Player {
     Cross = "X",

@@ -1,6 +1,7 @@
 import { createSlice, current } from '@reduxjs/toolkit'
 
 import { 
+  BoardClass,
   flipPlayer,
   GameWinState, 
   messageToGamePlayer, 
@@ -10,34 +11,6 @@ import {
   type GameState 
 } from './types.ts';
 import { MessageValue, type MessageScan, type MessageTurn } from '../serverInterface.ts';
-
-function initBoard() {
-    const state: BoardData = [
-      Player.Empty, Player.Empty, Player.Empty,
-      Player.Empty, Player.Empty, Player.Empty,
-      Player.Empty, Player.Empty, Player.Empty,
-    ];
-  
-    return state
-}
-function initFromScan(scan: MessageScan, depth: number) {
-    const state: BoardData = initBoard();
-    for (let i = 0; i < 9; i++) {
-      if (typeof scan[i] === "number") {
-        if (scan[i] === MessageValue.Empty) {
-          state[i] = initBoard();
-        } else {
-          //@ts-expect-error above condition guarantees it's a number
-          state[i] = messageToGamePlayer(scan[i])
-        }
-      } else {
-        //@ts-expect-error above condition guarantees it's an obj
-        state[i] = initFromScan(scan[i], depth-1)
-      }
-    }
-  
-    return state
-}
 
 function recursiveEdit(state: BoardData, coordinates: number[], player: Player): boolean{
     const next_coordinate = coordinates.pop()
@@ -128,7 +101,7 @@ export const gameSlice = createSlice({
       const scan: MessageScan = action.payload;
       console.log(scan);
 
-      state.globalBoard = initFromScan(scan, parseInt(state.maxDepth));
+      state.globalBoard = BoardClass(scan, parseInt(state.maxDepth));
     }
   },
 })
