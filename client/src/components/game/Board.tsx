@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 
 import Cell from './Cell.tsx';
-import { GameWinState, Player, type BoardData } from '../../state/types.ts';
+import { cellToWinState, GameWinState, Player, type BoardData } from '../../state/types.ts';
 
 import cross from '../../assets/Cross.svg' ;
 import circle from '../../assets/Circle.svg';
@@ -41,15 +41,15 @@ function recursiveCount(board: BoardData) {
 
   //Recursive step
   // if (typeof(board.cells[0]) === "object" && board.cells[0] !== null) {
-  if (typeof(board.cells[0]) === "object") {
-    for (const subBoard of board.cells) {
+  if (typeof(board[0]) === "object") {
+    for (const subBoard of board) {
       result = add_counts(result, recursiveCount(subBoard as BoardData));
     }
     return result;
   } 
   //Base step
   else {
-    for (const cell of board.cells) {
+    for (const cell of board) {
       switch (cell) {
         case Player.Cross:
           result.cross++;
@@ -90,11 +90,12 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   const currentPlayer = useSelector((state: RootState) => state.game.currentPlayer );
 
   let localBoard = globalBoard;
+  console.log("COORDINATES: " + coordinates)
   for (const i of coordinates) {
-    localBoard = localBoard.cells[i] as BoardData;
+    localBoard = localBoard[i] as BoardData;
   }
 
-  const isWon = localBoard.game_state;
+  const isWon = cellToWinState(localBoard);
 
   //If board over, pick from the following images
   let winElement;
@@ -145,12 +146,18 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   } 
 
   if (depth == 0) {
-    const squares = localBoard.cells as Player[];
+    const squares = localBoard as Player[];
 
     //Base case, 0 recursion
     function handleClick(i: number) {
+      // console.log(globalBoard);
+      console.log("A");
+      console.log(isWon);
       if (isWon !== GameWinState.Undecided) { return; }
+      console.log("B");
+      console.log(localBoard);
       if (squares[i] !== Player.Empty) { return; }
+      console.log("C");
 
       const new_coordinates = coordinates.slice().concat([i]);
       makeMoveServer(connection, new_coordinates);

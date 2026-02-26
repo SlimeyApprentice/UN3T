@@ -11,60 +11,45 @@ import {
 } from './types.ts';
 import { MessageValue, type MessageScan, type MessageTurn } from '../serverInterface.ts';
 
-// TODO: Type all payloads
-// TODO: Only create boards when there are moves on it
-function initBoard(depth: number) {
-    const state: BoardData = {
-      "cells": [],
-      "game_state": GameWinState.Undecided
-    };
-    for (let i = 0; i < 9; i++) {
-      if (depth > 0) {
-        state.cells[i] = initBoard(depth-1)
-      } else {
-        state.cells[i] = Player.Empty;
-      }
-    }
+function initBoard() {
+    const state: BoardData = [
+      Player.Empty, Player.Empty, Player.Empty,
+      Player.Empty, Player.Empty, Player.Empty,
+      Player.Empty, Player.Empty, Player.Empty,
+    ];
   
     return state
 }
 function initFromScan(scan: MessageScan, depth: number) {
-    const state: BoardData = {
-      "cells": [],
-      "game_state": GameWinState.Undecided
-    };
+    const state: BoardData = initBoard();
     for (let i = 0; i < 9; i++) {
       if (typeof scan[i] === "number") {
         if (scan[i] === MessageValue.Empty) {
-          state.cells[i] = initBoard(depth-1);
+          state[i] = initBoard();
         } else {
           //@ts-expect-error above condition guarantees it's a number
-          state.cells[i] = messageToGamePlayer(scan[i])
+          state[i] = messageToGamePlayer(scan[i])
         }
       } else {
         //@ts-expect-error above condition guarantees it's an obj
-        state.cells[i] = initFromScan(scan[i], depth-1)
+        state[i] = initFromScan(scan[i], depth-1)
       }
     }
   
     return state
 }
 
-function recursiveEdit(state: BoardData, coordinates: number[], player: Player, winFlag: boolean): boolean{
+function recursiveEdit(state: BoardData, coordinates: number[], player: Player): boolean{
     const next_coordinate = coordinates.pop()
     if (next_coordinate === undefined) return false;
 
     if (coordinates.length === 0) {
         console.log("FINAL COORDINATE: " + next_coordinate);
-        if (winFlag) {
-          // @ts-expect-error we know for sure
-          state.cells[next_coordinate].game_state = playerToWinState(player);
-        } else {
-          state.cells[next_coordinate] = player;
-        }
+        state[next_coordinate] = player;
     } else {
         console.log("COORDINATE: " + next_coordinate);
-        recursiveEdit(<BoardData> state.cells[next_coordinate], coordinates, player, winFlag)
+        if (typeof state[next_coordinate] === "number") state[next_coordinate] = initBoard();
+        recursiveEdit(<BoardData> state[next_coordinate], coordinates, player)
     }
     return true;
 }
@@ -76,7 +61,7 @@ const initialState: GameState = {
     restriction: [],
     boardSize: 75,
     borderSize: 2,
-    globalBoard: initBoard(parseInt("1")),
+    globalBoard: initBoard(),
     id: "",
 }
 export const gameSlice = createSlice({
@@ -93,8 +78,8 @@ export const gameSlice = createSlice({
     initGlobalBoard: (state) => {
       if (!state.maxDepth) throw new Error("maxDepth empty in initGlobalBoard");
 
-      console.log("initGlobalBoard maxDepth: " + state.maxDepth);
-      state.globalBoard = initBoard(parseInt(state.maxDepth));
+      console.log("initGlobalBoard");
+      state.globalBoard = initBoard();
     },
     setGameID: (state, action) => {
       console.log("Seeting game id: " + action.payload);
@@ -117,11 +102,11 @@ export const gameSlice = createSlice({
       const player = messageToGamePlayer(move.value)
 
       if (coordinates.length === 0) {
-        state.globalBoard.game_state = playerToWinState(player); 
+        // state.globalBoard.game_state = playerToWinState(player); 
       } else if (coordinates.length-1 < parseInt(state.maxDepth)) {
-        recursiveEdit(state.globalBoard, coordinates.reverse(), player, true);
+        recursiveEdit(state.globalBoard, coordinates.reverse(), player);
       } else {
-        recursiveEdit(state.globalBoard, coordinates.reverse(), player, false);
+        recursiveEdit(state.globalBoard, coordinates.reverse(), player);
       }
 
       //Flip player turn (not confirmed in message)
@@ -133,7 +118,7 @@ export const gameSlice = createSlice({
       const turn: MessageTurn = action.payload;
 
       state.maxDepth = turn.depth.toString();
-      state.globalBoard = initBoard(parseInt(state.maxDepth));
+      state.globalBoard = initBoard();
       state.myPlayer = messageToGamePlayer(turn.you);
       state.currentPlayer = messageToGamePlayer(turn.player);
 

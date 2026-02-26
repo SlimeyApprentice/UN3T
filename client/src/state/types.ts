@@ -7,10 +7,17 @@ export enum GameWinState {
     Draw = "D",
     Undecided = 0
 }  
-export type BoardData = {
-    cells: BoardData[] | Player[]
-    game_state: GameWinState
-}
+export type BoardData = [
+    BoardData | Player,
+    BoardData | Player,
+    BoardData | Player,
+    BoardData | Player,
+    BoardData | Player,
+    BoardData | Player,
+    BoardData | Player,
+    BoardData | Player,
+    BoardData | Player,
+]
 export enum Player {
     Cross = "X",
     Circle = "O",
@@ -35,12 +42,18 @@ export function messageToGamePlayer(player: MessageValue): Player {
         default: throw new Error("Tried to convert error message value");
     }
 }
+// TODO: WE ARE FORGETTING DRAWS
 export function playerToWinState(player: Player): GameWinState {
     switch(player) {
         case Player.Cross: return GameWinState.Cross;
         case Player.Circle: return GameWinState.Circle;
         default: throw new Error("Could not find GameWinState");
     }
+}
+export function cellToWinState(cell: BoardData | Player) {
+    if (typeof cell === "object" || cell === Player.Empty) return GameWinState.Undecided;
+
+    return playerToWinState(<Player> cell);
 }
 
 export function flipPlayer(player: Player): Player {
