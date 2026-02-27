@@ -2,17 +2,20 @@ import { createSlice, current } from '@reduxjs/toolkit'
 
 import { 
   BoardClass,
+  emptyBoardCells,
   flipPlayer,
   GameWinState, 
+  initBoardFromScan, 
+  initCellsFromScan, 
   messageToGamePlayer, 
   Player, 
   playerToWinState, 
-  type BoardData, 
+  type BoardCells, 
   type GameState 
 } from './types.ts';
 import { MessageValue, type MessageScan, type MessageTurn } from '../serverInterface.ts';
 
-function recursiveEdit(state: BoardData, coordinates: number[], player: Player): boolean{
+function recursiveEdit(state: BoardCells, coordinates: number[], player: Player): boolean{
     const next_coordinate = coordinates.pop()
     if (next_coordinate === undefined) return false;
 
@@ -21,8 +24,8 @@ function recursiveEdit(state: BoardData, coordinates: number[], player: Player):
         state[next_coordinate] = player;
     } else {
         console.log("COORDINATE: " + next_coordinate);
-        if (typeof state[next_coordinate] === "number") state[next_coordinate] = initBoard();
-        recursiveEdit(<BoardData> state[next_coordinate], coordinates, player)
+        if (typeof state[next_coordinate] === "number") state[next_coordinate] = emptyBoardCells;
+        recursiveEdit(<BoardCells> state[next_coordinate], coordinates, player)
     }
     return true;
 }
@@ -34,7 +37,7 @@ const initialState: GameState = {
     restriction: [],
     boardSize: 75,
     borderSize: 2,
-    globalBoard: initBoard(),
+    globalBoardCells: emptyBoardCells,
     id: "",
 }
 export const gameSlice = createSlice({
@@ -52,7 +55,7 @@ export const gameSlice = createSlice({
       if (!state.maxDepth) throw new Error("maxDepth empty in initGlobalBoard");
 
       console.log("initGlobalBoard");
-      state.globalBoard = initBoard();
+      state.globalBoardCells = emptyBoardCells;
     },
     setGameID: (state, action) => {
       console.log("Seeting game id: " + action.payload);
@@ -65,10 +68,14 @@ export const gameSlice = createSlice({
       const move: MessageMove = action.payload;
       if (!move.success || move.location === undefined) return;
 
-      const restriction = move.restriction!.split('').map((char) => parseInt(char));
+      const restriction = move.restriction!
+        .split('')
+        .map((char) => parseInt(char));
       state.restriction = restriction;
 
-      const coordinates = move.location.split('').map((char) => parseInt(char));
+      const coordinates: number[] = move.location
+        .split('')
+        .map((char) => parseInt(char));
       console.log("Received coordinates: " + coordinates);
       console.log("Received restriction: " + restriction);
       console.log("Length: " + coordinates.length);
@@ -77,31 +84,33 @@ export const gameSlice = createSlice({
       if (coordinates.length === 0) {
         // state.globalBoard.game_state = playerToWinState(player); 
       } else if (coordinates.length-1 < parseInt(state.maxDepth)) {
-        recursiveEdit(state.globalBoard, coordinates.reverse(), player);
+        recursiveEdit(state.globalBoardCells, coordinates.reverse(), player);
       } else {
-        recursiveEdit(state.globalBoard, coordinates.reverse(), player);
+        recursiveEdit(state.globalBoardCells, coordinates.reverse(), player);
       }
 
       //Flip player turn (not confirmed in message)
       state.currentPlayer = flipPlayer(state.currentPlayer);
 
-      console.log(current(state.globalBoard));
+      console.log(current(state.globalBoardCells));
     },
     receiveTurn: (state, action) => {
       const turn: MessageTurn = action.payload;
 
       state.maxDepth = turn.depth.toString();
-      state.globalBoard = initBoard();
+      state.globalBoardCells = emptyBoardCells;
       state.myPlayer = messageToGamePlayer(turn.you);
       state.currentPlayer = messageToGamePlayer(turn.player);
 
-      state.restriction = turn.restriction.split('').map((char) => parseInt(char));
+      state.restriction = turn.restriction
+        .split('')
+        .map((char) => parseInt(char));
     },
     receiveScan: (state, action) => {
       const scan: MessageScan = action.payload;
       console.log(scan);
 
-      state.globalBoard = BoardClass(scan, parseInt(state.maxDepth));
+      state.globalBoardCells = initCellsFromScan(scan, parseInt(state.maxDepth));
     }
   },
 })

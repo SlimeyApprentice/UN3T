@@ -7,26 +7,138 @@ export enum GameWinState {
     Draw = "D",
     Undecided = 0
 }  
+export enum Player {
+    Cross = "X",
+    Circle = "O",
+    Empty = "#"
+}
 
-type BoardData = [
-        BoardData | Player,
-        BoardData | Player,
-        BoardData | Player,
-        BoardData | Player,
-        BoardData | Player,
-        BoardData | Player,
-        BoardData | Player,
-        BoardData | Player,
-        BoardData | Player,
+export type PlayerCount = {
+  cross: number,
+  circle: number, 
+  empty: number
+}
+function add_counts(res1: PlayerCount, res2: PlayerCount) {
+  const result: PlayerCount = {
+    cross: 0,
+    circle: 0,
+    empty: 0
+  }
+
+  //Probably a cleaner prototype method out there
+  result.cross = res1.cross + res2.cross;
+  result.circle = res1.circle + res2.circle;
+  result.empty = res1.empty + res2.empty;
+
+  return result;
+}
+
+export type BoardCells = [
+        BoardCells | Player,
+        BoardCells | Player,
+        BoardCells | Player,
+        BoardCells | Player,
+        BoardCells | Player,
+        BoardCells | Player,
+        BoardCells | Player,
+        BoardCells | Player,
+        BoardCells | Player,
 ]
+export const emptyBoardCells: BoardCells = [
+    Player.Empty, Player.Empty, Player.Empty,
+    Player.Empty, Player.Empty, Player.Empty,
+    Player.Empty, Player.Empty, Player.Empty,
+] 
 export class BoardClass {
-    cells: BoardData;
+    private cells: BoardCells | Player;
 
-    recursiveGet(state: BoardData, coordinates: number[]) {
+    constructor();
+    constructor(cells: BoardCells | Player);
+
+    constructor(cells?: BoardCells | Player) {
+        if (cells !== undefined) {
+            //Signature 2
+            this.cells = cells;
+        } else {
+            //Signature 1
+            this.cells = emptyBoardCells;
+        }
+    }
+
+    get length() {
+        return this.cells.length;
+    }
+
+    get player() {
+        if (typeof this.cells === "object") return Player.Empty;
+        
+        return this.cells as Player;
+    }
+
+    // TODO: WE ARE FORGETTING DRAWS
+    get game_state() {
+        switch(this.player) {
+            case Player.Cross: return GameWinState.Cross;
+            case Player.Circle: return GameWinState.Circle;
+            case Player.Empty: return GameWinState.Undecided;
+            default: throw new Error("Could not find GameWinState");
+        }
+    }
+
+    get leaf_board(): Player[] | boolean {
+        for (let i = 0; i < this.cells.length; i++) {
+            if (typeof this.cells[i] === "object") {
+                console.error("Leaf Board accessed on node board");
+                return false;
+            }
+        }
+
+        return this.cells as Player[];
+    }
+
+    recursiveCount(board: BoardClass): PlayerCount {
+        let result: PlayerCount = {
+            cross: 0,
+            circle: 0,
+            empty: 0,
+        }
+
+        for (let i = 0; i < board.length; i++) {
+            if (typeof(board.getCell([i])) === "object") {
+                //Recursive step
+                result = add_counts(result, this.recursiveCount(
+                    new BoardClass(board.getCell([i]) as BoardCells)
+                ));
+            } else {
+                switch (board.player) {
+                    case Player.Cross:
+                        result.cross++;
+                        break;
+                    case Player.Circle:
+                        result.circle++;
+                        break;
+                    case Player.Empty:
+                        result.empty++;
+                        break;
+                }
+            }
+        }
+
+        return result;
+    }
+    get count() {
+        return this.recursiveCount(this);
+    }
+
+    recursiveGet(state: BoardCells, coordinates: number[]): BoardCells | Player | boolean {
+        // Base Case 1
+        // Check for next_coordinate undefined just for type guarantee
+        if (coordinates.length === 0) return state;
+        
         const next_coordinate = coordinates.pop()
-        if (next_coordinate === undefined) return false;
+        if (next_coordinate === undefined) return state;
 
-        // Base Case
+        // Base Case 2
         if (typeof state[next_coordinate] !== "object") {
             if (coordinates.length > 0) console.error("Too many coordinates passed");
 
@@ -35,7 +147,7 @@ export class BoardClass {
 
         if (coordinates.length == 0) {
             console.error("SOMEHOW ENDED AT UNFINISHED BOARD")
-            return false;
+            return state[next_coordinate];
         } else {
             // Recursive step
             return this.recursiveGet(state[next_coordinate], coordinates);
@@ -45,48 +157,33 @@ export class BoardClass {
     // Possible options of where the coordinates lead
     // Won cell
     // Cell in won board
-    // 
-    get cell(coordinates: number[]) {
+    
+    // TODO: Maybe should be error if you are calling getCell on single player board?
+    getCell(coordinates: number[]): BoardCells | Player | boolean {
+        if (typeof this.cells !== "object") return this.cells as Player;
+
         return this.recursiveGet(this.cells, coordinates);
     }
+}
 
-    constructor() {
-        this.cells = [
-            Player.Empty, Player.Empty, Player.Empty,
-            Player.Empty, Player.Empty, Player.Empty,
-            Player.Empty, Player.Empty, Player.Empty,
-        ];
-    }
-    constructor(scan: MessageScan, depth: number) {
-        this.cells = initFromScan(scan, depth);
-    }
-
-    initFromScan(scan: MessageScan, depth: number) {
-        const state = new BoardClass();
-        for (let i = 0; i < 9; i++) {
-            if (typeof scan[i] === "number") {
-                if (scan[i] === MessageValue.Empty) {
-                    state.cells[i] = new BoardClass();
-                } else {
-                    //@ts-expect-error above condition guarantees it's a number
-                    state.cells[i] = messageToGamePlayer(scan[i])
-                }
-            } else {
-                //@ts-expect-error above condition guarantees it's an obj
-                state.cells[i] = initFromScan(scan[i], depth-1)
-            }
+export function initCellsFromScan(scan: MessageScan, depth: number) {
+    const state = emptyBoardCells;
+    for (let i = 0; i < 9; i++) {
+        if (typeof scan[i] === "number" && scan[i] !== MessageValue.Empty) {
+            //@ts-expect-error above condition guarantees it's a number
+            state.cells[i] = messageToGamePlayer(scan[i])
+        } else {
+            //@ts-expect-error above condition guarantees it's an obj
+            state.cells[i] = initFromScan(scan[i], depth-1)
         }
-    
-        return state
     }
+
+    return state;
+}
+export function initBoardFromScan(scan: MessageScan, maxDepth: number): BoardClass {
+    return new BoardClass(initCellsFromScan(scan, maxDepth));
 }
 
-]
-export enum Player {
-    Cross = "X",
-    Circle = "O",
-    Empty = "#"
-}
 export type GameState = {
     maxDepth: string,
     myPlayer: Player,
@@ -94,7 +191,7 @@ export type GameState = {
     restriction: number[],
     boardSize: number,
     borderSize: number,
-    globalBoard: BoardData,
+    globalBoardCells: BoardCells,
     id: string,
 }
 //Should really unify all of these player types
@@ -105,19 +202,6 @@ export function messageToGamePlayer(player: MessageValue): Player {
         case MessageValue.Circle: return Player.Circle; 
         default: throw new Error("Tried to convert error message value");
     }
-}
-// TODO: WE ARE FORGETTING DRAWS
-export function playerToWinState(player: Player): GameWinState {
-    switch(player) {
-        case Player.Cross: return GameWinState.Cross;
-        case Player.Circle: return GameWinState.Circle;
-        default: throw new Error("Could not find GameWinState");
-    }
-}
-export function cellToWinState(cell: BoardData | Player) {
-    if (typeof cell === "object" || cell === Player.Empty) return GameWinState.Undecided;
-
-    return playerToWinState(<Player> cell);
 }
 
 export function flipPlayer(player: Player): Player {

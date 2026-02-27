@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 
 import Cell from './Cell.tsx';
-import { cellToWinState, GameWinState, Player, type BoardData } from '../../state/types.ts';
+import { BoardClass, GameWinState, Player, type BoardCells } from '../../state/types.ts';
 
 import cross from '../../assets/Cross.svg' ;
 import circle from '../../assets/Circle.svg';
@@ -9,65 +9,7 @@ import draw from '../../assets/Peace.svg' ;
 import empty from '../../assets/Empty.svg' ;
 // import type { RootState } from '../../state/store.ts';
 import type { RootState } from '../../state/store.ts';
-import { getTurn, leaveGame, newGame, makeMoveServer, type Connection } from '../../serverInterface.ts';
-
-type PlayerCount = {
-  cross: number,
-  circle: number, 
-  empty: number
-}
-
-function add_counts(res1: PlayerCount, res2: PlayerCount) {
-  const result: PlayerCount = {
-    cross: 0,
-    circle: 0,
-    empty: 0
-  }
-
-  //Probably a cleaner prototype method out there
-  result.cross = res1.cross + res2.cross;
-  result.circle = res1.circle + res2.circle;
-  result.empty = res1.empty + res2.empty;
-
-  return result;
-}
-
-function recursiveCount(board: BoardData) {
-  let result: PlayerCount = {
-    cross: 0,
-    circle: 0,
-    empty: 0,
-  }
-
-  //Recursive step
-  // if (typeof(board.cells[0]) === "object" && board.cells[0] !== null) {
-  if (typeof(board[0]) === "object") {
-    for (const subBoard of board) {
-      result = add_counts(result, recursiveCount(subBoard as BoardData));
-    }
-    return result;
-  } 
-  //Base step
-  else {
-    for (const cell of board) {
-      switch (cell) {
-        case Player.Cross:
-          result.cross++;
-          break;
-        case Player.Circle:
-          result.circle++;
-          break;
-        case Player.Empty:
-          result.empty++;
-          break;
-      }
-    }
-
-    return result;
-  }
-}
-
-
+import { makeMoveServer, type Connection } from '../../serverInterface.ts';
 
 //Should try to remove
 const gameStateStyle={
@@ -85,32 +27,38 @@ type BoardProps = {
 }
 function Board({depth, coordinates, className, connection, id }: BoardProps) {
   const current_depth = useSelector((state: RootState) => state.control.current_depth );
-  const globalBoard = useSelector((state: RootState) => state.game.globalBoard );
+  const globalBoardCells = useSelector((state: RootState) => state.game.globalBoardCells);
+  const globalBoard = new BoardClass(globalBoardCells);
   
   const currentPlayer = useSelector((state: RootState) => state.game.currentPlayer );
 
-  let localBoard = globalBoard;
-  console.log("COORDINATES: " + coordinates)
-  for (const i of coordinates) {
-    localBoard = localBoard[i] as BoardData;
-  }
+  const localBoardCells = globalBoard.getCell(coordinates) as BoardCells | Player;
+  const localBoard = new BoardClass(localBoardCells);
 
-  const isWon = cellToWinState(localBoard);
+  const isWon = localBoard.game_state;
 
   //If board over, pick from the following images
   let winElement;
   let winElementClassName = "off";
-  if (isWon == GameWinState.Cross) {
-    winElement = <img src={cross} className="X" style={gameStateStyle}/>;
-    winElementClassName = " win-container-active"
-  } else if (isWon == GameWinState.Circle) {
-    winElement = <img src={circle} className="O" style={gameStateStyle}/>;
-    winElementClassName = " win-container-active"
-  } else if (isWon == GameWinState.Draw) {
-    winElement = <img src={draw} className="D" style={gameStateStyle}/>;
-    winElementClassName = " win-container-active"
-  } else if (isWon == GameWinState.Undecided) {
-    winElement = null;
+  switch(isWon) {
+    case GameWinState.Cross:
+      winElement = <img src={cross} className="X" style={gameStateStyle}/>;
+      winElementClassName = " win-container-active"
+      break;
+
+    case GameWinState.Circle:
+      winElement = <img src={circle} className="O" style={gameStateStyle}/>;
+      winElementClassName = " win-container-active"
+      break;
+
+    case GameWinState.Draw: 
+      winElement = <img src={draw} className="D" style={gameStateStyle}/>;
+      winElementClassName = " win-container-active"
+      break; 
+
+    case GameWinState.Undecided:
+      winElement = null;
+      break;
   }
 
   //Top-level board
@@ -137,7 +85,6 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     strCoords.indexOf(strRsctn) === 0 
     // || strCoords.indexOf(strRsctn) === strCoords.length - strRsctn.length
   ) {
-    console.log("CURRENT PLAYER: " + currentPlayer)
     if (currentPlayer === Player.Cross) {
       isRestrictedClass = "restricted-red ";
     } else if (currentPlayer === Player.Circle){ //Else would mean currentPlayer = empty. Not good
@@ -146,7 +93,7 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   } 
 
   if (depth == 0) {
-    const squares = localBoard as Player[];
+    const squares = localBoard.leaf_board as Player[];
 
     //Base case, 0 recursion
     function handleClick(i: number) {
@@ -190,7 +137,7 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     //Perhaps better to be based on size of board but it's difficult to know beforehand
     //I say that depth 3 is too big for now
 
-    const count_result = recursiveCount(localBoard);
+    const count_result = localBoard.count;
     const is_cross_off = (count_result.cross == 0) ? 'off' : '';
     const is_circle_off = (count_result.circle == 0) ? 'off' : '';
     const is_empty_off = (is_cross_off !== "off" || is_circle_off !== "off") ? 'off' : '';
