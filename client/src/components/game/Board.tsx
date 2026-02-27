@@ -102,8 +102,10 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
       console.log(isWon);
       if (isWon !== GameWinState.Undecided) { return; }
       console.log("B");
+      console.log(coordinates);
       console.log(localBoard);
-      if (squares[i] !== Player.Empty) { return; }
+      console.log(squares[i]);
+      if (squares[i] !== Player.Empty && squares[i] !== undefined) { return; }
       console.log("C");
 
       const new_coordinates = coordinates.slice().concat([i]);

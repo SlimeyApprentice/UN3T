@@ -66,18 +66,13 @@ export const gameSlice = createSlice({
       console.log("Length: " + coordinates.length);
       const player = messageToGamePlayer(move.value)
 
-      if (coordinates.length === 0) {
-        // state.globalBoard.game_state = playerToWinState(player); 
-      } else if (coordinates.length-1 < parseInt(state.maxDepth)) {
-        recursiveEdit(state.globalBoardCells, coordinates.reverse(), player);
-      } else {
-        recursiveEdit(state.globalBoardCells, coordinates.reverse(), player);
-      }
+      const globalBoard = new BoardClass(state.globalBoardCells);
+      globalBoard.setCell(coordinates.reverse(), player);
+      // console.log(globalBoard.getCell([]))
+      state.globalBoardCells = globalBoard.getCell([]);
 
       //Flip player turn (not confirmed in message)
       state.currentPlayer = flipPlayer(state.currentPlayer);
-
-      console.log(current(state.globalBoardCells));
     },
     receiveTurn: (state, action) => {
       const turn: MessageTurn = action.payload;
