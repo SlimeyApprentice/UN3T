@@ -65,7 +65,7 @@ export const gameSlice = createSlice({
 
       const globalBoard = new BoardClass(state.globalBoardCells);
       globalBoard.setCell(coordinates.reverse(), player);
-      // console.log(globalBoard.getCell([]))
+      console.log(globalBoard.getCell([]))
       state.globalBoardCells = globalBoard.getCell([]);
 
       //Flip player turn (not confirmed in message)

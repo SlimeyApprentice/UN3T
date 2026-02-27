@@ -176,6 +176,7 @@ export class BoardClass {
         if (coordinates.length === 0) {
             console.log("FINAL COORDINATE: " + next_coordinate);
             state[next_coordinate] = player;
+            console.log(state);
         } else {
             console.log("COORDINATE: " + next_coordinate);
             if (state[next_coordinate] === Player.Empty) {
