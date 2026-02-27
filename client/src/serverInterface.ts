@@ -104,6 +104,12 @@ export type MessageTurn = {
     you: 1 | 2
     restriction: string,
 }
+export type MessageMove = {
+    success: boolean, 
+    value: MessageValue,
+    location: string, 
+    restriction: string,
+}
 export type MessageScan = [MessageScan | number]
 
 // Ideally should not need connection anymore. 

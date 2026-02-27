@@ -4,16 +4,13 @@ import {
   BoardClass,
   emptyBoardCells,
   flipPlayer,
-  GameWinState, 
-  initBoardFromScan, 
+
   initCellsFromScan, 
   messageToGamePlayer, 
   Player, 
-  playerToWinState, 
-  type BoardCells, 
   type GameState 
 } from './types.ts';
-import { MessageValue, type MessageScan, type MessageTurn } from '../serverInterface.ts';
+import { type MessageMove, type MessageScan, type MessageTurn } from '../serverInterface.ts';
 
 const initialState: GameState = {
     maxDepth: "1",
