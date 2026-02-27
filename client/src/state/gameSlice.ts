@@ -15,21 +15,6 @@ import {
 } from './types.ts';
 import { MessageValue, type MessageScan, type MessageTurn } from '../serverInterface.ts';
 
-function recursiveEdit(state: BoardCells, coordinates: number[], player: Player): boolean{
-    const next_coordinate = coordinates.pop()
-    if (next_coordinate === undefined) return false;
-
-    if (coordinates.length === 0) {
-        console.log("FINAL COORDINATE: " + next_coordinate);
-        state[next_coordinate] = player;
-    } else {
-        console.log("COORDINATE: " + next_coordinate);
-        if (typeof state[next_coordinate] === "number") state[next_coordinate] = emptyBoardCells();
-        recursiveEdit(<BoardCells> state[next_coordinate], coordinates, player)
-    }
-    return true;
-}
-
 const initialState: GameState = {
     maxDepth: "1",
     myPlayer: Player.Empty,

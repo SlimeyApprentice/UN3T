@@ -134,26 +134,22 @@ export class BoardClass {
     }
 
     recursiveGet(state: BoardCells, coordinates: number[]): BoardCells | Player | boolean {
-        // Base Case 1
-        // Check for next_coordinate undefined just for type guarantee
-        if (coordinates.length === 0) return state;
-        
-        const next_coordinate = coordinates.pop()
-        if (next_coordinate === undefined) return state;
-
-        // Base Case 2
-        if (typeof state[next_coordinate] !== "object") {
-            if (coordinates.length > 0) console.error("Too many coordinates passed");
-
-            return state[next_coordinate];
-        }
-
-        if (coordinates.length == 0) {
-            console.error("SOMEHOW ENDED AT UNFINISHED BOARD")
-            return state[next_coordinate];
+        // Base Case
+        if (coordinates.length === 0) {
+            return state;
         } else {
-            // Recursive step
-            return this.recursiveGet(state[next_coordinate], coordinates);
+            const next_coordinate = coordinates.pop()
+            // Check for next_coordinate undefined just for type guarantee
+            if (next_coordinate === undefined) return state;    
+
+            if (typeof state[next_coordinate] !== "object") {
+                if (coordinates.length > 0) console.error("Too many coordinates passed");
+
+                return state[next_coordinate] as Player;
+            } else {
+                // Recursive step
+                return this.recursiveGet(state[next_coordinate], coordinates);
+            }
         }
     }
 
@@ -167,6 +163,31 @@ export class BoardClass {
 
         return this.recursiveGet(this.cells, coordinates);
     }
+
+    // recursiveSetCell(state: BoardCells, coordinates: number[], player: Player) {
+
+    // }
+    // setCell(coordinates: number[], player: Player) {
+    //     if (typeof this.cells !== "object") return;
+
+    //     this.recursiveSetCell(this.cells, coordinates, player);
+    // }
+    
+}
+
+function recursiveEdit(state: BoardCells, coordinates: number[], player: Player): boolean{
+    const next_coordinate = coordinates.pop()
+    if (next_coordinate === undefined) return false;
+
+    if (coordinates.length === 0) {
+        console.log("FINAL COORDINATE: " + next_coordinate);
+        state[next_coordinate] = player;
+    } else {
+        console.log("COORDINATE: " + next_coordinate);
+        if (typeof state[next_coordinate] === "number") state[next_coordinate] = emptyBoardCells();
+        recursiveEdit(<BoardCells> state[next_coordinate], coordinates, player)
+    }
+    return true;
 }
 
 export function initCellsFromScan(scan: MessageScan, depth: number) {
