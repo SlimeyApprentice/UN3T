@@ -24,7 +24,7 @@ function recursiveEdit(state: BoardCells, coordinates: number[], player: Player)
         state[next_coordinate] = player;
     } else {
         console.log("COORDINATE: " + next_coordinate);
-        if (typeof state[next_coordinate] === "number") state[next_coordinate] = emptyBoardCells;
+        if (typeof state[next_coordinate] === "number") state[next_coordinate] = emptyBoardCells();
         recursiveEdit(<BoardCells> state[next_coordinate], coordinates, player)
     }
     return true;
@@ -37,7 +37,7 @@ const initialState: GameState = {
     restriction: [],
     boardSize: 75,
     borderSize: 2,
-    globalBoardCells: emptyBoardCells,
+    globalBoardCells: emptyBoardCells(),
     id: "",
 }
 export const gameSlice = createSlice({
@@ -55,7 +55,7 @@ export const gameSlice = createSlice({
       if (!state.maxDepth) throw new Error("maxDepth empty in initGlobalBoard");
 
       console.log("initGlobalBoard");
-      state.globalBoardCells = emptyBoardCells;
+      state.globalBoardCells = emptyBoardCells();
     },
     setGameID: (state, action) => {
       console.log("Seeting game id: " + action.payload);
@@ -98,7 +98,7 @@ export const gameSlice = createSlice({
       const turn: MessageTurn = action.payload;
 
       state.maxDepth = turn.depth.toString();
-      state.globalBoardCells = emptyBoardCells;
+      state.globalBoardCells = emptyBoardCells();
       state.myPlayer = messageToGamePlayer(turn.you);
       state.currentPlayer = messageToGamePlayer(turn.player);
 

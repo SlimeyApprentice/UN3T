@@ -16,7 +16,7 @@ import type { ReadyState, SendMessage } from "react-use-websocket";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 
-import { initGlobalBoard, setGameDepth, receiveMove, setGameID, setPlayer, resetGame, receiveScan, receiveTurn } from "./state/gameSlice";
+import { setGameDepth, receiveMove, setGameID, setPlayer, resetGame, receiveScan, receiveTurn } from "./state/gameSlice";
 import { messageToGamePlayer, Player, type GameMove } from "./state/types";
 import { resetControl, setControlDepth } from "./state/controlSlice";
 import type { Dispatch } from "@reduxjs/toolkit";

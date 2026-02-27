@@ -44,11 +44,14 @@ export type BoardCells = [
         BoardCells | Player,
         BoardCells | Player,
 ]
-export const emptyBoardCells: BoardCells = [
-    Player.Empty, Player.Empty, Player.Empty,
-    Player.Empty, Player.Empty, Player.Empty,
-    Player.Empty, Player.Empty, Player.Empty,
-] 
+// Make a copy of an empty board
+export function emptyBoardCells(): BoardCells {
+    return [
+        Player.Empty, Player.Empty, Player.Empty,
+        Player.Empty, Player.Empty, Player.Empty,
+        Player.Empty, Player.Empty, Player.Empty,
+    ];
+} 
 export class BoardClass {
     private cells: BoardCells | Player;
 
@@ -61,7 +64,7 @@ export class BoardClass {
             this.cells = cells;
         } else {
             //Signature 1
-            this.cells = emptyBoardCells;
+            this.cells = emptyBoardCells();
         }
     }
 
@@ -167,14 +170,14 @@ export class BoardClass {
 }
 
 export function initCellsFromScan(scan: MessageScan, depth: number) {
-    const state = emptyBoardCells;
+    const state = emptyBoardCells();
     for (let i = 0; i < 9; i++) {
-        if (typeof scan[i] === "number" && scan[i] !== MessageValue.Empty) {
+        if (typeof scan[i] === "number") {
             //@ts-expect-error above condition guarantees it's a number
-            state.cells[i] = messageToGamePlayer(scan[i])
+            state[i] = messageToGamePlayer(scan[i])
         } else {
             //@ts-expect-error above condition guarantees it's an obj
-            state.cells[i] = initFromScan(scan[i], depth-1)
+            state[i] = initCellsFromScan(scan[i], depth-1)
         }
     }
 
