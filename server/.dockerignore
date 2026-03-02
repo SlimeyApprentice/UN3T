@@ -1,0 +1,5 @@
+*.o
+testing
+main
+index.html
+socket.js
