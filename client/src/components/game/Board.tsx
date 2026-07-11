@@ -97,16 +97,9 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
 
     //Base case, 0 recursion
     function handleClick(i: number) {
-      // console.log(globalBoard);
-      console.log("A");
-      console.log(isWon);
       if (isWon !== GameWinState.Undecided) { return; }
-      console.log("B");
-      console.log(coordinates);
-      console.log(localBoard);
-      console.log(squares[i]);
+
       if (squares[i] !== Player.Empty && squares[i] !== undefined) { return; }
-      console.log("C");
 
       const new_coordinates = coordinates.slice().concat([i]);
       makeMoveServer(connection, new_coordinates);

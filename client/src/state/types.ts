@@ -1,5 +1,7 @@
 import { MessageValue, type MessageScan } from "../serverInterface"
 
+//TODO: GameWinState ought to merge with Player
+
 //Game Types
 export enum GameWinState {
     Cross = "X",
@@ -10,7 +12,8 @@ export enum GameWinState {
 export enum Player {
     Cross = "X",
     Circle = "O",
-    Empty = "#"
+    Empty = "#",
+    Draw = "D",
 }
 
 export type PlayerCount = {
@@ -73,9 +76,15 @@ export class BoardClass {
     }
 
     get player() {
-        if (typeof this.cells === "object") return Player.Empty;
-        
-        return this.cells as Player;
+        if (typeof this.cells !== "object") return this.cells as Player;
+
+        // Check for draw or undecided
+        for (const cell of this.cells) {
+            console.log(cell)
+            if (cell == Player.Empty || typeof cell === "object") return Player.Empty;
+        }
+
+        return Player.Draw;
     }
 
     // TODO: WE ARE FORGETTING DRAWS
@@ -84,7 +93,8 @@ export class BoardClass {
             case Player.Cross: return GameWinState.Cross;
             case Player.Circle: return GameWinState.Circle;
             case Player.Empty: return GameWinState.Undecided;
-            default: throw new Error("Could not find GameWinState");
+            case Player.Draw: return GameWinState.Draw;
+            // default: throw new Error("Could not find GameWinState");
         }
     }
 
@@ -176,7 +186,6 @@ export class BoardClass {
         if (coordinates.length === 0) {
             console.log("FINAL COORDINATE: " + next_coordinate);
             state[next_coordinate] = player;
-            console.log(state);
         } else {
             console.log("COORDINATE: " + next_coordinate);
             if (state[next_coordinate] === Player.Empty) {
@@ -196,6 +205,7 @@ export class BoardClass {
 
         const local_cells = <BoardCells> this.cells.slice().reverse();
         this.recursiveSetCell(local_cells, local_coordinates, player);
+        this.cells = local_cells;
     }
     
 }
