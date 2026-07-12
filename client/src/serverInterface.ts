@@ -73,6 +73,7 @@ export function scanGame(
 ) {
     const stringCoords = coordinates.join("");
     console.log("Scanning at: " + stringCoords);
+    console.log(`S${stringCoords};${depth};\n`)
     connection.sendMessage(`S${stringCoords};${depth};\n`);
 }
 
