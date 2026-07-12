@@ -328,7 +328,7 @@ void rewind_games(ServerData *server) {
  * L                                         leaves the current game
  * T                                         returns the current game's current restriction and the current player as a JSON object
  * M <string: location>                      makes a move in the current game, fails if the client hasn't created or joined a game yet
- * S <string: location> <int string: depth>  scans the board at the specified location and depth steps down, and returns the contents found as a JSON object
+ * S <string: location> <int string: depth>  scans the board starting at the specified location as if it were the specified depth, cropping unfinished boards to 0. (e.g., in a depth 2 game, "S;2;" scans the entire board and "S4;1" scans the center board, while "S4;0;" crops out any unfinished boards in the center, returning only the finished boards).
  *
  * All strings are composed of the digits 0 through 9, (0 through 8 in the case of non-int strings), terminated by a semicolon (;). Commands are terminated by a newline (\n).
 **/
