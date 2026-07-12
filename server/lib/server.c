@@ -220,7 +220,7 @@ Buffer concat_message(Buffer buf, char *new, size_t size) {
 		new_buf.contents = malloc(new_buf.buffer_max_size + LWS_PRE);
 		memmove(new_buf.contents + LWS_PRE, buf.contents + LWS_PRE, buf.buffer_size);
 		free(buf.contents);
-		memmove(new_buf.contents + buf.buffer_size, new, size);
+		memmove(new_buf.contents + buf.buffer_size + LWS_PRE, new, size);
 		return new_buf;
 	}
 	memmove(buf.contents + buf.buffer_size + LWS_PRE, new, size);
@@ -271,6 +271,7 @@ void rewind_games(ServerData *server) {
 	game_string.buffer_size = 1;
 	game_string.buffer_max_size = 256;
 	FILE *fdr = fopen("logs/games", "r");
+        if (!fdr) return;
 	read_line_from_file_into_buffer(&game_string, fdr);
 	printf("%s\n", game_string.contents);
 	while (game_string.buffer_size != 1) {
