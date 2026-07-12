@@ -80,10 +80,10 @@ export class BoardClass {
 
         // Check for draw or undecided
         for (const cell of this.cells) {
-            console.log(cell)
             if (cell == Player.Empty || typeof cell === "object") return Player.Empty;
         }
 
+        console.log("DRAW DETECTED")
         return Player.Draw;
     }
 
