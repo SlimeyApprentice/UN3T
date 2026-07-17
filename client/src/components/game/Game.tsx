@@ -57,7 +57,7 @@ function Game({connection}: GameProps) {
             if (gameId === "") {
                 joinGame(connection, storedId, storedPlayer);
                 getTurn(connection);
-                scanGame(connection, [], maxDepth);
+                // scanGame(connection, [], maxDepth);
                 dispatch(setGameID(storedId));
             }
         } else {

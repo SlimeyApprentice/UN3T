@@ -168,6 +168,8 @@ function handleResponse(
 
                 dispatch(receiveTurn(jsonMsg));
                 dispatch(setControlDepth(jsonMsg.depth.toString()))
+                
+                scanGame(connection, [], jsonMsg.depth);
             } catch (e) {
                 console.log("Failed to parse Turn");
                 console.log(e);
