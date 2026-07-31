@@ -143,23 +143,26 @@ export class BoardClass {
         return this.recursiveCount(this);
     }
 
-    recursiveGet(state: BoardCells, coordinates: number[]): BoardCells | Player | boolean {
+    recursiveGet(state: BoardCells, coordinates: number[]): BoardCells | Player {
         // Base Case
         if (coordinates.length === 0) {
             return state;
-        } else {
-            const next_coordinate = coordinates.pop()
-            // Check for next_coordinate undefined just for type guarantee
-            if (next_coordinate === undefined) return state;    
+        }
 
-            if (typeof state[next_coordinate] !== "object") {
-                if (coordinates.length > 0) console.error("Too many coordinates passed");
+        const next_coordinate = coordinates.pop()
+        // Check for next_coordinate undefined just for type guarantee
+        if (next_coordinate === undefined) return state;    
 
-                return state[next_coordinate] as Player;
-            } else {
-                // Recursive step
-                return this.recursiveGet(state[next_coordinate], coordinates);
+        if (typeof state[next_coordinate] !== "object") {
+            if (coordinates.length > 0) {
+                // Coordinates point to a board that is unloaded
+                // console.error("Too many coordinates passed");
             }
+            
+            return state[next_coordinate] as Player;
+        } else {
+            // Recursive step
+            return this.recursiveGet(state[next_coordinate], coordinates);
         }
     }
 
