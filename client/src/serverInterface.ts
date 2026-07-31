@@ -129,7 +129,6 @@ function handleResponse(
     const signature: MessageSignature = activeResponse[0] as MessageSignature;
     const msg = activeResponse.slice(1, activeResponse.length);
 
-
     console.log("Received signature: " + signature);
     console.log("Received message: " + msg);
 
@@ -164,7 +163,6 @@ function handleResponse(
 
             try {
                 const jsonMsg: MessageTurn = JSON.parse(msg);
-                console.log(jsonMsg);
 
                 dispatch(receiveTurn(jsonMsg));
                 dispatch(setControlDepth(jsonMsg.depth.toString()))

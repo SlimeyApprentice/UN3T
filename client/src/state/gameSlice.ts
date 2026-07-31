@@ -64,7 +64,7 @@ export const gameSlice = createSlice({
       const player = messageToGamePlayer(move.value)
 
       const globalBoard = new BoardClass(state.globalBoardCells);
-      globalBoard.setCell(coordinates.reverse(), player);
+      globalBoard.setCell(coordinates, player);
       state.globalBoardCells = globalBoard.getCell([]);
 
       console.log("state.globalBoardCells: " + state.globalBoardCells);

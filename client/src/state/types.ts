@@ -174,10 +174,11 @@ export class BoardClass {
     getCell(coordinates: number[]): BoardCells | Player | boolean {
         if (typeof this.cells !== "object") return this.cells as Player;
 
-        const local_coordinates = coordinates.slice();
+        const local_coordinates = coordinates.slice().reverse();
 
         // TODO: Not confident this is necessary
-        const local_cells = <BoardCells> this.cells.slice().reverse();
+        const local_cells = <BoardCells> this.cells.slice();
+
         return this.recursiveGet(local_cells, local_coordinates);
     }
 
@@ -204,9 +205,9 @@ export class BoardClass {
     setCell(coordinates: number[], player: Player) {
         if (typeof this.cells !== "object") {this.cells = player; return;}
 
-        const local_coordinates = coordinates.slice();
+        const local_coordinates = coordinates.slice().reverse();
 
-        const local_cells = <BoardCells> this.cells.slice().reverse();
+        const local_cells = <BoardCells> this.cells.slice();
         this.recursiveSetCell(local_cells, local_coordinates, player);
         this.cells = local_cells;
     }

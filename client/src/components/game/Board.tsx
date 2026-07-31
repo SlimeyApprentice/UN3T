@@ -26,7 +26,7 @@ type BoardProps = {
   id?: string,
 }
 function Board({depth, coordinates, className, connection, id }: BoardProps) {
-  const current_depth = useSelector((state: RootState) => state.control.current_depth );
+  const current_depth = useSelector((state: RootState) => state.control.current_depth);
   const globalBoardCells = useSelector((state: RootState) => state.game.globalBoardCells);
   const globalBoard = new BoardClass(globalBoardCells);
   
@@ -34,6 +34,9 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
 
   const localBoardCells = globalBoard.getCell(coordinates) as BoardCells | Player;
   const localBoard = new BoardClass(localBoardCells);
+
+  // console.log("Coordinates: " + coordinates + " and board: ");
+  // console.log(localBoard)
 
   const isWon = localBoard.game_state;
 
