@@ -157,6 +157,7 @@ function handleResponse(
             // We reset in order to get rid of no longer wanted persisted state
             dispatch(resetGame());
             dispatch(resetControl());
+            getTurn(connection);
             break;
         case MessageSignature.Turn:
             if (msg == MessageSuccess.Failure) return;
