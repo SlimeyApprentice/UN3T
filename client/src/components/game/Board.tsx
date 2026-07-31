@@ -131,6 +131,8 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
       <Cell value={squares[8]} onSquareClick={() => handleClick(8)} className={isWonClass}/>
     </div>;
   } else if (current_depth == depth + 2) {
+
+    
     //If board too deep and won't render properly, put summary placeholder
     //Perhaps better to be based on size of board but it's difficult to know beforehand
     //I say that depth 3 is too big for now
@@ -145,21 +147,29 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     const summary_style = {
       "background-color": "none"
     }
-    if (count_result.cross != count_result.circle) {
-      if (isRestrictedClass !== "") {
-        console.log(coordinates, isRestrictedClass);
-        summary_style["background-color"] = "var(--restriction-color)";
-      }
-      else if (count_result.cross > count_result.circle) {
-        const alpha = (count_result.cross - count_result.circle) / count_result.empty;
 
-        summary_style["background-color"] = `rgba(255, 120, 98, ${alpha+0.1})`;
-      } else {
-        const alpha = (count_result.circle - count_result.cross) / count_result.empty;
+    // Color based on who is winning
+    if (count_result.cross > count_result.circle) {
+      const alpha = (count_result.cross - count_result.circle) / count_result.empty;
 
-        summary_style["background-color"] = `rgba(150, 111, 255, ${alpha+0.1})`;
-      }
+      summary_style["background-color"] = `rgba(255, 120, 98, ${alpha+0.1})`;
+    } else if (count_result.cross < count_result.circle) {
+      const alpha = (count_result.circle - count_result.cross) / count_result.empty;
+
+      summary_style["background-color"] = `rgba(150, 111, 255, ${alpha+0.1})`;
     }
+
+
+    //Override color if restricted
+    if (
+      strRsctn.indexOf(strCoords) === 0 
+    ) {
+      if (currentPlayer === Player.Cross) {
+        isRestrictedClass = "restricted-red ";
+      } else if (currentPlayer === Player.Circle){ //Else would mean currentPlayer = empty. Not good
+        isRestrictedClass = "restricted-blue ";
+      }
+    } 
 
     //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
     return <div className={"summary board meta " + depth_class + " " + className + " " + isRestrictedClass + " " + coordinateClass} id={id} style={summary_style}>
