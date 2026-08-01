@@ -117,13 +117,17 @@ export class BoardClass {
         }
 
         for (let i = 0; i < board.length; i++) {
-            if (typeof(board.getCell([i])) === "object") {
+            const zoom_in = board.getCell([i]);
+
+            // If BoardCells
+            if (typeof(zoom_in) === "object") {
                 //Recursive step
                 result = add_counts(result, this.recursiveCount(
-                    new BoardClass(board.getCell([i]) as BoardCells)
+                    new BoardClass(zoom_in as BoardCells)
                 ));
+            // If Player
             } else {
-                switch (board.player) {
+                switch (zoom_in) {
                     case Player.Cross:
                         result.cross++;
                         break;
@@ -171,7 +175,7 @@ export class BoardClass {
     // Cell in won board
     
     // TODO: Maybe should be error if you are calling getCell on single player board?
-    getCell(coordinates: number[]): BoardCells | Player | boolean {
+    getCell(coordinates: number[]): BoardCells | Player {
         if (typeof this.cells !== "object") return this.cells as Player;
 
         const local_coordinates = coordinates.slice().reverse();

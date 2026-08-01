@@ -6,7 +6,7 @@
     justify-content: center;
 
 
-    --opacity: 25%;
+    --opacity: 30%;
     --restriction-red: rgba(236, 0, 71, var(--opacity));
     --restriction-blue: rgb(26, 187, 225, var(--opacity));
 }
@@ -185,6 +185,15 @@
 .restricted-blue {
     background-color: var(--restriction-blue);
 }
+
+/* Combine colors of hover and restriction */
+.active-board:hover.restricted-red {
+    background-color: rgba(187, 71, 99, 0.8);
+}
+.active-board:hover.restricted-blue {
+    background-color: rgba(20, 155, 190, 0.8);
+}
+
  
 .summary {
     display: grid;

@@ -218,19 +218,12 @@ export function useProcessServer(connection: Connection) {
         if (!connection.lastMessage) return;
         // We get empty message on refresh, ignore
         if (connection.lastMessage.data === "") return;
-
-        console.log("LITERAL MESSAGE: ")
-        console.log(connection.lastMessage.data)
     
         const responses: string[] = connection.lastMessage.data
                 .split('\n')
                 .join('\u0000')
                 .split('\u0000')
                 .filter((x) => x !== "");
-        console.log(responses);
-        // console.log("How the message is split up along new lines and \u0000")
-        // console.log(responses[0]);
-        // console.log(responses[1]);
 
         handleResponse(dispatch, gameId, connection, responses);
 

@@ -12,13 +12,13 @@
    xmlns:svg="http://www.w3.org/2000/svg"><defs
      id="defs1" /><g
      id="layer1"><path
-       style="fill:none;stroke:#00e62a;stroke-width:10;stroke-linejoin:round;stroke-dasharray:none"
+       style="fill:none;stroke:#ec0047;stroke-width:10;stroke-linejoin:round;stroke-dasharray:none"
        d="M 10,10 170,170 Z"
        id="path1" /><path
-       style="fill:none;stroke:#00e62a;stroke-width:10;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;paint-order:normal"
+       style="fill:none;stroke:#ec0047;stroke-width:10;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;paint-order:normal"
        d="M 170,10 10,170 Z"
        id="path1-5" /></g><circle
-     style="fill:none;stroke:#00e62a;stroke-width:11.25;stroke-linejoin:round;stroke-dasharray:none"
+     style="fill:none;stroke:#ec0047;stroke-width:11.25;stroke-linejoin:round;stroke-dasharray:none"
      id="path1-8"
      cx="90"
      cy="90"

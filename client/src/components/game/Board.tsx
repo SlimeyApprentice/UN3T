@@ -5,6 +5,8 @@ import { BoardClass, GameWinState, Player, type BoardCells } from '../../state/t
 
 import cross from '../../assets/Cross.svg' ;
 import circle from '../../assets/Circle.svg';
+import targetBlue from '../../assets/CrossCircleBlue.svg' ;
+import targetRed from '../../assets/CrossCircleRed.svg' ;
 import draw from '../../assets/Peace.svg' ;
 import empty from '../../assets/Empty.svg' ;
 // import type { RootState } from '../../state/store.ts';
@@ -120,15 +122,15 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
       </div>
       {/* {UICells} */}
 
-      <Cell value={squares[0]} onSquareClick={() => handleClick(0)} className={isWonClass}/>
-      <Cell value={squares[1]} onSquareClick={() => handleClick(1)} className={isWonClass}/>
-      <Cell value={squares[2]} onSquareClick={() => handleClick(2)} className={isWonClass}/>
-      <Cell value={squares[3]} onSquareClick={() => handleClick(3)} className={isWonClass}/>
-      <Cell value={squares[4]} onSquareClick={() => handleClick(4)} className={isWonClass}/>
-      <Cell value={squares[5]} onSquareClick={() => handleClick(5)} className={isWonClass}/>
-      <Cell value={squares[6]} onSquareClick={() => handleClick(6)} className={isWonClass}/>
-      <Cell value={squares[7]} onSquareClick={() => handleClick(7)} className={isWonClass}/>
-      <Cell value={squares[8]} onSquareClick={() => handleClick(8)} className={isWonClass}/>
+      <Cell value={squares[0]} onSquareClick={() => handleClick(0)} coords={strCoords + 0} className={isWonClass}/>
+      <Cell value={squares[1]} onSquareClick={() => handleClick(1)} coords={strCoords + 1} className={isWonClass}/>
+      <Cell value={squares[2]} onSquareClick={() => handleClick(2)} coords={strCoords + 2} className={isWonClass}/>
+      <Cell value={squares[3]} onSquareClick={() => handleClick(3)} coords={strCoords + 3} className={isWonClass}/>
+      <Cell value={squares[4]} onSquareClick={() => handleClick(4)} coords={strCoords + 4} className={isWonClass}/>
+      <Cell value={squares[5]} onSquareClick={() => handleClick(5)} coords={strCoords + 5} className={isWonClass}/>
+      <Cell value={squares[6]} onSquareClick={() => handleClick(6)} coords={strCoords + 6} className={isWonClass}/>
+      <Cell value={squares[7]} onSquareClick={() => handleClick(7)} coords={strCoords + 7} className={isWonClass}/>
+      <Cell value={squares[8]} onSquareClick={() => handleClick(8)} coords={strCoords + 8} className={isWonClass}/>
     </div>;
   } else if (current_depth == depth + 2) {
 
@@ -138,9 +140,9 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     //I say that depth 3 is too big for now
 
     const count_result = localBoard.count;
-    const is_cross_off = (count_result.cross == 0) ? 'off' : '';
-    const is_circle_off = (count_result.circle == 0) ? 'off' : '';
-    const is_empty_off = (is_cross_off !== "off" || is_circle_off !== "off") ? 'off' : '';
+    let is_cross_off = (count_result.cross == 0) ? 'off' : '';
+    let is_circle_off = (count_result.circle == 0) ? 'off' : '';
+    let is_empty_off = (is_cross_off !== "off" || is_circle_off !== "off") ? 'off' : '';
 
     //rgb(255, 120, 98)
     //rgb(150, 111, 255)
@@ -164,15 +166,23 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
     if (
       strRsctn.indexOf(strCoords) === 0 
     ) {
+      is_cross_off = 'off';
+      is_circle_off = 'off';
+      is_empty_off = 'off';
+
+      winElementClassName = " win-container-active"
+      summary_style["background-color"] = "none";
       if (currentPlayer === Player.Cross) {
         isRestrictedClass = "restricted-red ";
+        winElement = <img src={targetRed} className="X" style={gameStateStyle}/>;
       } else if (currentPlayer === Player.Circle){ //Else would mean currentPlayer = empty. Not good
+        winElement = <img src={targetBlue} className="O" style={gameStateStyle}/>;
         isRestrictedClass = "restricted-blue ";
       }
     } 
 
     //It would be better to give the is_child_active class here, maybe get to it later when messing with the css
-    return <div className={"summary board meta " + depth_class + " " + className + " " + isRestrictedClass + " " + coordinateClass} id={id} style={summary_style}>
+    return <div className={"summary board meta " + depth_class + " " + className + " " + isRestrictedClass + " " + coordinateClass} id={id} style={summary_style} title={strCoords}>
     <div className={winElementClassName} style={{"zIndex": depth+1}}>
       {winElement}
     </div>
