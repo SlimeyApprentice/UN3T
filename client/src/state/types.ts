@@ -77,14 +77,8 @@ export class BoardClass {
 
     get player() {
         if (typeof this.cells !== "object") return this.cells as Player;
-
-        // Check for draw or undecided
-        for (const cell of this.cells) {
-            if (cell == Player.Empty || typeof cell === "object") return Player.Empty;
-        }
-
-        console.log("DRAW DETECTED")
-        return Player.Draw;
+        
+        return Player.Empty;
     }
 
     // TODO: WE ARE FORGETTING DRAWS
@@ -208,6 +202,7 @@ export class BoardClass {
     // TODO: Should check whether we are adding moves to won board
     setCell(coordinates: number[], player: Player) {
         if (typeof this.cells !== "object") {this.cells = player; return;}
+        if (coordinates.length === 0) {this.cells = player; return;}
 
         const local_coordinates = coordinates.slice().reverse();
 

@@ -14,7 +14,7 @@ function App() {
     lastMessage, 
     lastJsonMessage, 
     readyState 
-  } = useWebSocket("ws://localhost:8332", {
+  } = useWebSocket("ws://treebeard.ddns.net:8332", {
       protocols: "UN3T",
       //Will attempt to reconnect on all close events, such as server shutting down
       shouldReconnect: (_closeEvent) => true,
