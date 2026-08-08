@@ -87,6 +87,7 @@ int create_game(ServerData *server, Connections *creator, int depth) {
 	if (!server || !creator) return -1;
 	Games *game = malloc(sizeof(Games));
 	game->game_id = server->game_counter++;
+	game->winner = EMPTY;
 	game->player_X = creator;
 	game->player_O = NULL;
 	game->next = server->games_head;
@@ -101,24 +102,24 @@ int create_game(ServerData *server, Connections *creator, int depth) {
 	return game->game_id;
 }	
 
-int end_game(ServerData *server, Games* game) {
-	if (!server || !game) return -1;
-	if (server->games_head == game) server->games_head = game->next;
-	else {
-		Games *pred = server->games_head;
-		while (pred->next != game && pred->next != NULL) {
-			pred = pred->next;
-		}
-		if (pred->next == NULL) return -1;
-		pred->next = game->next;
-	}
-	free(game->game.restriction);
-	for (int i = 0; i < 9; i++) {
-		destroy_board(game->game.board.cells[i]);
-	}
-	printf("Game over. The user wins\n");
-	free(game);
-}
+//int end_game(ServerData *server, Games* game) {
+//	if (!server || !game) return -1;
+//	if (server->games_head == game) server->games_head = game->next;
+//	else {
+//		Games *pred = server->games_head;
+//		while (pred->next != game && pred->next != NULL) {
+//			pred = pred->next;
+//		}
+//		if (pred->next == NULL) return -1;
+//		pred->next = game->next;
+//	}
+//	free(game->game.restriction);
+//	for (int i = 0; i < 9; i++) {
+//		destroy_board(game->game.board.cells[i]);
+//	}
+//	printf("Game over. The user wins\n");
+//	free(game);
+//}
 
 int terminated_length(char *buffer, int buffer_size, char terminator) {
 	if (!buffer) return -1;
@@ -190,7 +191,11 @@ int join_game(ServerData *server, Connections *client, int game_id, Verdict role
 	if (client->game_id > -1) return -1;
 	Games *game = find_game_from_id(server->games_head, game_id);
 	if (!game) return -1;
-	if (!game->player_X && (role & X)) {
+	if (game->winner != EMPTY) {
+		client->game_id = game_id;
+		client->role = DRAW;
+	}
+	else if (!game->player_X && (role & X)) {
 		game->player_X = client;
 		client->game_id = game_id;
 		client->role = X;
@@ -301,14 +306,14 @@ void rewind_games(ServerData *server) {
 		current_game->game.board.depth = depth;
 		current_game->game.restriction = calloc(1,1);
 		Verdict current_player = X;
-		while(game_string.buffer_size > depth) {
+		while(game_string.buffer_size > depth+1 && game_string.contents[0] >= '0' && game_string.contents[0] <= '8') {
 			game_string.contents[depth+1] = 0;
 			printf("Move: %s\n", game_string.contents);
 			cJSON_Delete(process_move(&current_game->game, game_string.contents, current_player));
 			pop_plain_buffer(&game_string, depth+2);
 			current_player ^= DRAW;
 		}
-		printf("Recovered game with ID %d\n", game_id);
+		printf("Recovered game with ID %d (%c's turn)\n", game_id, current_player & 0x1 ? (current_player & 0x2 ? '#' : 'X') : (current_player & 0x2 ? 'O' : '_'));
 		game_id++;
 		pop_plain_buffer(&game_string, game_string.buffer_size);
 		game_string.buffer_size = 1;
@@ -443,8 +448,9 @@ void process_request(ServerData *server, Connections *client) {
 			const cJSON *location = cJSON_GetObjectItemCaseSensitive(data, "location");
 			if (cJSON_IsString(location) && (location->valuestring != NULL) && strlen(location->valuestring) == 0) {
 				const cJSON *winner = cJSON_GetObjectItemCaseSensitive(data, "value");
+				game->winner = winner->valuedouble;
 				log_terminate(winner->valuedouble, game->game_id);
-				end_game(server, game);
+				//end_game(server, game);
 			}
 		}
 		else {
@@ -480,8 +486,12 @@ void process_request(ServerData *server, Connections *client) {
 			pop_buffer(buf_in, message_size);
 			return;
 		}
-		cJSON *data = retrieve_state(&game->game, location, depth);
-		free(location);
+		cJSON *data;
+		if (game->winner != EMPTY) data = cJSON_CreateNumber(game->winner);
+		else {
+			data = retrieve_state(&game->game, location, depth);
+			free(location);
+		}
 		char *message = cJSON_PrintUnformatted(data);
 		queue_message(client, message, strlen(message) + 1);
 		queue_message(client, "\n", 1);

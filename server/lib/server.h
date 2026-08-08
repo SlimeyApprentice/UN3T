@@ -29,6 +29,7 @@ typedef struct Games {
     struct Games *next;
     int game_id;
     Game game;
+    Verdict winner;
     Connections *player_X;
     Connections *player_O;
 } Games;
