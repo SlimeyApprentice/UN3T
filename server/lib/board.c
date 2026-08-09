@@ -133,7 +133,7 @@ Verdict _judge_board(Board *board) {
         if ((LINE_MASK_7 & states[i]) == LINE_MASK_7) winner |= 0b1 << i;
         if ((LINE_MASK_8 & states[i]) == LINE_MASK_8) winner |= 0b1 << i;
     }
-    if ((x_state | o_state) == BOARD_MASK) return DRAW; 
+    if (winner == 0b00 && (x_state | o_state) == BOARD_MASK) return DRAW; 
     return winner;
 }
 
