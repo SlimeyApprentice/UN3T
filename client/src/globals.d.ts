@@ -11,6 +11,10 @@ declare module '*.css' {
     const value: any;
     export = value;
 }  
+declare module '*.m3u' {
+    const value: any;
+    export = value;
+}  
 
 import 'react';
 declare module 'react' {

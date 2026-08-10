@@ -1,6 +1,5 @@
 import { TransformWrapper } from "react-zoom-pan-pinch";
 import { useDispatch, useSelector } from "react-redux";
-import ReactAudioPlayer from 'react-audio-player';
 
 import { getTurn, joinGame, MessageSuccess, scanGame, useProcessServer, type Connection } from "../../serverInterface";
 import type { RootState } from "../../state/store";
@@ -14,9 +13,6 @@ import { useSearchParams } from "react-router-dom";
 import { ReadyState } from "react-use-websocket";
 import { setControlDepth } from "../../state/controlSlice";
 import { setGameID } from "../../state/gameSlice";
-
-import classical_mix from '../../assets/classical-music-mix-by-various-artists_vbr.m3u' ;
-
 
 //Board width with padding * number of board + borders + top level borders + top level padding
 // const calculated_width = ((boardSize + 20)*Math.pow(3, current_depth)) + ((borderSize*2)*(Math.pow(3, current_depth-1))) + (boardSize*2) + 20
@@ -88,11 +84,6 @@ function Game({connection}: GameProps) {
     if (connection.readyState !== ReadyState.OPEN) return <p>Not connected to server</p>
 
     return <>
-    {/* <ReactAudioPlayer
-        src="../../assets/classical-music-mix-by-various-artists_vbr.m3u"
-        autoPlay
-        controls
-    /> */}
     <div className="game">
         <TransformWrapper
         initialScale={1}
