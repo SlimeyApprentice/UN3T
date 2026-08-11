@@ -112,7 +112,7 @@ export type MessageMove = {
     location: string, 
     restriction: string,
 }
-export type MessageScan = [MessageScan | number]
+export type MessageScan = [MessageScan | MessageValue] | MessageValue
 
 // Ideally should not need connection anymore. 
 // Calling message as response to message is a bad idea 
@@ -195,7 +195,6 @@ function handleResponse(
             try {
                 const scan: MessageScan = JSON.parse(msg);
                 dispatch(receiveScan(scan));
-
             } catch (e) {
                 console.log("Failed to parse Scan");
                 console.log(e);

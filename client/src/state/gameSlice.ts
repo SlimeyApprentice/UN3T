@@ -88,6 +88,13 @@ export const gameSlice = createSlice({
       const scan: MessageScan = action.payload;
       console.log(scan);
 
+      // Game is won
+      if (typeof scan === "number") {
+        state.globalBoardCells = messageToGamePlayer(scan);
+        return;
+      }
+
+      // Else, recursive setting
       state.globalBoardCells = initCellsFromScan(scan, parseInt(state.maxDepth));
     }
   },

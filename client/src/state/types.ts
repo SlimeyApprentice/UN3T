@@ -46,7 +46,7 @@ export type BoardCells = [
         BoardCells | Player,
         BoardCells | Player,
         BoardCells | Player,
-]
+] | Player
 // Make a copy of an empty board
 export function emptyBoardCells(): BoardCells {
     return [

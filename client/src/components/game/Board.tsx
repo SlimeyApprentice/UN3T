@@ -87,7 +87,7 @@ function Board({depth, coordinates, className, connection, id }: BoardProps) {
   const strRsctn = restriction.toString().replaceAll(',', '');
 
   if (
-    strCoords.indexOf(strRsctn) === 0 
+    strCoords.indexOf(strRsctn) === 0  && !isWon
     // || strCoords.indexOf(strRsctn) === strCoords.length - strRsctn.length
   ) {
     if (currentPlayer === Player.Cross) {
